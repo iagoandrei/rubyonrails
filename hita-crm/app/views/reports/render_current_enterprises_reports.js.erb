@@ -1,0 +1,68 @@
+<% if @consultants.present? %>
+  <% if @view_mode == 'Mês' %>
+    $(".report-table").html('<%= escape_javascript(render(:partial => "reports/consultant_enterprises_table", :locals => { :consultants => @consultants, :enterprises => @enterprises, :current_year => @current_year, :enterprise_ids => @enterprise_ids, :enterprise_filter => @enterprise_filter, :months => @months })) %>');
+    $(".filter-year-head").show();
+  <% else %>
+    $(".report-table").html('<%= escape_javascript(render(:partial => "reports/consultant_enterprises_table_year_mode", :locals => { :consultants => @consultants, :enterprises => @enterprises, :years => @years, :planning_total => @planning_total, :enterprise_filter => @enterprise_filter })) %>');
+    $(".filter-year-head").hide();
+  <% end %>
+
+  $('.report-table').append(`
+    <div class="paging-links">
+      <%= will_paginate @consultants %>
+    </div>
+  `);
+<% else %>
+
+  <% if @view_mode == 'Mês' %>
+    $(".report-table").html('<%= escape_javascript(render(:partial => "reports/enterprises_table", :locals => { :enterprises => @enterprises, :current_year => @current_year, :months => @months })) %>');
+    $(".filter-year-head").show();
+  <% else %>
+    $(".report-table").html('<%= escape_javascript(render(:partial => "reports/enterprises_table_year_mode", :locals => { :enterprises => @enterprises, :years => @years, :enterprise_filter => @enterprise_filter })) %>');
+    $(".filter-year-head").hide();
+  <% end %>
+
+  $('.report-table').append(`
+    <div class="paging-links">
+      <%= will_paginate @enterprises %>
+    </div>
+  `);
+<% end %>
+
+var requests                 = <%= @requests %>;
+var requests_approved        = <%= @requests_approved %>;
+var revenues                 = <%= @revenues %>;
+var visits                   = <%= @visits %>;
+var meeting_seminar_training = <%= @meeting_seminar_training %>;
+var requests_approved_width;
+var revenues_width;
+
+$("#filterRevenuesCount").html(` (Propostas aceitas: ${revenues})`);
+
+if (requests == 0) {
+  requests_approved_width = 100;
+  revenues_width          = 100;
+} else {
+  requests_approved_width = (requests_approved / requests) * 100;
+  revenues_width          = (revenues / requests) * 100;
+}
+
+$(".visit-funnel").html(visits);
+$(".meeting-seminar-training-funnel").html(meeting_seminar_training);
+$(".request-funnel").html(requests);
+$(".request-approved-funnel").html(requests_approved);
+$(".revenues-funnel").html(revenues);
+
+$(".request-funnel").parent().css('width', '100%');
+$(".request-approved-funnel").parent().css('width', `${requests_approved_width == 0 ? 100 : requests_approved_width}%`);
+$(".revenues-funnel").parent().css('width', `${revenues_width == 0 ? 100 : revenues_width}%`);
+
+if (requests > 0) {
+  $(".contacts-to-proposal").html(`${(( requests / (visits + meeting_seminar_training)) * 100).toFixed(2)}%`);
+  $(".proposal-to-requests-approved-converted").html(`${((requests_approved / requests) * 100).toFixed(2)} %`);
+  $(".requests-approved-to-revenues-converted").html(`${((revenues / requests_approved) * 100).toFixed(2)} %`);
+} else {
+  $(".contacts-to-proposal").html('0.0 %');
+  $(".proposal-to-requests-approved-converted").html('0.0 %');
+  $(".requests-approved-to-revenues-converted").html('0.0 %');
+}

@@ -1,0 +1,359 @@
+<%= render partial: 'shared/main_upper_section', locals: { current_main_section: 'database' } %>
+
+<div class="enterprises-main-page request-filters-page">
+  <div class="enterprises-main-container container">
+    <%= render partial: 'shared/flash_message' %>
+    <div class="columns">
+      <div class="column">
+        <div class="filters-container">
+          <div class="filters">
+            <div class="filter-title">Filtros</div>
+            <div class="columns is-centered">
+              <div class="column is-three-fifths is-8">
+                <div class="filter-inputs">
+                  <div class="columns is-variable is-relative">
+                    <div class="column">
+                      <div class="input-title">Selecione o filtro</div>
+                      <div class="select">
+                        <%= select_tag "", options_for_select(@filters), prompt: "Não Selecionado", class: "select select-filter", "select-filter-iterator" => 0 %>
+                      </div>
+                    </div>
+                    <div class="column">
+                      <div class="input-title">Selecione o valor</div>
+                      <div class="select">
+                        <%= select_tag "", options_for_select([]), prompt: "Não Selecionado", class: "select select-filter-value", "select-filter-value-iterator" => 0 %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="columns">
+                  <div class="column">
+                    <div class="increment-filter center">
+                      <%= inline_svg 'plus.svg', class: 'center' %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="columns margin-top-20">
+              <div class="column is-3 is-offset-9">
+                <div class="columns is-variable is-1">
+                  <div class="column">
+                    <button id="filterEnterprise" class="button is-primary is-fullwidth">Buscar</button>
+                  </div>
+                  <div class="column is-narrow">
+                    <button id="clearFilterBt" class="button is-secondary is-pulled-left">Limpar</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="margin-top-20">
+          <div class="columns">
+            <div class="column">
+              <div class="request-table-container"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= render partial: 'requests/request_modal' %>
+<%= render partial: 'requests/add_technician_modal' %>
+<%= render partial: 'shared/new_hindrance_modal' %>
+<%= render partial: 'shared/change_hindrance_modal' %>
+<%= render partial: 'requests/request_proposals_modal' %>
+<%= render partial: 'requests/specific_file_modal' %>
+<%= render partial: 'shared/files_modal' %>
+<%= render partial: 'requests/refuse_proposal_modal' %>
+<%= render partial: 'requests/request_values_edition_modal' if can? :update_request_values, Request %>
+<%= render partial: 'requests/installments_modal' %>
+<%= render partial: 'requests/update_request_enterprise' %>
+<%= render partial: 'requests/proposal_file_modal' %>
+
+
+<script type="text/javascript">
+  var selectFilterCount  = 0;
+  var filter             = {};
+  var filter_param       = '';
+  var filter_param_value = '';
+
+  $(function() {
+    <% if @filter.present? and @filter_value.present? %>
+      filter_param       = '<%= @filter %>';
+      filter_param_value = '<%= @filter_value %>';
+      $(".select-filter").val(filter_param).change();
+    <% else %>
+      filterEnterprise();
+    <% end %>
+  });
+
+  $(".increment-filter").click(function() {
+    selectFilterCount++;
+
+    $(".filter-inputs").append(`
+      <div class="inputs">
+        <div class="columns is-centered text-center margin-top-10">E</div>
+        <div class="columns is-centered is-relative">
+          <div class="column">
+            <div class="input-title">Selecione o filtro</div>
+            <div class="select">
+              <%= select_tag "", options_for_select(@filters), prompt: "Não Selecionado", class: "select select-filter", "select-filter-iterator" => '_iterator_' %>
+            </div>
+          </div>
+          <div class="column">
+            <div class="input-title">Selecione o valor</div>
+            <div class="select">
+              <select class="select select-filter-value" select-filter-value-iterator="${selectFilterCount}">
+                <option value="">Não Selecionado</option>
+              </select>
+            </div>
+            <%= inline_svg 'remove.svg', class: 'remove-filter' %>
+          </div>
+        </div>
+      </div>
+    `.replace('_iterator_', selectFilterCount));
+  });
+
+  $(document).on("click", ".remove-filter", function() {
+    if ($(this).hasClass('remove-double-filter-value')) {
+      $(this).closest('.columns').parent().closest('.columns').remove();
+    } else {
+      $(this).closest('.inputs').remove();
+    }
+
+    buildFilter();
+  });
+
+  $(document).on("change", ".select-filter", function() {
+    var filterIterator = $(this).attr('select-filter-iterator');
+    var selectFilter = $(this).val();
+
+    if ($(this).val() == "fluids") {
+      if (filterIterator > 0) {
+        $(this).parent().parent().next().html(`
+          <div class='columns'>
+            <div class="column">
+              <div class="input-title">Selecione o fluido</div>
+              <div class="select">
+                <select class="select select-filter-value" select-filter-value-iterator="${filterIterator}">
+                  <option value="">Não Selecionado</option>
+                </select>
+              </div>
+            </div>
+            <div class="column">
+              <div class="input-title">Faixa de Concentração</div>
+              <div class="select">
+                <%= select_tag "", options_for_select(@fluid_range), prompt: "Não Selecionado", class: "select select-filter-fluid-range" %>
+              </div>
+              <%= inline_svg 'remove.svg', class: 'remove-filter remove-double-filter-value' %>
+            </div>
+          </div>
+        `);
+      } else {
+        $(this).parent().parent().next().html(`
+          <div class='columns'>
+            <div class="column">
+              <div class="input-title">Selecione o fluido</div>
+              <div class="select">
+                <select class="select select-filter-value" select-filter-value-iterator="${filterIterator}">
+                  <option value="">Não Selecionado</option>
+                </select>
+              </div>
+            </div>
+            <div class="column">
+              <div class="input-title">Faixa de Concentração</div>
+              <div class="select">
+                <%= select_tag "", options_for_select(@fluid_range), prompt: "Não Selecionado", class: "select select-filter-fluid-range" %>
+              </div>
+            </div>
+          </div>
+        `);
+      }
+    } else if ($(this).val() == "request_code") {
+
+      $(this).parent().parent().next().html(`
+        <div class='columns request-code-container'>
+          <div class="column">
+            <div class="input-title">Digite o código</div>
+            <input class="input request-code-input" type="number" min="0">
+          </div>
+        </div>
+      `);
+
+    } else {
+      if (filterIterator > 0) {
+        $(this).parent().parent().next().html(`
+          <div class="input-title">Selecione o valor</div>
+          <div class="select">
+            <%= select_tag "", options_for_select([]), prompt: "Não Selecionado", class: "select select-filter-value", "select-filter-value-iterator" => '_iterator_' %>
+          </div>
+          <%= inline_svg 'remove.svg', class: 'remove-filter' %>
+        `.replace('_iterator_', filterIterator));
+      } else {
+        $(this).parent().parent().next().html(`
+          <div class="input-title">Selecione o valor</div>
+          <div class="select">
+            <%= select_tag "", options_for_select([]), prompt: "Não Selecionado", class: "select select-filter-value", "select-filter-value-iterator" => '_iterator_' %>
+          </div>
+        `.replace('_iterator_', filterIterator));
+      }
+    }
+
+    $.ajax({
+      method: 'post',
+      url: '<%= get_filter_values_path %>',
+      data: {
+        filter: $(this).val(),
+        authenticity_token: "<%= form_authenticity_token %>"
+      },
+      dataType: 'json',
+      beforeSend: function() {
+        $('.select-filter').prop('disabled', true);
+        $('.select-filter-value').prop('disabled', true);
+      },
+      complete: function() {
+        $('.select-filter').prop('disabled', false);
+        $('.select-filter-value').prop('disabled', false);
+      },
+      success: function(data) {
+        var $select = $(`select[select-filter-value-iterator='${filterIterator}']`);
+
+        $select.empty();
+        $select.append($('<option>', {
+          value: '',
+          text: 'Não Selecionado'
+        }));
+
+        $.each(data['values'], function(i, item) {
+          if (selectFilter == "temperature" || selectFilter == "pressure") {
+            $select.append($('<option>', {
+              value: item[1],
+              text: item[0]
+            }));
+          } else {
+            $select.append($('<option>', {
+              value: item,
+              text: item
+            }));
+          }
+        });
+
+        if (filter_param != '') {
+          $(".select-filter-value").val(filter_param_value).change();
+          filter_param = '';
+          filterEnterprise();
+        }
+      }
+    });
+  });
+
+  $("#filterEnterprise").click(function() {
+    filterEnterprise();
+  });
+
+  $(document).on("change", ".select-filter-value", function() {
+    buildFilter();
+  });
+
+  $(document).on("change", ".select-filter-fluid-range", function() {
+    buildFilter();
+  });
+
+  var filterEnterprise = function(page) {
+    buildFilter();
+
+    $.ajax({
+      method: 'post',
+      url: '<%= filter_requests_database_url %>',
+      beforeSend: function() {
+        $(".request-table-container").html(`
+          <div class="columns is-centered">
+            <div class="column is-narrow"><div class="loader is-loading"></div></div>
+          </div>
+        `);
+      },
+      data: {
+        filter: filter,
+        authenticity_token: "<%= form_authenticity_token %>",
+        page: page
+      },
+      dataType: 'script'
+    });
+  }
+
+  var buildFilter = function() {
+    filter = {}
+
+    var filterSelects = $('.select-filter');
+
+    $.each(filterSelects, function(i, elem) {
+      var iterator;
+      var filterType = $(elem).val();
+
+      if (filterType != '') {
+        iterator        = $(elem).attr('select-filter-iterator');
+        var filterValue = $(`select[select-filter-value-iterator='${iterator}']`).val();
+
+        if (!$.isArray(filter[filterType])) { filter[filterType] = []; }
+
+        if (filterType != 'fluids') {
+          if (filter[filterType].indexOf(filterValue) == -1 && filterValue != '') {
+            filter[filterType].push(filterValue);
+          }
+        } else {
+          filter[filterType].push(filterValue);
+        }
+      }
+    });
+
+    $.each($('.select-filter-fluid-range'), function(i, elem) {
+      if (!$.isArray(filter['fluid_range'])) { filter['fluid_range'] = []; }
+
+      if (filter['fluid_range'].indexOf($(this).val()) == -1 && $(this).val() != '') {
+        filter['fluid_range'].push($(this).val());
+      } else {
+        filter['fluid_range'].push('');
+      }
+    });
+
+    $.each($('.select-filter-temperature-range'), function(i, elem) {
+      if (!$.isArray(filter['temperature_range'])) { filter['temperature_range'] = []; }
+
+      if (filter['temperature_range'].indexOf($(this).val()) == -1 && $(this).val() != '') {
+        filter['temperature_range'].push($(this).val());
+      }
+    });
+
+    $.each($('.select-filter-pressure-range'), function(i, elem) {
+      if (!$.isArray(filter['pressure_range'])) { filter['pressure_range'] = []; }
+
+      if (filter['pressure_range'].indexOf($(this).val()) == -1 && $(this).val() != '') {
+        filter['pressure_range'].push($(this).val());
+      }
+    });
+
+    if ($('.request-code-input').length > 0) {
+      filter['request_code'] = [];
+
+      $.each($('.request-code-input'), function(i, elem) {
+        filter['request_code'].push($(this).val());
+      });
+    }
+  }
+
+  $("#clearFilterBt").click(function() {
+    $(".select-filter, .select-filter-value").val('');
+    $(".request-code-container").parent().html(`
+      <div class="input-title">Selecione o valor</div>
+      <div class="select">
+        <select name="" id="" class="select select-filter-value" select-filter-value-iterator="0"><option value="">Não Selecionado</option></select>
+      </div>
+    `);
+    buildFilter();
+    filterEnterprise();
+  });
+</script>

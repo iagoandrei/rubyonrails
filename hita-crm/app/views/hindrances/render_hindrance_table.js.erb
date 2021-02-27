@@ -1,0 +1,2 @@
+$(".hindrance-table-container").html('');
+$(".hindrance-table-container").append('<%= escape_javascript(render(:partial => "hindrances/hindrances_table", :locals => { :hindrances => @hindrances })) %>');

@@ -1,0 +1,428 @@
+@import "base";
+
+.requirements-main-page {
+  .box-filter {
+    @include hita-default-box();
+    padding: 10px;
+
+    .input-label {
+      font-size: 14px;
+    }
+
+    input {
+      width: 260px;
+      border-bottom-right-radius: 0px;
+      border-top-right-radius: 0px;
+    }
+
+    .icon {
+      background-color: $blue;
+      height: 32px;
+      border-top-right-radius: 4px;
+      border-bottom-right-radius: 4px;
+      border-top: 1px solid $blue;
+      border-bottom: 1px solid $blue;
+      border-right: 1px solid $blue;
+      cursor: pointer;
+      width: 35px;
+      margin-left: -5px;
+
+      svg {
+        fill: $white;
+        height: 17px;
+      }
+    }
+
+    .consultants-container {
+      margin-bottom: 10px;
+
+      .person-tag {
+        margin-right: 0px;
+      }
+    }
+  }
+
+  .criterion-title {
+    background-color: $gray_menu_icons;
+    color: $white;
+    font-weight: bold;
+    padding: 5px;
+    border-radius: 4px;
+    position: relative;
+    cursor: pointer;
+
+    svg {
+      position: absolute;
+      right: 15px;
+      top: 15px;
+      fill: $white;
+      height: 5px;
+      @include hita-default-transition();
+
+      &.rotate {
+        transform: rotate(180deg);
+      }
+    }
+  }
+
+  .criterion-items {
+    display: none;
+
+    .criterion-item {
+      background-color: $white;
+      padding: 5px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      position: relative;
+
+      .circle {
+        position: absolute;
+        top: 5px;
+        right: 30px;
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        @include hita-default-transition();
+
+        .loader {
+          position: absolute;
+          right: 4px;
+          top: 4px;
+        }
+
+        &.done {
+          border: 1px solid $green_priority;
+
+          svg {
+            fill: $green_priority;
+          }
+
+          &:hover {
+            background-color: $green_priority;
+
+            svg {
+              fill: $white;
+            }
+          }
+        }
+
+        &.pendent {
+          border: 1px solid $red;
+
+          svg {
+            fill: $red;
+          }
+
+          &:hover {
+            background-color: $red;
+
+            svg {
+              fill: $white;
+            }
+          }
+        }
+
+        svg {
+          height: 10px;
+        }
+      }
+    }
+  }
+
+  .score-history-content, .score-history-content-edit {
+    background-color: $blue_lighter;
+    padding: 10px;
+    overflow-y: scroll;
+    height: 200px;
+
+    .content {
+      background-color: $white;
+      border-radius: 4px;
+      padding: 10px;
+      margin-bottom: 10px;
+
+      a {
+        text-decoration: underline;
+      }
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  .cards {
+    .card {
+      @include hita-default-box();
+      padding: 10px;
+      height: 137px;
+
+      .small-text {
+        font-size: 12px;
+        color: $gray;
+      }
+
+      .big-text {
+        font-size: 50px;
+        color: $blue_light;
+      }
+
+      .medium-text {
+        font-size: 20px;
+      }
+    }
+  }
+
+  .head-table {
+    background-color: $blue_light;
+    color: $white;
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .filter-year-head {
+    font-size: 14px;
+    padding: 10px;
+
+    .filter-year-box {
+      background-color: $white;
+      text-align: center;
+      width: 117px;
+      border-radius: 4px;
+      border-bottom: 1px solid $gray_disabled;
+
+      span {
+        display: inline-block;
+      }
+
+      .previous, .next {
+        background-color: $yellow;
+        width: 20px;
+        cursor: pointer;
+
+        &.disabled-pointer-events {
+          background-color: $gray_disabled;
+        }
+      }
+
+      .year {
+        width: 70px;
+      }
+
+      .previous {
+        border-top-left-radius: 4px;
+        border-bottom-left-radius: 4px;
+      }
+
+      .next {
+        border-top-right-radius: 4px;
+        border-bottom-right-radius: 4px;
+      }
+    }
+  }
+
+  .requirements {
+    .requirement {
+      @include hita-default-box();
+      background-color: $white;
+      padding: 10px;
+      cursor: pointer;
+      margin-bottom: 10px;
+
+      .title {
+        @include overflow-ellipsis();
+        font-size: 16px;
+        margin-bottom: 11px;
+        font-weight: 400;
+      }
+
+      .total {
+        background-color: $blue_light;
+        border-top-right-radius: 4px;
+        border-bottom-right-radius: 4px;
+        color: $white;
+        padding: 10px;
+        height: 96%;
+        margin-top: 2px;
+        width: 100px;
+        cursor: pointer;
+
+        &:hover {
+          background-color: darken($blue_light, 15%);
+
+          .total-results {
+            display: none;
+          }
+
+          .more-points {
+            display: block;
+          }
+        }
+
+        .more-points {
+          display: none;
+          line-height: 15px;
+          font-size: 12px;
+          font-weight: 300;
+
+          .icon {
+            svg {
+              height: 20px;
+              fill: $white;
+            }
+          }
+        }
+      }
+
+      &:hover {
+        .total {
+          background-color: darken($blue_light, 15%);
+
+          .total-results {
+            display: none;
+          }
+
+          .more-points {
+            display: block;
+          }
+        }
+      }
+    }
+  }
+
+  .requirement-modal {
+    .modal-content {
+      width: 800px;
+
+      .title {
+        margin-bottom: 0px;
+      }
+
+      .input-label {
+        font-size: 14px;
+      }
+
+      .comment-bt {
+        position: absolute;
+        bottom: 0px;
+      }
+
+      .content-button {
+        width: 100%;
+        height: 100%;
+        position: relative;
+      }
+
+      textarea {
+        min-height: 55px;
+      }
+
+      .table-container {
+        padding: 5px 10px;
+
+        .remove-file {
+          width: 23px;
+          cursor: pointer;
+
+          svg {
+            position: relative;
+            fill: $gray_placeholder;
+            top: 2px;
+          }
+        }
+
+        table.scroll {
+          width: 100%;
+        }
+
+        table.scroll th,
+        table.scroll td,
+        table.scroll tr,
+        table.scroll thead,
+        table.scroll tbody { display: block; }
+
+        table.scroll thead tr {
+          /* fallback */
+          width: 100% !important;
+          /* minus scroll bar width */
+          width: -webkit-calc(100% - 16px);
+          width:    -moz-calc(100% - 16px);
+          width:         calc(100% - 16px);
+        }
+
+        table.scroll tr:after {
+          content: ' ';
+          display: block;
+          visibility: hidden;
+          clear: both;
+        }
+
+        table.scroll tbody {
+          height: 100px;
+          overflow-y: auto;
+          overflow-x: hidden;
+        }
+
+        table.scroll tbody td,
+        table.scroll thead th {
+          float: left;
+        }
+
+        table {
+          width: 100%;
+
+          thead {
+            tr th div {
+              color: $gray_font;
+              padding: 10px 5px;
+              font-weight: 500;
+              font-size: 13px;
+              border-bottom: 1px solid $gray;
+              margin-bottom: 5px;
+            }
+          }
+
+          tbody {
+            tr {
+              &:hover {
+                background-color: $blue_lighter;
+
+                svg {
+                  fill: $red;
+                }
+              }
+            }
+
+            td {
+              vertical-align: unset;
+            }
+
+            tr td div, a {
+              color: $gray_placeholder;
+              padding: 5px;
+              font-size: 14px;
+              line-height: 22px;
+            }
+
+            tr td:first-child div, a {
+              color: $gray_font;
+
+              &:hover {
+                text-decoration: underline;
+              }
+            }
+          }
+        }
+      }
+
+      .attachment-bt {
+        svg {
+          height: 16px;
+          fill: $blue;
+          margin-right: 5px;
+        }
+      }
+    }
+  }
+}

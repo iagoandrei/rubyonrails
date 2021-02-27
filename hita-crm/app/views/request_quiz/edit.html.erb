@@ -1,0 +1,71 @@
+<%= render partial: 'shared/main_upper_section', locals: { current_main_section: nil } %>
+
+<div class="users-management-container container">
+  <%= render partial: '/shared/flash_message' %>
+  <div class="columns no-margin-bottom">
+    <div class="column">
+      <a href="<%= request_quiz_index_url %>">
+        <button class="button is-secondary">
+          <- Voltar
+        </button>
+      </a>
+    </div>
+  </div>
+  <div class="columns">
+    <div class="column">
+      <div id="editChatbotMaker" class="new-user-container default-box"></div>
+    </div>
+  </div>
+  <div class="level">
+    <div class="level-left"></div>
+    <div class="level-right">
+      <button id="saveQuizBt" class="button is-secondary is-medium">Salvar Bloco</button>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $('#saveQuizBt').click(function() {
+    $(this).addClass('is-loading');
+    saveQuiz();
+  });
+
+  var chatbotMaker;
+  var chatbotMakerUi = {
+    answer:`<%= ApplicationController.renderer.render partial: "chatbot_components/answer.html" %>`,
+    body:`<%= ApplicationController.renderer.render partial: "chatbot_components/body.html" %>`,
+    header:`<%= ApplicationController.renderer.render partial: "chatbot_components/header.html" %>`,
+    link:`<%= ApplicationController.renderer.render partial: "chatbot_components/link.html" %>`,
+    question:`<%= ApplicationController.renderer.render partial: "chatbot_components/question.html" %>`
+  }
+
+  chatbot_data = "<%= j(raw(@data)) %>";
+  chatbot_data = chatbot_data.replace(/=>/g, ':');
+  chatbot_data = JSON.parse(chatbot_data);
+
+  $(function() {
+    chatbotMaker = new ChatbotMaker({
+      elId: 'editChatbotMaker',
+      data: chatbot_data
+    })
+  })
+
+  function saveQuiz() {
+    var data_str = JSON.stringify(chatbot_data);
+
+    $.ajax({
+      url: '<%= update_request_quiz_url %>',
+      method: 'POST',
+      data: {
+        id: "<%= @request_quiz.id %>",
+        user_id: '<%= current_user.id %>',
+        title: chatbotMaker.data.name,
+        data: data_str,
+        authenticity_token: "<%= form_authenticity_token %>"
+      },
+      success: function() {
+        window.location = '<%= request_quiz_index_url %>';
+      }
+    });
+  }
+</script>

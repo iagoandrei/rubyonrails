@@ -1,0 +1,144 @@
+<%= render partial: 'shared/main_upper_section', locals: { current_main_section: nil } %>
+
+<div class="users-management-container container">
+  <%= render partial: '/shared/flash_message' %>
+  <div class="columns no-margin-bottom">
+    <div class="column">
+      <a href="<%= equipments_index_url %>">
+        <button class="button is-secondary">
+          <- Voltar
+        </button>
+      </a>
+    </div>
+  </div>
+  <div class="columns">
+    <div class="column">
+      <div class="new-user-container default-box">
+        <%= form_tag update_equipment_path, method: :post, multipart: true, id: 'updateEquipmentForm' do %>
+          <div class="columns">
+            <input type="hidden" name="id" value="<%= @equipment.id %>">
+            <div class="column is-8">
+              <div>Nome do Equipamento</div>
+              <input class="input" type="text" name="equipment[name]" placeholder="Ex: Base de concreto" value="<%= @equipment.name %>">
+            </div>
+            <div class="column is-4">
+              <div>Número de dimensões</div>
+              <input class="input" type="number" name="equipment[number_of_inputs]" min='0' max='15' placeholder="Entre 0 e 15" value="<%= @equipment.number_of_inputs %>">
+            </div>
+          </div>
+          <div class="columns">
+            <div class="column">
+              <div>Foto 1</div>
+              <div class="file has-name">
+                <label class="file-label fluid">
+                  <input class="file-input" type="file" name="equipment[image_1]" accept="image/*">
+                  <span class="file-cta">
+                    <span class="file-label">
+                      Escolha um arquivo...
+                    </span>
+                  </span>
+                  <span class="file-name fluid">
+                    <% if @equipment.image_1.attached? %>
+                      <%= @equipment.image_1.blob.filename %>
+                    <% end %>
+                  </span>
+                </label>
+              </div>
+              <% if @equipment.image_1.attached? %>
+                <div class="remove-image-link">
+                  <%= link_to inline_svg("remove.svg") + " Remover Imagem",
+                  remove_equipment_image_url(@equipment.image_1.blob_id),
+                  method: :delete,
+                  data: { confirm: 'Tem certeza que deseja remover este equipamento? Esta ação não poderá ser desfeita.' } %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+          <div class="columns">
+            <div class="column">
+              <div>Foto 2</div>
+              <div class="file has-name">
+                <label class="file-label fluid">
+                  <input class="file-input" type="file" name="equipment[image_2]" accept="image/*">
+                  <span class="file-cta">
+                    <span class="file-label">
+                      Escolha um arquivo...
+                    </span>
+                  </span>
+                  <span class="file-name fluid">
+                    <% if @equipment.image_2.attached? %>
+                      <%= @equipment.image_2.blob.filename %>
+                    <% end %>
+                  </span>
+                </label>
+              </div>
+              <% if @equipment.image_2.attached? %>
+                <div class="remove-image-link">
+                  <%= link_to inline_svg("remove.svg") + " Remover Imagem",
+                  remove_equipment_image_url(@equipment.image_2.blob_id),
+                  method: :delete,
+                  data: { confirm: 'Tem certeza que deseja remover este equipamento? Esta ação não poderá ser desfeita.' } %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+          <div class="columns">
+            <div class="column">
+              <div>Foto 3</div>
+              <div class="file has-name">
+                <label class="file-label fluid">
+                  <input class="file-input" type="file" name="equipment[image_3]" accept="image/*">
+                  <span class="file-cta">
+                    <span class="file-label">
+                      Escolha um arquivo...
+                    </span>
+                  </span>
+                  <span class="file-name fluid">
+                    <% if @equipment.image_3.attached? %>
+                      <%= @equipment.image_3.blob.filename %>
+                    <% end %>
+                  </span>
+                </label>
+              </div>
+              <% if @equipment.image_3.attached? %>
+                <div class="remove-image-link">
+                  <%= link_to inline_svg("remove.svg") + " Remover Imagem",
+                  remove_equipment_image_url(@equipment.image_3.blob_id),
+                  method: :delete,
+                  data: { confirm: 'Tem certeza que deseja remover este equipamento? Esta ação não poderá ser desfeita.' } %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+          <div class="margin-bottom-10">Marque o tipo de proposta do equipamento:</div>
+          <div class="columns">
+            <div class="column is-3">
+              <div class="b-checkbox is-primary">
+                <input id="service_checkbox" name="equipment[is_for_service]" class="styled" type="checkbox" <%= 'checked' if @equipment.is_for_service %>>
+                <label for="service_checkbox">
+                  Serviço
+                </label>
+              </div>
+            </div>
+            <div class="column is-3">
+              <div class="b-checkbox is-primary">
+                <input id="product_checkbox" name="equipment[is_for_product]" class="styled" type="checkbox" <%= 'checked' if @equipment.is_for_product %>>
+                <label for="product_checkbox">
+                  Produto
+                </label>
+              </div>
+            </div>
+          </div>
+          <button class="button is-primary">Atualizar equipamento</button>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $('.file-input').change(function(e) {
+    var fileName = e.target.files[0].name;
+    $(this).parent().find('.file-name').text(fileName);
+  });
+</script>

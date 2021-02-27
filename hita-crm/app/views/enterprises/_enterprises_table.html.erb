@@ -1,0 +1,49 @@
+<% if enterprises.present? %>
+  <table>
+    <colgroup>
+      <col width="30%" />
+      <col width="5%" />
+      <col width="17%" />
+
+      <col width="13%" />
+      <col width="9%" />
+      <col width="6%" />
+      <col width="13%" />
+      <col width="6%" />
+    </colgroup>
+    <thead>
+      <td>Nome</td>
+      <td>Tipo</td>
+      <td>Setor</td>
+      <td>Cidade - UF</td>
+      <td>Interações</td>
+      <td>Oportun.</td>
+      <% if can? :read, Enterprise, :revenue %>
+        <td>Faturamento</td>
+      <% end %>
+      <td></td>
+    </thead>
+    <tbody>
+      <% enterprises.each do |enterprise| %>
+        <tr id="enterpriseRow<%= enterprise.id %>" data-enterprise-id="<%= enterprise.id %>" class="enterprise-row">
+          <td title="<%= enterprise.name %>"><div class="name bold ellipsis"><%= enterprise.name %></div></td>
+          <td><div class="type bold"><%= enterprise.enterprise_type %></div></td>
+          <td title="<%= enterprise.industry_sector %>"><div class="ellipsis"><%= enterprise.industry_sector %></div></td>
+          <td title="<%= "#{enterprise.city} - #{enterprise.state}" %>"><div class="ellipsis"><%= enterprise.state_uf %></div></td>
+          <td><div><%= enterprise.interactions.size %></div></td>
+          <td><div><%= enterprise.requests.where(is_draft: false).size %></div></td>
+          <% if can? :read, Enterprise, :revenue %>
+            <td title="<%= number_to_currency enterprise.revenue %>"><div class="ellipsis"><%= number_to_currency enterprise.revenue %></div></td>
+          <% end %>
+          <% if can? :update, Enterprise %>
+            <td><div class="edit-bt">Editar</div></td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <div class="columns margin-top-10">
+    <div class="column text-center">Sem registros.</div>
+  </div>
+<% end %>

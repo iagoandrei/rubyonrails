@@ -1,0 +1,22 @@
+production:
+  solr:
+    hostname: solr
+    port: 8983
+    log_level: WARNING
+    path: /solr/hita
+    # read_timeout: 2
+    # open_timeout: 0.5
+
+development:
+  solr:
+    hostname: solr
+    port: 8983
+    log_level: INFO
+    path: /solr/hita
+
+test:
+  solr:
+    hostname: localhost
+    port: 8981
+    log_level: WARNING
+    path: /solr/test

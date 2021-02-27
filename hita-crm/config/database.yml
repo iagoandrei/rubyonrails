@@ -1,0 +1,15 @@
+default: &default
+  adapter: postgresql
+  encoding: utf8
+  host: db
+
+production:
+  <<: *default
+  database: hitacrm
+  username: hitacrm
+  password: 1920@crmadmin
+
+development:
+  <<: *default
+  database: postgres
+  username: postgres

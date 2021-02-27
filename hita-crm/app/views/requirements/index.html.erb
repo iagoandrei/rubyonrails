@@ -1,0 +1,335 @@
+<%= render partial: 'shared/main_upper_section', locals: { current_main_section: 'requirements' } %>
+
+<div class="requirements-main-page">
+  <div class="container">
+    <%= render partial: 'shared/flash_message' %>
+    <div class="columns">
+      <div class="column is-2">
+        <%= render partial: 'shared/main_sidebar', locals: { main_page: 'requirements', current_page: 'my_points' } %>
+      </div>
+      <div class="column">
+        <div class="columns cards">
+          <div class="column">
+            <div class="card">
+              <div class="small-text">Sua pontuação</div>
+              <div id="currentUserScore" class="big-text"><%= @total_user_score %> <span class="medium-text">ponto(s)</span></div>
+              <div>
+                <% if [11, 12].include? Date.today.month %>
+                  desde Novembro de <%= Date.today.year %>
+                <% else %>
+                  desde Novembro de <%= Date.today.year - 1 %>
+                <% end %>
+              </div>
+            </div>
+          </div>
+          <div class="column">
+            <div class="card">
+              <div class="small-text">Melhor mês</div>
+              <div class="big-text"><%= @best_month.present? ? I18n.l(@best_month[0], format: "%B") : 'N/A' %></div>
+              <div>
+                <% if [11, 12].include? Date.today.month %>
+                  desde Novembro de <%= Date.today.year %>
+                <% else %>
+                  desde Novembro de <%= Date.today.year - 1 %>
+                <% end %>
+              </div>
+            </div>
+          </div>
+          <div class="column">
+            <div class="card">
+              <div class="small-text">Sua colocação</div>
+              <div class="big-text">
+                <% if @current_ranking > 0 %>
+                  <%= "#{@current_ranking}º lugar" %>
+                <% else %>
+                  N/A
+                <% end %>
+              </div>
+              <% if @current_ranking <= 10 and @current_ranking != 0 %>
+                <div>Parabéns, você está entre os TOP 10!</div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column">
+            <div class="filter-year-head no-select">
+              <div class="columns">
+                <div class="column is-one-quarter no-padding-left">
+                  <div class="filter-year-box">
+                    <span class="previous"><</span>
+                    <span class="year"><%= @period %></span>
+                    <span class="next">></span>
+                  </div>
+                </div>
+                <div id="monthSlot1" class="column is-1 text-center month-slot"></div>
+                <div id="monthSlot2" class="column is-1 text-center month-slot"></div>
+                <div id="monthSlot3" class="column is-1 text-center month-slot"></div>
+                <div id="monthSlot4" class="column is-1 text-center month-slot"></div>
+                <div id="monthSlot5" class="column is-1 text-center month-slot"></div>
+                <div id="monthSlot6" class="column is-1 text-center month-slot"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column">
+            <div class="head-table">
+              <div class="columns">
+                <div class="column is-one-quarter">TOTAL</div>
+                <div id="monthScoreSlot0" class="column is-1 text-center month-score-slot"></div>
+                <div id="monthScoreSlot1" class="column is-1 text-center month-score-slot"></div>
+                <div id="monthScoreSlot2" class="column is-1 text-center month-score-slot"></div>
+                <div id="monthScoreSlot3" class="column is-1 text-center month-score-slot"></div>
+                <div id="monthScoreSlot4" class="column is-1 text-center month-score-slot"></div>
+                <div id="monthScoreSlot5" class="column is-1 text-center month-score-slot"></div>
+                <div id="monthScoreTotalSlot" class="column text-right"><%= @total_user_score %> pts</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="columns no-margin-bottom">
+          <div class="column">
+            <div class="requirements"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%= render 'requirements_modal' %>
+  <%= render 'edit_requirements_modal' %>
+</div>
+
+<% content_for :tail_script do %>
+  <script>
+    var year;
+    var period;
+    var current_year = <%= @current_year.to_i %>;
+
+    $(function() {
+      getMonths();
+    });
+
+    $(".next").click(function() {
+      year   = parseInt($(".year").html().split(".")[0]);
+      period = parseInt($(".year").html().split(".")[1]);
+
+      if (period == '1') {
+        if (current_year >= year) {
+          period += 1
+        }
+      } else {
+        if (current_year > year) {
+          period = 1;
+          year += 1;
+        }
+      }
+
+      $(".year").html(`${year}.${period}`);
+      getMonths();
+    });
+
+    $(".previous").click(function() {
+      year   = parseInt($(".year").html().split(".")[0]);
+      period = parseInt($(".year").html().split(".")[1]);
+
+      if (period == '1') {
+        period = 2
+        year -= 1;
+      } else {
+        period -= 1;
+      }
+
+      $(".year").html(`${year}.${period}`);
+      getMonths();
+    });
+
+    var getMonths = function(e) {
+      $.ajax({
+        url: '<%= requirements_render_months_path %>',
+        data: {
+          period: $(".year").html()
+        },
+        beforeSend: function() {
+          $('.month-slot').html('<div class="loader"></div>');
+          $('.month-score-slot').html('<div class="loader"></div>');
+          $('.next, .previous').addClass('disabled-pointer-events');
+        },
+        complete: function() {
+          $('.next, .previous').removeClass('disabled-pointer-events');
+        },
+        dataType: 'script'
+      });
+    }
+
+    $(document).on("click", ".requirement", function() {
+      $("#requirementModalPeriodSelect")[0].options.length = 0;
+      $("#requirementModalTableBody").html('');
+      $('#attachmentFilename').html('');
+      $("#addUserScoreBt").prop('disabled', true);
+
+      $.getJSON("<%= get_requirement_infos_url('_id_') %>".replace("_id_", $(this).attr('requirement-id')), {user_id: <%= current_user.id %>}, function(data) {
+        if (data.title == 'BU' || data.title == 'Cursos técnicos profissionalizantes') {
+          $("#addUserScoreContent").removeClass('is-hidden');
+          $("#userScoreContentInfo").addClass('is-hidden');
+        } else {
+          $("#userScoreContentInfo").removeClass('is-hidden');
+          $("#addUserScoreContent").addClass('is-hidden');
+        }
+
+        $("#requirementModal").addClass('is-active');
+
+        $.each(data['months'], function(k, v) {
+          $("#requirementModalPeriodSelect").append($("<option />").val(v).text(v));
+        });
+
+        $("#requirementModalPeriodSelect").val(data.current_period);
+        $("#hiddenRequirementInputId").val(data.id);
+        $("#hiddenRequirementInputUserId").val("<%= current_user.id %>");
+        $("#requirementModalTitle").html(data.title);
+
+        $(".score-history-content").html('');
+
+        $.each(data.scores, function(i, e) {
+          $(".score-history-content").append(`
+            <div class='content'>
+              <div>${e.comment}</div>
+            </div>
+          `);
+
+          if (e.score_type == 'Bônus') {
+            $(".score-history-content .content").slice(-1).append(`
+              <div class='margin-top-10'><span class='bold'>Bônus: </span>${e.score} pt(s)</div>
+            `);
+          } else {
+            $(".score-history-content .content").slice(-1).append(`
+              <div class='margin-top-10'><span class='bold'>Penalidade: </span>${e.score} pt(s)</div>
+            `);
+          }
+
+          if (e.link) {
+            $(".score-history-content .content").slice(-1).append(`
+              <div class='margin-top-10'>
+                <div class='bold'>Anexo:</div>
+                <a href='${e.link}'>${e.name}</a>
+              </div>
+            `);
+          }
+
+          if (e.responsible) {
+            $(".score-history-content .content").slice(-1).append(`
+              <div class="margin-top-10">
+                <span class='bold'>Responsável: </span> ${e.responsible}
+              </div>
+            `);
+          }
+
+          $(".score-history-content .content").slice(-1).append(`
+            <div class="text-right">
+              ${e.period}
+            </div>
+          `);
+        });
+
+        function formatBytes(bytes, decimals = 1) {
+          if (bytes === 0) return '0 Bytes';
+
+          const k = 1024;
+          const dm = decimals < 0 ? 0 : decimals;
+          const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+          const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+          return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+      });
+    });
+
+    var userIdsFiltered = []
+
+    $('#userAutoComplete').autoComplete({
+      minChars: 2,
+      source: function(term, response) {
+        var xhr;
+        var matches = [];
+        term = term.toLowerCase();
+
+        try { xhr.abort(); } catch(e) {}
+        xhr = $.getJSON('/user_autocomplete', { q: term }, function(data) {
+
+          if (data.length > 0) {
+            for (i = 0; i < data.length; i++)
+              if (~data[i][0].toLowerCase().indexOf(term)) matches.push(data[i]);
+          }
+
+          response(matches);
+        });
+      },
+      renderItem: function (item, search) {
+        search = search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        var re = new RegExp("(" + search.split(' ').join('|') + ")", "gi");
+        return '<div class="autocomplete-suggestion" data-user-id="' + item[1] +'" data-val="' + item[0] + '">'+ item[0].replace(re, "<b>$1</b>") + '</div>';
+      },
+      onSelect: function(event, term, item) {
+        $("#consultantSearchBt").attr('user-id', item.data('user-id'));
+      }
+    });
+
+    $("#consultantSearchBt").click(function() {
+      if ($(this)[0].hasAttribute('user-id')) {
+        var id = $(this).attr('user-id');
+
+        $(this).removeAttr('user-id');
+        $("#userAutoComplete").val('');
+
+        $.getJSON("<%= get_user_infos_url('_id_') %>".replace("_id_", id), function(data) {
+          if (userIdsFiltered.find(id => id == data.id) == undefined) {
+            userIdsFiltered.push(id);
+
+            $(".consultants").append(`
+              <div class="column is-narrow person no-padding-bottom">
+                <input type="hidden" name="user_ids[]" value="${data.id}">
+                <div class="person-tag no-margin-bottom">
+                  <div class="sphere">
+                    <div class="initials">${data.initials}</div>
+                  </div>
+                  <div class="name consultant-name">${data.name}</div>
+                  <span class="remove-person no-select" user-id="${data.id}">x</span>
+                </div>
+              </div>
+            `);
+          }
+        });
+      }
+    });
+
+    $(document).on("click", ".remove-person", function() {
+      $(this).parent().parent().remove();
+
+      if (!$(".person").length) {
+        $(".user-auto-complete").attr('required', true);
+      }
+
+      userIdsFiltered = arrayRemove(userIdsFiltered, $(this).attr('user-id'));
+    });
+
+    function arrayRemove(arr, value) {
+      return arr.filter(function(ele){
+        return ele != value;
+      });
+    }
+
+    $(".criterion-title").click(function() {
+      $e = $(".criterion-title").find('svg')
+
+      if ($e.hasClass('rotate')) {
+        $e.removeClass('rotate');
+        $(".criterion-items").slideUp();
+      } else {
+        $e.addClass('rotate');
+        $(".criterion-items").slideDown();
+      }
+    });
+  </script>
+<% end %>

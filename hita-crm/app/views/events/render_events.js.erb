@@ -1,0 +1,47 @@
+$('.event-list-container').html('');
+$('.event-list-container').append('<%= escape_javascript(render(:partial => "events/events_list", :locals => { :events => @events })) %>');
+$('.event-list-container').append(`
+  <div class="paging-links">
+    <%= will_paginate @events_pages %>
+  </div>
+`);
+
+$(".paging-links a").click(function(e) {
+  e.preventDefault();
+
+  var urlParams = new URLSearchParams($(this).attr('href'));
+
+  filterEvents(urlParams.get('page'));
+});
+
+$(".edit-event-bt").click(function(e) {
+  e.stopPropagation();
+  showEditEventForm($(this).attr('event-id'));
+});
+
+$(".checkbox-event").change(function() {
+  if(this.checked) {
+    var res = confirm("Você deseja concluir esta atividade? ");
+    var params = {}
+
+    params['id'] = $(this).attr('event-id');
+
+    $(`#checkboxFinishActivity${params['id']}`).prop("checked", false);
+
+    if (res) {
+      $.ajax({
+        url: '<%= finalize_event_path %>',
+        method: 'post',
+        data: params,
+        dataType: 'script',
+        success: function() {
+          // $(`#checkboxFinishActivity${params['id']}`).prop("checked", res);
+          // filterEvents(<%= @current_page %>);
+          window.location.href = '<%= events_index_path %>';
+        }
+      });
+    } else {
+      $(`#checkboxFinishActivity${params['id']}`).prop("checked", false);
+    }
+  }
+});

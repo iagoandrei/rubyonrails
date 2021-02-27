@@ -1,0 +1,18 @@
+<div class="interaction">
+  <div class="columns">
+    <div class="column is-1 title">
+      <div class="circle initials-name">
+        <%= interaction.owner.get_initials %>
+      </div>
+    </div>
+    <div class="column message-content no-padding-left">
+      <div class="columns no-margin-bottom">
+        <div class="column is-9 title padding-bottom-5"><%= "#{interaction.owner.name} removeu uma proposta:" %></div>
+        <div class="column date padding-bottom-5"><%= interaction.created_at.strftime("%d/%m/%Y %H:%M") %></div>
+      </div>
+      <div class="columns">
+        <div class="column"><%= interaction.content.html_safe %></div>
+      </div>
+    </div>
+  </div>
+</div>

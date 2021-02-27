@@ -1,0 +1,68 @@
+<%= render partial: 'shared/main_upper_section', locals: { current_main_section: 'proposals' } %>
+
+<div class="proposals-main-page">
+  <div class="proposals-main-container container">
+    <div class="columns">
+      <div class="column is-2">
+        <%= render partial: 'shared/main_sidebar', locals: { main_page: 'proposals', current_page: 'drafts' } %>
+      </div>
+      <div class="column is-10">
+        <div class="requests-container">
+          <%= render partial: '/shared/flash_message' %>
+
+          <div class="request-table-container default-box <%= 'margin-top-10' if flash[:notice].present? or flash[:alert].present? %>">
+            <div class="request-table">
+              <div class="margin-bottom-20">Estes são os rascunhos criados por você. Clique na linha ou no botão <span class="inline-icon see-request"><%= inline_svg 'link_box.svg' %></span> para continuar a solicitação de proposta.</div>
+            </div>
+            <% if @requests.present? %>
+              <table class="request-table fluid">
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Empresa</th>
+                    <th>Valor(R$)</th>
+                    <th>Data</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @requests.each do |request| %>
+                    <tr data-request-id='<%= request.id %>' data-href='<%= edit_request_draft_url(request.id) %>' class="request-row pointer-cursor">
+                      <td>CAH_BEL_CAN_253</td>
+                      <td title="<%= request&.enterprise.name %>"><%= request&.enterprise.name %></td>
+                      <td><%= number_to_currency request.calculate_request_revenue %></td>
+                      <td><%= request.created_at.strftime("%d/%m/%y %H:%M") %></td>
+                      <td>
+                        <div class="actions">
+                          <a href="<%= edit_request_draft_url(request.id) %>" class="prevent-link-click"><div class="see-request"><%= inline_svg 'link_box.svg' %></div></a>
+
+                          <%= link_to destroy_request_draft_path(request.id), method: :delete, data: { confirm: 'Tem certeza que deseja remover este rascunho? Esta ação não poderá ser desfeita.' } do %>
+                            <div class="remove-draft"><%= inline_svg 'remove.svg' %></div>
+                          <% end %>
+                        </div>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            <% else %>
+              <div class="columns">
+                <div class="column text-center">Sem registros.</div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $('.prevent-link-click').click(function(e) {
+    e.stopPropagation();
+  });
+
+  $(".request-row").click(function() {
+    window.location = $(this).attr('data-href');
+  });
+</script>

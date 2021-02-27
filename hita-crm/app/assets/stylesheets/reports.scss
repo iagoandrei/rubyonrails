@@ -1,0 +1,241 @@
+@import "base";
+
+.reports-container {
+  .filters-container {
+    margin-bottom: 30px;
+  }
+
+  .filter-year-box {
+    background-color: $white;
+    text-align: center;
+    width: 117px;
+    border-radius: 4px;
+    border-bottom: 1px solid $gray_disabled;
+    font-size: 14px;
+
+    span {
+      display: inline-block;
+    }
+
+    .previous, .next {
+      background-color: $yellow;
+      width: 20px;
+      cursor: pointer;
+    }
+
+    .year {
+      width: 70px;
+    }
+
+    .previous {
+      border-top-left-radius: 4px;
+      border-bottom-left-radius: 4px;
+    }
+
+    .next {
+      border-top-right-radius: 4px;
+      border-bottom-right-radius: 4px;
+    }
+  }
+
+  .report-table {
+    .table-container {
+      table {
+        border-spacing: 0px 15px;
+        border-collapse: separate;
+        width: 100%;
+        background-color: $gray_bg;
+
+        thead {
+          background-color: $gray_bg;
+          font-size: 12px;
+          font-weight: 600;
+          text-transform: uppercase;
+
+          tr {
+            th {
+              color: $gray_menu_icons;
+              border: none;
+
+              &:not(:first-child) {
+                text-align: center;
+              }
+            }
+
+            &:first-child {
+              th {
+                &:first-child {
+                  min-width: 200px;
+                }
+              }
+            }
+          }
+        }
+
+        tbody {
+          color: $gray_title;
+          font-size: 11px;
+
+          tr {
+            background-color: $white;
+            height: 36px;
+
+            td {
+              vertical-align: middle;
+              border: none;
+
+              &:first-child {
+                font-weight: bold;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .tag {
+      cursor: pointer;
+      background-color: $blue_lighter;
+      float: right;
+      padding: 3px !important;
+    }
+
+    .top-bar {
+      overflow-y: auto;
+      transform: rotateX(180deg);
+
+      .consultants-container {
+        margin-top: 50px;
+        transform: rotateX(180deg);
+
+        table {
+          padding-top: 30px;
+          font-size: 14px;
+          background-color: transparent;
+          color: $gray_font;
+          border-collapse: separate;
+          border-spacing: 0 10px;
+
+          .th-border {
+            border: 1px solid $gray;
+            border-radius: 8px;
+          }
+
+          thead th, td {
+            position: -webkit-sticky; /* for Safari */
+            position: sticky;
+            top: 0;
+          }
+
+          tbody th {
+            position: -webkit-sticky; /* for Safari */
+            position: sticky;
+            left: 0;
+            z-index: 10;
+            background-color: $white;
+            border: none;
+            text-align: left;
+          }
+
+          .cell-fixed {
+            border: none;
+            left: 0;
+            z-index: 10;
+
+            &.gray-bg {
+              background-color: $gray_bg;
+            }
+
+            &.blue-bg {
+              background-color: $blue;
+            }
+
+            &.white-bg {
+              background-color: $white;
+            }
+          }
+
+          tr {
+            &.blue-bg {
+              td {
+                color: $white;
+              }
+            }
+          }
+
+          th {
+            min-width: 300px;
+            max-width: 300px;
+            text-align: center;
+            color: $gray_font;
+            border: none;
+            white-space: nowrap;
+
+            &.resumed {
+              min-width: 160px;
+            }
+          }
+
+          td {
+            border: none;
+            white-space: nowrap;
+          }
+
+          .tag {
+            font-size: 13px;
+          }
+
+          .consultant-content {
+            display: none;
+          }
+
+          .consultant-item {
+            cursor: pointer;
+          }
+
+          .fixed-column-width {
+            min-width: 300px;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+        }
+      }
+    }
+  }
+}
+
+.report-funnel-modal {
+  .modal-content {
+    .steps {
+      .step {
+        font-size: 13px !important;
+      }
+    }
+
+    .conversions {
+      margin-top: 66px !important;
+
+      .converted {
+        margin: 9px 0 !important;
+
+        span {
+          position: relative;
+          top: -5px;
+          left: 7px;
+        }
+
+        svg {
+          height: 25px;
+          transform: rotate(9deg);
+          fill: $gray_font;
+        }
+      }
+    }
+
+    .blue-background {
+      background-color: $blue !important;
+    }
+  }
+}

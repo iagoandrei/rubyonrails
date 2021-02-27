@@ -1,0 +1,51 @@
+<% if requests.present? %>
+  <div class="margin-bottom-10"><span class="bold">Total:</span> <%= requests.size %> pedido(s)</div>
+  <table class="request-table fluid">
+    <thead>
+      <tr>
+        <th>Oportunidade</th>
+        <th>Código</th>
+        <th>Empresa</th>
+        <th>Prioridade</th>
+        <th>Impedido C/</th>
+        <th>Data</th>
+        <th>Tempo</th>
+        <% if !current_user.role?(User::ROLES[:service]) %>
+          <th class="text-right">Valor(R$)</th>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody>
+      <% requests.each do |request| %>
+        <tr data-request-id='<%= request.id %>' class="request-row pointer-cursor">
+          <td title="<%= request.get_request_code %>"><%= request.get_request_code %></td>
+          <td title="<%= request.proposal_code %>"><%= request.proposal_code %></td>
+          <td title="<%= request&.enterprise.name %>"><%= request&.enterprise.name %></td>
+          <td>
+            <div class="urgency <%= request.calculate_priority %>">
+              <div class="is-flex">
+                <div class="levels">
+                  <div class="level"></div>
+                  <div class="level"></div>
+                  <div class="level"></div>
+                  <div class="level"></div>
+                </div>
+                <div class="urgency-percentage"><%= (request.calculate_priority_percentage * 100).to_i %>%</div>
+              </div>
+            </div>
+          </td>
+          <td title="<%= request.detainees_number %>"><%= request.detainees_number %></td>
+          <td><%= request.created_at.strftime("%d/%m/%y %H:%M") %></td>
+          <td><%= request.elapsed_time_since_created %></td>
+          <% if !current_user.role?(User::ROLES[:service]) %>
+            <td class="text-right"><%= number_to_currency request.calculate_request_revenue %></td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <div class="columns">
+    <div class="column text-center">Sem registros.</div>
+  </div>
+<% end %>

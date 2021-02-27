@@ -1,0 +1,192 @@
+<div class="refuse-proposal-modal">
+  <div id="refuseProposalModal" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      <div class="columns">
+        <div class="column">
+          O Cliente aceitou ou recusou a proposta?
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column">
+          <div class="radio-buttons">
+            <label class="selected">
+              <input type="radio" name="proposal_feedback" value="accepted" checked>
+              <span></span>
+              Aceitou
+            </label>
+            <label>
+              <input type="radio" name="proposal_feedback" value="refused">
+              <span></span>
+              Recusou
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="approved-container">
+        <div class="columns">
+          <div class="column">
+            <div>Selecione a proposta:</div>
+            <div class="select">
+              <select id="proposalsSelect" class="select">
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="refused-container">
+        <div class="columns">
+          <div class="column">
+            <div>Descreva o motivo:</div>
+            <textarea id="reasonDescription" class="textarea" placeholder="Descrição" name="refusal_description"></textarea>
+          </div>
+        </div>
+        <div class="columns reasons-list is-centered is-multiline margin-bottom-10">
+          <div class="column is-half">
+            <div class="b-checkbox is-primary">
+              <input id="refusedForValue" class="styled" type="checkbox" value='Valor'>
+              <label for="refusedForValue">
+                Valor
+              </label>
+            </div>
+          </div>
+          <div class="column is-half">
+            <div class="b-checkbox is-primary">
+              <input id="refusedForTime" class="styled" type="checkbox" value='Prazo'>
+              <label for="refusedForTime">
+                Prazo
+              </label>
+            </div>
+          </div>
+          <div class="column is-half">
+            <div class="b-checkbox is-primary">
+              <input id="refusedForWarranty" class="styled" type="checkbox" value='Garantia'>
+              <label for="refusedForWarranty">
+                Garantia
+              </label>
+            </div>
+          </div>
+          <div class="column is-half">
+            <div class="b-checkbox is-primary">
+              <input id="RefusedForTechnicalSolidity" class="styled" type="checkbox" value='Solidez Técnica'>
+              <label for="RefusedForTechnicalSolidity">
+                Solidez Técnica
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="columns no-margin-bottom">
+        <div class="column">
+          <button id="saveProposalStatus" class="button is-primary is-pulled-right">Salvar</button>
+        </div>
+      </div>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $('input[name="proposal_feedback"]').change(function() {
+    $('.radio-buttons .selected').removeClass('selected');
+    $(this).closest('label').addClass('selected');
+
+    if ($(this).val() == 'accepted') {
+      $('.refused-container').slideUp(200);
+    } else if(is_proposal_present) {
+      $('.refused-container').slideDown(200);
+    }
+
+    $('#saveProposalStatus').prop('disabled', false);
+  });
+
+  $('#saveProposalStatus').click(saveProposalFeedback);
+
+  function buildProposalFeedback() {
+    proposal_feedback = {}
+    proposal_feedback['status'] = $('input[name="proposal_feedback"]:checked').val();
+    proposal_feedback['id'] = $('#proposalsSelect').val();
+    proposal_feedback['reason_description'] = $('#reasonDescription').val();
+
+    var reasons = $('.reasons-list input:checked').map(function() {
+      return $(this).val();
+    }).get();
+    proposal_feedback['reasons'] = reasons;
+
+    return proposal_feedback;
+  }
+
+  function saveProposalFeedback() {
+    var status = $('input[name="proposal_feedback"]:checked').val();
+
+    // Skip proposal feedback when no proposals is included
+    if (!is_proposal_present && status == 'accepted') {
+      if (confirm('Você está aprovando um pedido sem proposta, deseja continuar?')) {
+        updateModalSteps('4');
+        $('tr[data-request-id="' + $('.request-modal').data('request-id') +'"]').remove();
+        $('#refuseProposalModal').removeClass('is-active');
+        $('#proposalsFilesModal').removeClass('is-active');
+        return true;
+      }
+    }
+
+    if (!is_proposal_present && status == 'refused') {
+      if (confirm('Recusar um pedido sem proposta irá arquiva-lo, deseja continuar?')) {
+        $.ajax({
+          method: 'POST',
+          url: '<%= archive_request_url %>',
+          data: {
+            id: $('.request-modal').data('request-id'),
+            authenticity_token: '<%= form_authenticity_token %>'
+          },
+          beforeSend: function() {
+            $('#saveProposalStatus').addClass('is-loading');
+          },
+          success: function() {
+            $('#saveProposalStatus').removeClass('is-loading');
+            $('#refuseProposalModal').removeClass('is-active');
+            $('#proposalsFilesModal').removeClass('is-active');
+            $('#requestModal').removeClass('is-active');
+            $('tr[data-request-id="' + $('.request-modal').data('request-id') +'"]').remove();
+          },
+          error: function() {
+            $('#saveProposalStatus').removeClass('is-loading');
+            alert('Ocorreu um erro ao arquivar o pedido');
+          }
+        });
+
+        return true;
+      }
+    }
+
+    if (confirm('Deseja enviar este feedback de proposta?')) {
+      feedback = buildProposalFeedback();
+      feedback['authenticity_token'] = "<%= form_authenticity_token %>"
+
+      $.ajax({
+        method: 'POST',
+        url: '<%= request_proposal_feedback_url %>',
+        data: feedback,
+        beforeSend: function() {
+          $('#saveProposalStatus').addClass('is-loading');
+          $('#refuseProposalModal').removeClass('is-active');
+          $('#proposalsFilesModal').removeClass('is-active');
+        },
+        success: function() {
+          if(approved_proposal_from_steps && status == 'accepted') {
+            updateModalSteps('4');
+          }
+
+          $('#saveProposalStatus').removeClass('is-loading');
+          alert('Feedback de proposta enviado com sucesso.');
+          $('tr[data-request-id="' + $('.request-modal').data('request-id') +'"]').remove();
+        },
+        error: function() {
+          $('#saveProposalStatus').removeClass('is-loading');
+          alert('Ocorreu um erro ao salvar a proposta.');
+        }
+      });
+    }
+  }
+
+</script>

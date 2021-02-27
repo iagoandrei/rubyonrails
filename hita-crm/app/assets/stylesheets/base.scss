@@ -1,0 +1,103 @@
+$font: 'Source Sans Pro', sans-serif;
+
+// $family-primary: $font;
+
+$white: #FFF;
+$black: #000;
+
+$gray_title: #747474;
+$gray_font: #484848;
+$gray: #C3C3C3;
+$gray_bg: #F9F9F9;
+$gray_menu_icons: #9B9B9B;
+$gray_placeholder: #828282;
+$gray_disabled: #ECECEC;
+
+$yellow: #FFE253;
+$yellow_hover: #FFC933;
+
+$red: #D0021B;
+
+$red_light: #DE262647;
+
+$blue: #0C3D5D;
+$blue_light: #1D88CB;
+$blue_lighter: #E1EFFF;
+$person_tag_hover_blue: #F2F8FF;
+
+$blue_filter_1: #0C3D5D;
+$blue_filter_2: #0F4C73;
+$blue_filter_3: #125B89;
+$blue_filter_4: #166A9F;
+$blue_filter_5: #1979B5;
+$blue_filter_6: #1D88CB;
+$blue_filter_7: #1D88CB;
+$blue_filter_8: #1D88CB;
+
+$orange: #FDB813;
+
+$peach: #F9F2F4;
+$maroon_flush: #C7254E;
+
+$marguerite: #6568C5;
+$crusta: #FB732C;
+$alto: #DBDBDB;
+
+//Priorities
+$gray_priority: #EBF1F9;
+$green_priority: #51CC37;
+$yellow_priority: #F6D73B;
+$orange_priority: #EF8013;
+$red_priority: $red;
+
+// Bulma Overrides
+
+$primary: $yellow;
+$primary_hover: $yellow_hover;
+$secondary: $blue_lighter;
+$secondary_hover: #CDE4FF;
+$danger: $red;
+
+$button-border-color: transparent;
+$button-focus-border-color: transparent;
+$button-disabled-background-color: $gray_disabled;
+
+$input-shadow: none;
+$input-focus-border-color: $blue_light;
+$input-focus-box-shadow-size: 0;
+
+$modal-background-background-color: rgba(#3A3A3A, 0.6);
+$modal-content-width: 1155px;
+
+html {
+  background-color: $gray_bg;
+}
+
+@mixin hita-default-box() {
+  background-color: $white;
+  border-radius: 4px;
+  color: $gray_title;
+
+  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.16);
+  -moz-box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.16);
+  -webkit-box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.16);
+}
+
+@mixin hita-box-shadow() {
+  box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.16);
+  -moz-box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.16);
+  -webkit-box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.16);
+}
+
+@mixin overflow-ellipsis() {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@mixin hita-default-transition() {
+  -webkit-transition: 0.2s ease all;
+  -moz-transition: 0.2s ease all;
+  -o-transition: 0.2s ease all;
+  transition: 0.2s ease all;
+}

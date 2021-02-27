@@ -1,0 +1,67 @@
+@import "base";
+
+.forms-main-page {
+  .form-list {
+    .form-item {
+      @include hita-default-transition();
+      color: $gray_title;
+      font-weight: 400;
+      font-size: 22px;
+      padding: 12px 10px;
+      border-bottom: 1px $gray_disabled solid;
+      border-radius: 4px;
+      cursor: pointer;
+
+      &:hover {
+        background-color: $gray_bg;
+      }
+    }
+  }
+
+  .file-label {
+    .file-input, .file-cta, .file-name {
+      height: 32px;
+    }
+  }
+
+  .available-forms-list {
+    table {
+      width: 100%;
+
+      td {
+        line-height: 26px;
+      }
+
+      .file-link {
+        a {
+          color: $gray_title;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+
+    .actions {
+      display: flex;
+
+      .icon {
+        background-color: $yellow;
+        border-radius: 4px;
+        padding: 4px;
+        cursor: pointer;
+        margin-right: 5px;
+
+        svg {
+          height: 16px;
+          fill: $gray_font;
+        }
+
+        a svg {
+          margin-top: 7px;
+        }
+      }
+    }
+  }
+}

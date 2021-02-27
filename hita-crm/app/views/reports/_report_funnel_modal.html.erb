@@ -1,0 +1,46 @@
+<div class="request-funnel-modal report-funnel-modal">
+  <div id="reportFunnelModal" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content funnels-container">
+      <div class="title">Funil de <span class="highlight">Relatórios</span></div>
+      <div class="columns">
+        <div class="column is-3">
+          <div class="steps">
+            <div class="step">Visitas</div>
+            <div class="step">Interações</div>
+            <div class="step">Proposta</div>
+            <div class="step">Oportunidades aceitas</div>
+            <div class="step">Faturados</div>
+          </div>
+        </div>
+        <div class="column is-6">
+          <div class="funnel-bars">
+            <div class="bar-container blue-background">
+              <div class="bar blue-background"><span class="visit-funnel"></span></div>
+            </div>
+            <div class="bar-container blue-background">
+              <div class="bar blue-background"><span class="meeting-seminar-training-funnel"></span></div>
+            </div>
+            <div class="bar-container">
+              <div class="bar"><span class="request-funnel"></span></div>
+            </div>
+            <div class="bar-container">
+              <div class="bar"><span class="request-approved-funnel"></span></div>
+            </div>
+            <div class="bar-container">
+              <div class="bar"><span class="revenues-funnel"></span></div>
+            </div>
+          </div>
+        </div>
+        <div class="column is-3 no-padding">
+          <div class="conversions product-funnel">
+            <div class="converted"><%= inline_svg 'funnel_arrow.svg' %><span class="step-1 contacts-to-proposal">0.0 %</span></div>
+            <div class="converted"><%= inline_svg 'funnel_arrow.svg' %><span class="step-1 proposal-to-requests-approved-converted"></span></div>
+            <div class="converted"><%= inline_svg 'funnel_arrow.svg' %><span class="step-2 requests-approved-to-revenues-converted"></span></div>
+          </div>
+        </div>
+      </div>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+  </div>
+</div>

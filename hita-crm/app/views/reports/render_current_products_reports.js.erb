@@ -1,0 +1,26 @@
+<% if @categories.present? %>
+  <% if @view_mode == 'Mês' %>
+    $(".report-table").html('<%= escape_javascript(render(:partial => "reports/categories_products_table", :locals => { :products => @products, :current_year => @current_year, :categories => @categories, :product_ids => @product_ids })) %>');
+    $(".filter-year-head").show();
+  <% else %>
+    $(".report-table").html('<%= escape_javascript(render(:partial => "reports/categories_products_table_year_mode", :locals => { :products => @products, :years => @years, :categories => @categories, :product_ids => @product_ids, :product_filter => @product_filter })) %>');
+    $(".filter-year-head").hide();
+  <% end %>
+<% else %>
+  <% if @view_mode == 'Mês' %>
+    $(".report-table").html('<%= escape_javascript(render(:partial => "reports/products_table", :locals => { :products => @products, :current_year => @current_year, :product_ids => @product_ids, :months => @months, :enterprise_filter => @enterprise_filter, :request_type => @request_type })) %>');
+    $(".filter-year-head").show();
+  <% else %>
+    $(".report-table").html('<%= escape_javascript(render(:partial => "reports/products_table_year_mode", :locals => { :products => @products, :years => @years, :product_ids => @product_ids, :product_filter => @product_filter, :enterprise_filter => @enterprise_filter, :request_type => @request_type })) %>');
+    $(".filter-year-head").hide();
+  <% end %>
+<% end %>
+
+$('.report-table').append(`
+  <div class="paging-links">
+    <%= will_paginate @products %>
+  </div>
+`);
+
+var revenues = <%= @revenues %>;
+$("#filterRevenuesCount").html(` (Oportunidades aceitas: ${revenues})`);

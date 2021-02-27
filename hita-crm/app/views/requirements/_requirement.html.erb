@@ -1,0 +1,178 @@
+<div class="criterion-container margin-bottom-10">
+  <div class="columns">
+    <div class="column">
+      <div class="criterion-title">
+        Critérios eliminatórios
+        <%= inline_svg 'dropdown_arrow.svg' %>
+      </div>
+    </div>
+  </div>
+  <div class="columns">
+    <div class="column">
+      <div class="criterion-items">
+        <div class="criterion-item default-box text-center">
+          <div><%= @criterion['sale']['title'] %></div>
+          <% if user.get_accomplished_enterprise_total_year(year) >= @criterion['sale']['amount'] %>
+            <div class="circle done">
+              <%= inline_svg 'check.svg', class: 'center' %>
+            </div>
+          <% else %>
+            <div class="circle pendent">
+              <%= inline_svg 'cross.svg', class: 'center' %>
+            </div>
+          <% end %>
+        </div>
+        <div id="criterion1" class="criterion-item default-box text-center">
+          <div><%= @criterion['boi'] %></div>
+          <% if user.get_criterion_status(year, 1) %>
+            <div class="circle done criterion-status <%= 'pointer-cursor' if manage_criterion %>" criterion-type="1">
+              <%= inline_svg 'check.svg', class: 'center' %>
+            </div>
+          <% else %>
+            <div class="circle pendent criterion-status <%= 'pointer-cursor' if manage_criterion %>" criterion-type="1">
+              <%= inline_svg 'cross.svg', class: 'center' %>
+            </div>
+          <% end %>
+        </div>
+        <div id="criterion2" class="criterion-item default-box text-center">
+          <div><%= @criterion['planning'] %></div>
+          <% if user.get_criterion_status(year, 2) %>
+            <div class="circle done criterion-status <%= 'pointer-cursor' if manage_criterion %>" criterion-type="2">
+              <%= inline_svg 'check.svg', class: 'center' %>
+            </div>
+          <% else %>
+            <div class="circle pendent criterion-status <%= 'pointer-cursor' if manage_criterion %>" criterion-type="2">
+              <%= inline_svg 'cross.svg', class: 'center' %>
+            </div>
+          <% end %>
+        </div>
+        <div id="criterion3" class="criterion-item default-box text-center">
+          <div><%= @criterion['bel'] %></div>
+          <% if user.get_criterion_status(year, 3) %>
+            <div class="circle done criterion-status <%= 'pointer-cursor' if manage_criterion %>" criterion-type="3">
+              <%= inline_svg 'check.svg', class: 'center' %>
+            </div>
+          <% else %>
+            <div class="circle pendent criterion-status <%= 'pointer-cursor' if manage_criterion %>" criterion-type="3">
+              <%= inline_svg 'cross.svg', class: 'center' %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% requirements.each do |requirement| %>
+  <div class="requirement" requirement-id="<%= requirement.id %>">
+    <div class="columns">
+      <div class="column is-one-quarter">
+        <div class="title"><%= requirement.title %></div>
+        <div class="gray-menu-icons-color">Pontuação</div>
+      </div>
+      <div class="column is-1 text-center">
+        <div><%= user.get_user_scores_amount_month("#{year}.#{period}", 0, requirement.id) %></div>
+        <div class="gray-menu-icons-color"><%= user.get_user_scores_month("#{year}.#{period}", 0, requirement.id) %> pt</div>
+      </div>
+      <div class="column is-1 text-center">
+        <div><%= user.get_user_scores_amount_month("#{year}.#{period}", 1, requirement.id) %></div>
+        <div class="gray-menu-icons-color"><%= user.get_user_scores_month("#{year}.#{period}", 1, requirement.id) %> pt</div>
+      </div>
+      <div class="column is-1 text-center">
+        <div><%= user.get_user_scores_amount_month("#{year}.#{period}", 2, requirement.id) %></div>
+        <div class="gray-menu-icons-color"><%= user.get_user_scores_month("#{year}.#{period}", 2, requirement.id) %> pt</div>
+      </div>
+      <div class="column is-1 text-center">
+        <div><%= user.get_user_scores_amount_month("#{year}.#{period}", 3, requirement.id) %></div>
+        <div class="gray-menu-icons-color"><%= user.get_user_scores_month("#{year}.#{period}", 3, requirement.id) %> pt</div>
+      </div>
+      <div class="column is-1 text-center">
+        <div><%= user.get_user_scores_amount_month("#{year}.#{period}", 4, requirement.id) %></div>
+        <div class="gray-menu-icons-color"><%= user.get_user_scores_month("#{year}.#{period}", 4, requirement.id) %> pt</div>
+      </div>
+      <div class="column is-1 text-center">
+        <div><%= user.get_user_scores_amount_month("#{year}.#{period}", 5, requirement.id) %></div>
+        <div class="gray-menu-icons-color"><%= user.get_user_scores_month("#{year}.#{period}", 5, requirement.id) %> pt</div>
+      </div>
+      <div class="column text-right no-padding">
+        <div class="total text-right is-pulled-right">
+          <div class="total-results">
+            <div><%= user.get_user_scores_amount_semester("#{year}.#{period}", requirement.id) %></div>
+            <div><%= user.get_user_scores_semester("#{year}.#{period}", requirement.id) %> pts</div>
+          </div>
+          <div class="more-points text-center">
+            <% if current_user.role?(User::ROLES[:technical_manager]) %>
+              <span class="icon"><%= inline_svg 'edit.svg' %></span>
+              <div>Editar<br>Pontos</div>
+            <% else %>
+              <span class="icon"><%= inline_svg 'plus.svg' %></span>
+              <div>Adicionar<br>Pontos</div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<script type="text/javascript">
+  var user_id = <%= user.id %>;
+  var year    = <%= year %>;
+
+  $(".criterion-title").click(function() {
+    $e = $(".criterion-title").find('svg')
+
+    if ($e.hasClass('rotate')) {
+      $e.removeClass('rotate');
+      $(".criterion-items").slideUp();
+    } else {
+      $e.addClass('rotate');
+      $(".criterion-items").slideDown();
+    }
+  });
+
+  <% if manage_criterion %>
+    $(".criterion-status").click(function() {
+      var $criterion               = $(this);
+      var params                   = {}
+      params['criterion_type']     = $(this).attr('criterion-type');
+      params['user_id']            = user_id;
+      params['year']               = year;
+      params['authenticity_token'] = "<%= form_authenticity_token %>";
+
+      if ($(this).hasClass('done')) {
+        if (confirm('Deseja REMOVER esse critério ?')) {
+          params['status'] = false;
+        } else {
+          params['status'] = true;
+        }
+      } else {
+        if (confirm('Deseja CONCLUIR esse critério ?')) {
+          params['status'] = true;
+        } else {
+          params['status'] = false;
+        }
+      }
+
+      $.ajax({
+        url: '<%= change_state_user_score_criterion_path %>',
+        method: 'post',
+        data: params,
+        success: function(data) {
+          $criterion.removeClass('done');
+          $criterion.removeClass('pendent');
+          $criterion.addClass(data.status);
+
+          if (data.status == 'done') {
+            $criterion.html(`<%= inline_svg 'check.svg', class: 'center' %>`);
+          } else {
+            $criterion.html(`<%= inline_svg 'cross.svg', class: 'center' %>`);
+          }
+        },
+        error: function(data) {
+          alert('Erro ao trocar status do critério! Contate o administrador do sistema!');
+        }
+      });
+    });
+  <% end %>
+</script>

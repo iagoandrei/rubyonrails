@@ -1,0 +1,28 @@
+<div class="interaction">
+  <div class="columns">
+    <div class="column is-1 title">
+      <div class="circle initials-name">
+        <%= interaction.owner.get_initials %>
+      </div>
+    </div>
+    <div class="column message-content no-padding-left">
+      <div class="columns no-margin-bottom">
+        <div class="column is-9 title padding-bottom-5"><%= "#{interaction.owner.name} comentou:" %></div>
+        <div class="column date padding-bottom-5"><%= interaction.created_at.strftime("%d/%m/%Y %H:%M") %></div>
+      </div>
+      <div class="columns <%= 'no-margin-bottom' if interaction.files.present? %>">
+        <div class="column"><%= interaction.content.html_safe %></div>
+      </div>
+      <% if interaction.files.present? %>
+        <div class="columns">
+          <div class="attachments">
+            <div class="outter-box-title">Anexos:</div>
+            <% interaction.files.each do |file| %>
+              <div class="attachment"><a class="file-link text-underline" href="<%= rails_blob_path(file, disposition: 'attachment') %>"><%= file.filename %></a></div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

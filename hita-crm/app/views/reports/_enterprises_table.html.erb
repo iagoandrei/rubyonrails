@@ -1,0 +1,102 @@
+<% ordered_months = (1..12).to_a %>
+
+<div class="top-bar">
+  <div class="consultants-container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th class="cell-fixed gray-bg"><div class="fixed-column-width"></div></th>
+          <% ordered_months.each do |i| %>
+            <% if @data_view == 'resumed' %>
+              <th colspan="1" class="text-center th-border month-head resumed"><%= @months[i] %></th>
+            <% else %>
+              <th colspan="4" class="text-center th-border month-head"><%= @months[i] %></th>
+            <% end %>
+          <% end %>
+        </tr>
+        <tr class="bold">
+          <th class="cell-fixed gray-bg"><div class="fixed-column-width"></div></th>
+          <% ordered_months.each do |i| %>
+            <% if @data_view == 'resumed' %>
+              <td class="text-center">Realizado</td>
+            <% else %>
+              <td></td>
+              <td class="text-center">Realizado</td>
+              <td>Planejado</td>
+              <td>M (%)</td>
+            <% end %>
+          <% end %>
+        </tr>
+        <tr class="blue-bg white-color bold">
+          <td class="cell-fixed blue-bg"><div class="fixed-column-width">Total</div></td>
+          <% if @data_view == 'resumed' %>
+            <% ordered_months.each do |i| %>
+              <% accomplished = @accomplished_total[i] %>
+              <td><%= print_money_alignment accomplished %></td>
+            <% end %>
+          <% else %>
+            <% ordered_months.each do |i| %>
+              <% accomplished = @accomplished_total[i] %>
+              <% planned      = @planned_total[i] %>
+
+              <td></td>
+              <td><%= print_money_alignment accomplished %></td>
+              <td><%= print_money_alignment planned %></td>
+              <td>
+                <% if planned > 0 %>
+                  <%= (accomplished / planned).round(2) * 100 %> %
+                <% else %>
+                  0.0 %
+                <% end %>
+              </td>
+            <% end %>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <% enterprises.each do |enterprise| %>
+          <tr class="white-bg">
+            <td class="cell-fixed white-bg bold" title="<%= enterprise.name %>"><div class="fixed-column-width"><%= enterprise.name %></div></td>
+            <% if @data_view == 'resumed' %>
+              <% ordered_months.each do |i| %>
+                <td><%= print_money_alignment enterprise.get_accomplished_month(i, @current_year) %></td>
+              <% end %>
+            <% else %>
+              <% ordered_months.each do |i| %>
+                <td></td>
+                <td><%= print_money_alignment enterprise.get_accomplished_month(i, @current_year) %></td>
+                <td><span class="change-planned tag no-select" enteprise-id="<%= enterprise.id %>" month-number="<%= i %>"><%= print_money_alignment enterprise.get_planned_month(i, @current_year) %></span></td>
+                <td class="blue-light-color"><%= enterprise.get_percentage_planning(i, @current_year) %> %</td>
+              <% end %>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  var current_year = <%= @current_year %>;
+  var current_month = <%= Date.today.month %>;
+  var $months = $('.month-head');
+
+  $(".consultant-item").click(function() {
+    var id = $(this).attr('consultant-id');
+
+    $(`.content${id}`).toggle();
+  });
+
+  $(function() {
+    $('.top-bar').animate({ scrollLeft: $($months[current_month - 1]).offset().left - $months.first().offset().left }, 'slow');
+  });
+
+  $(".change-planned").click(function() {
+    $("#changePlannedModal").addClass('is-active');
+    $("#reportEnterpriseIdInputHidden").val($(this).attr('enteprise-id'));
+    $("#reportMonthNumberInputHidden").val($(this).attr('month-number'));
+    $("#reportYearInputHidden").val(current_year);
+    $("#reportTypeInputHidden").val('planned');
+    $("#reportPeriodTypeIdInputHidden").val('month');
+  });
+</script>

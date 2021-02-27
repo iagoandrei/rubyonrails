@@ -1,0 +1,35 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Request Conditions</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Payment type</th>
+      <th>Operation type</th>
+      <th>Storage center</th>
+      <th>Payment code</th>
+      <th>Request</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @request_conditions.each do |request_condition| %>
+      <tr>
+        <td><%= request_condition.payment_type %></td>
+        <td><%= request_condition.operation_type %></td>
+        <td><%= request_condition.storage_center %></td>
+        <td><%= request_condition.payment_code %></td>
+        <td><%= request_condition.request_id %></td>
+        <td><%= link_to 'Show', request_condition %></td>
+        <td><%= link_to 'Edit', edit_request_condition_path(request_condition) %></td>
+        <td><%= link_to 'Destroy', request_condition, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Request Condition', new_request_condition_path %>

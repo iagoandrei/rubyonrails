@@ -1,0 +1,91 @@
+<%= render partial: 'shared/main_upper_section', locals: { current_main_section: 'stock' } %>
+
+<div class="stock-main-page upload-main-page">
+  <div class="container">
+    <div class="columns">
+      <div class="column is-2">
+        <%= render partial: 'shared/main_sidebar', locals: { main_page: 'stock', current_page: 'upload' } %>
+      </div>
+      <div class="column is-10">
+        <%= render partial: '/shared/flash_message' %>
+
+        <div class="columns is-multiline">
+          <div class="column is-half">
+            <div class="default-box">
+              <div>Importar <span class="has-text-weight-bold">Materiais</span></div>
+              <%= form_tag upload_document_stock_path, method: :post, multipart: true do %>
+                <div class="columns margin-top-10 files-content">
+                  <div class="column">
+                    <div class="file has-name">
+                      <label class="file-label fluid">
+                        <input type="hidden" name="stock[filename]" value="materials">
+                        <input class="file-input" type="file" name="stock[file]" accept=".doc, .docx, .xls, .csv, .pdf, .ppt, pptx" required>
+                        <span class="file-cta">
+                          <span class="file-label">
+                            Escolha um arquivo...
+                          </span>
+                        </span>
+                        <span class="file-name fluid">
+                          <% if @materials %>
+                            <%= @materials.file.blob.filename %>
+                          <% end %>
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="columns">
+                  <div class="column">
+                    <button class="button is-secondary is-fullwidth">Enviar Arquivo</button>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+          <div class="column is-half">
+            <div class="default-box">
+              <div>Importar <span class="has-text-weight-bold">Mão de obra</span></div>
+              <%= form_tag upload_document_stock_path, method: :post, multipart: true do %>
+                <div class="columns margin-top-10 files-content">
+                  <div class="column">
+                    <div class="file has-name">
+                      <label class="file-label fluid">
+                        <input type="hidden" name="stock[filename]" value="labor">
+                        <input class="file-input" type="file" name="stock[file]" accept=".doc, .docx, .xls, .csv, .pdf, .ppt, pptx" required>
+                        <span class="file-cta">
+                          <span class="file-label">
+                            Escolha um arquivo...
+                          </span>
+                        </span>
+                        <span class="file-name fluid">
+                          <% if @labor %>
+                            <%= @labor.file.blob.filename %>
+                          <% end %>
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="columns">
+                  <div class="column">
+                    <button class="button is-secondary is-fullwidth">Enviar Arquivo</button>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% content_for :tail_script do %>
+  <script>
+    $('input[type="file"]').change(function(e){
+      var fileName = e.target.files[0].name;
+
+      $(this).parent().find('.file-name').text(fileName)
+    });
+  </script>
+<% end %>

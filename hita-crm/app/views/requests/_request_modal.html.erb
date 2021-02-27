@@ -1,0 +1,1376 @@
+<div class="request-modal" data-request-id="" data-request-type="">
+  <div id="requestModal" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      <div class="columns">
+        <div class="column is-2 side-bar escape-modal">
+          <div class="left-tabs">
+            <div class="tab details-tab selected" data-container=".details-container">Detalhes</div>
+            <div class="tab history-tab" data-container=".history-container">Histórico</div>
+          </div>
+        </div>
+        <div class="column content is-10 personalized-scroll-y">
+          <div id="requestTitle" class="title">COD_BEL_CAH_235</div>
+          <div class="subtitle">
+            <div class="text">Pedido Nº: <span id="requestNumber" class="highlight"></span></div>
+            <div class="text" title="">Empresa: <span id="enterpriseName" class="highlight"></span></div>
+            <div class="text display-flex">
+              Urgência:
+              <div id="urgencyLevel" class="margin-left-5">
+                <div class="request-table">
+                  <div class="urgency urgency-modal">
+                    <div class="is-flex">
+                      <div class="levels">
+                        <div class="level"></div><div class="level"></div><div class="level"></div><div class="level"></div>
+                      </div>
+                      <div class="urgency-percentage modal-urgency-percentage"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="text">Tempo Total: <span id="elapsedTimeModal" class="highlight"></span></div>
+          </div>
+          <div class="details-container tab-container columns is-variable is-2">
+            <div class="column is-10">
+              <div class="columns">
+                <div class="column is-8">
+                  <div class="request-revenues">
+                    <% if can? :see_request_values, Request %>
+                      <div class="columns is-variable is-2">
+                        <div class="column is-4">
+                          <div class="value-labels">
+                            <div class="columns no-margin-bottom">
+                              <div class="column">
+                                <div>Valor do pedido</div>
+                              </div>
+                            </div>
+                            <div class="columns no-margin-bottom">
+                              <div class="column">
+                                <div>Produtos</div>
+                              </div>
+                            </div>
+                            <div class="columns no-margin-bottom">
+                              <div class="column">
+                                <div>Serviço</div>
+                              </div>
+                            </div>
+                            <div class="columns no-margin-bottom">
+                              <div class="column">
+                                <div>Valor da folga</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="column is-4">
+                          <div class="request-box real-values-container">
+                            <div class="columns no-margin-bottom">
+                              <div class="column">
+                                <div class="title">Planejado:</div>
+                              </div>
+                            </div>
+                            <div class="request-values-box">
+                              <div class="columns">
+                                <div class="column is-2">
+                                  <div class="coin">R$</div>
+                                </div>
+                                <div class="column">
+                                  <div id="requestRealValue" class="is-pulled-right value"></div>
+                                </div>
+                              </div>
+                              <div class="columns">
+                                <div class="column is-2">
+                                  <div class="coin">R$</div>
+                                </div>
+                                <div class="column">
+                                  <div id="productsRealValue" class="is-pulled-right value"></div>
+                                </div>
+                              </div>
+                              <div class="columns">
+                                <div class="column is-2">
+                                  <div class="coin">R$</div>
+                                </div>
+                                <div class="column">
+                                  <div id="serviceRealValue" class="is-pulled-right value"></div>
+                                </div>
+                              </div>
+                              <div class="columns">
+                                <div class="column is-2">
+                                  <div class="coin">R$</div>
+                                </div>
+                                <div class="column">
+                                  <div id="looseRealValue" class="is-pulled-right value"></div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="column is-4">
+                          <div class="request-box planned-values-container">
+                            <div class="columns no-margin-bottom">
+                              <div class="column">
+                                <div class="title">Real:</div>
+                              </div>
+                            </div>
+                            <div class="request-values-box">
+                              <div class="columns">
+                                <div class="column is-2">
+                                  <div class="coin">R$</div>
+                                </div>
+                                <div class="column">
+                                  <div id="requestPlannedValue" class="is-pulled-right value"></div>
+                                </div>
+                              </div>
+                              <div class="columns">
+                                <div class="column is-2">
+                                  <div class="coin">R$</div>
+                                </div>
+                                <div class="column">
+                                  <div id="productsPlannedValue" class="is-pulled-right value"></div>
+                                </div>
+                              </div>
+                              <div class="columns">
+                                <div class="column is-2">
+                                  <div class="coin">R$</div>
+                                </div>
+                                <div class="column">
+                                  <div id="servicePlannedValue" class="is-pulled-right value"></div>
+                                </div>
+                              </div>
+                              <div class="columns">
+                                <div class="column is-2">
+                                  <div class="coin">R$</div>
+                                </div>
+                                <div class="column">
+                                  <div id="loosePlannedValue" class="is-pulled-right value"></div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
+                  <div class="outter-box-title">Descrição:</div>
+                  <div class="request-description">
+                    <div class="description-box">
+                      <div class="columns is-multiline is-variable is-2">
+                        <div class="column is-half">
+                          <div class="title">Produto:</div>
+                          <div class="request-products"></div>
+                        </div>
+                        <div class="column is-half">
+                          <div class="title">Causa:</div>
+                          <div class="cause-or-reason"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="columns">
+                <div class="column is-10">
+                  <div class="columns no-margin-bottom">
+                    <div class="column">
+                      <div class="outter-box-title">Impedido com:</div>
+                      <div class="hindrace-box">
+                      </div>
+                      <div class="columns">
+                        <div class="column">
+                          <button class="button is-secondary change-hindrance-bt"><%= inline_svg "change_hindrance.svg" %> Trocar Impedimento</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="columns">
+                    <div class="column is-6">
+                      <div class="outter-box-title">Consultor:</div>
+                      <div class="consultant-box">
+                      </div>
+                    </div>
+                    <div class="column">
+                      <div class="outter-box-title">Técnico:</div>
+                      <div class="technician-box">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="columns">
+                <div class="column is-9 no-padding-top">
+                  <div class="outter-box-title">Anexos:</div>
+                  <div class="columns is-variable is-1">
+                    <% if !current_user.role?(User::ROLES[:service]) %>
+                      <div class="column is-one-quarter">
+                        <div id="requestProposals" class="file-button">Propostas</div>
+                      </div>
+                    <% end %>
+                    <div class="column is-one-quarter">
+                      <div id="requestFiles" class="file-button">Ver Anexos</div>
+                    </div>
+                    <div class="column is-one-quarter">
+                      <div class="dropdown is-up is-hoverable fluid">
+                        <div class="dropdown-trigger fluid">
+                          <div class="file-button fluid" aria-haspopup="true" aria-controls="dropdown-menu4">
+                            <%= inline_svg "attachment.svg" %> Adicionar
+                          </div>
+                        </div>
+                        <div class="dropdown-menu" id="dropdown-menu4" role="menu">
+                          <div class="dropdown-content">
+                            <% if !current_user.role?(User::ROLES[:service]) %>
+                              <div class="dropdown-item specific-file-item" data-file-type="proposal">Proposta</div>
+                            <% end %>
+                            <% if !current_user.role?(User::ROLES[:service]) %>
+                              <div class="dropdown-item specific-file-item" data-file-type="calculation_memorial">Memorial de Cálculo</div>
+                            <% end %>
+                            <div class="dropdown-item specific-file-item" data-file-type="photos_report">Relatório de 3 Fotos</div>
+                            <div class="dropdown-item specific-file-item" data-file-type="procedure">Procedimento</div>
+                            <div class="dropdown-item specific-file-item" data-file-type="success_certificate">Atestado de Sucesso</div>
+                            <div class="dropdown-item specific-file-item" data-file-type="execution_certificate">Atestado de Execução</div>
+                            <% if !current_user.role?(User::ROLES[:service]) %>
+                              <div class="dropdown-item specific-file-item" data-file-type="financial_files">Arquivo Financeiro</div>
+                            <% end %>
+                            <div class="dropdown-item specific-file-item" data-file-type="fs">FS</div>
+                            <div class="dropdown-item specific-file-item" data-file-type="qsc">QSC</div>
+                            <div class="dropdown-item specific-file-item" data-file-type="rdo">RDO</div>
+                            <div id="RequestUppyButton" class="dropdown-item">Outros arquivos</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="column is-2 no-padding">
+              <div class="request-sidebar margin-top-10">
+                <div class="outter-box-title">Adicionar / Gerenciar:</div>
+                <div class="add-list">
+                  <button id="addTechnicianModalButton" class="button is-secondary is-fullwidth">Técnico</button>
+                  <% if !current_user.role?(User::ROLES[:service]) %>
+                    <button class="button is-secondary is-fullwidth specific-file-item" data-file-type="proposal">Proposta</button>
+                  <% end %>
+                  <button id="addHindranceButtonModal" class="button is-secondary is-fullwidth">Impedimentos</button>
+                  <% if can? :see_installments, RequestInstallment %>
+                    <button id="manageInstallmentsBt" class="button is-secondary is-fullwidth">Faturas</button>
+                  <% end %>
+                  <% if can? :see_installments, RequestInstallment %>
+                    <button id="condicBt" class="button is-secondary is-fullwidth">Condições</button>
+                  <% end %> 
+                  
+                </div>
+                <div class="outter-box-title">Configurações:</div>
+                <div class="add-list">
+                  <% if can? :edit, Request %>
+                    <a>
+                      <button class="edit-request-modal-bt button is-secondary is-fullwidth">Editar</button>
+                    </a>
+                  <% end %>
+                  <% if can? :archive_request, Request %>
+                    <button id="archiveRequest" class="button is-secondary is-fullwidth">Arquivar Pedido</button>
+                  <% end %>
+                  <% if can? :update_request_enterprise, Request %>
+                    <button id="changeEnterprise" class="button is-secondary is-fullwidth">Alterar Empresa</button>
+                  <% end %>
+                </div>
+                <div class="product-steps">
+                  <div class="outter-box-title">Etapas: <div id="stepChangeLoader" class="loader hide"></div> </div>
+                  <div class="add-list">
+                    <div class="b-checkbox is-primary">
+                      <input id="technicalAllocated" class="styled step-change" type="checkbox" data-next-step='2' data-previous-step='blocked'>
+                      <label for="technicalAllocated">
+                        Técnico Alocado
+                      </label>
+                    </div>
+                    <div class="b-checkbox is-primary">
+                      <input id="proposalFinished" class="styled step-change" type="checkbox" data-next-step='3' data-previous-step='2'>
+                      <label for="proposalFinished">
+                        Proposta Elaborada
+                      </label>
+                    </div>
+                    <div class="b-checkbox is-primary">
+                      <input id="proposalApproved" class="styled step-change" type="checkbox" data-next-step='4' data-previous-step='3'>
+                      <label for="proposalApproved">
+                        Proposta Aprovada
+                      </label>
+                    </div>
+                    <div class="b-checkbox is-primary">
+                      <% if [User::ROLES[:financial], User::ROLES[:admin]].include? current_user.role %>
+                        <input id="requestFatured" class="styled step-change" type="checkbox" data-next-step='5' data-previous-step='4'>
+                        <label for="requestFatured">
+                          Pedido Faturado
+                        </label>
+                      <% else %>
+                        <input id="requestFatured" class="styled step-change blocked" type="checkbox" data-next-step='5' data-previous-step='4'>
+                        <label for="requestFatured">
+                          Pedido Faturado
+                        </label>
+                      <% end %>
+                    </div>
+                    <div class="b-checkbox is-primary">
+                      <% if [User::ROLES[:financial], User::ROLES[:service], User::ROLES[:admin]].include? current_user.role %>
+                        <input id="inMobilization" class="styled step-change" type="checkbox" data-next-step='6' data-previous-step='5'>
+                        <label for="inMobilization">
+                          Mobilizado
+                        </label>
+                      <% else %>
+                        <input id="inMobilization" class="styled step-change blocked" type="checkbox" data-next-step='6' data-previous-step='5'>
+                        <label for="inMobilization">
+                          Mobilizado
+                        </label>
+                      <% end %>
+                    </div>
+                    <div class="b-checkbox is-primary">
+                      <% if [User::ROLES[:financial], User::ROLES[:service], User::ROLES[:admin]].include? current_user.role %>
+                        <input id="paymentMade" class="styled step-change" type="checkbox" data-next-step='7' data-previous-step='6'>
+                        <label for="paymentMade">
+                          Pagamento Realizado
+                        </label>
+                      <% else %>
+                        <input id="paymentMade" class="styled step-change blocked" type="checkbox" data-next-step='7' data-previous-step='6'>
+                        <label for="paymentMade">
+                          Pagamento Realizado
+                        </label>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+                <div class="service-steps">
+                  <div class="outter-box-title">Etapas <div id="stepChangeLoader" class="loader hide"></div></div>
+                  <div class="add-list">
+                    <div class="b-checkbox is-primary">
+                      <input id="technicalAllocatedService" class="styled step-change" type="checkbox" data-next-step='2' data-previous-step='blocked'>
+                      <label for="technicalAllocatedService">
+                        Técnico Alocado
+                      </label>
+                    </div>
+                    <div class="b-checkbox is-primary">
+                      <input id="proposalFinishedService" class="styled step-change" type="checkbox" data-next-step='3' data-previous-step='2'>
+                      <label for="proposalFinishedService">
+                        Proposta Elaborada
+                      </label>
+                    </div>
+                    <div class="b-checkbox is-primary">
+                      <input id="proposalApprovedService" class="styled step-change" type="checkbox" data-next-step='4' data-previous-step='3'>
+                      <label for="proposalApprovedService">
+                        Proposta Aprovada
+                      </label>
+                    </div>
+                    <div class="b-checkbox is-primary">
+                      <% if [User::ROLES[:financial], User::ROLES[:service], User::ROLES[:admin]].include? current_user.role %>
+                        <input id="inMobilizationServiceCheck" class="styled step-change" type="checkbox" data-next-step='5' data-previous-step='4'>
+                        <label for="inMobilizationServiceCheck">
+                          Mobilizado
+                        </label>
+                      <% else %>
+                        <input id="inMobilizationServiceCheck" class="styled step-change blocked" type="checkbox" data-next-step='5' data-previous-step='4'>
+                        <label for="inMobilizationServiceCheck">
+                          Mobilizado
+                        </label>
+                      <% end %>
+                    </div>
+                    <div class="b-checkbox is-primary">
+                      <% if [User::ROLES[:service], User::ROLES[:admin]].include? current_user.role %>
+                        <input id="inExecutionServiceCheck" class="styled step-change" type="checkbox" data-next-step='6' data-previous-step='5'>
+                        <label for="inExecutionServiceCheck">
+                          Executado
+                        </label>
+                      <% else %>
+                        <input id="inExecutionServiceCheck" class="styled step-change blocked" type="checkbox" data-next-step='6' data-previous-step='5'>
+                        <label for="inExecutionServiceCheck">
+                          Executado
+                        </label>
+                      <% end %>
+                    </div>
+                    <div class="b-checkbox is-primary">
+                      <% if [User::ROLES[:financial], User::ROLES[:admin]].include? current_user.role %>
+                        <input id="requestFaturedService" class="styled step-change" type="checkbox" data-next-step='7' data-previous-step='6'>
+                        <label for="requestFaturedService">
+                          Pedido Faturado
+                        </label>
+                      <% else %>
+                        <input id="requestFaturedService" class="styled step-change blocked" type="checkbox" data-next-step='7' data-previous-step='6'>
+                        <label for="requestFaturedService">
+                          Pedido Faturado
+                        </label>
+                      <% end %>
+                    </div>
+                    <div class="b-checkbox is-primary">
+                      <% if [User::ROLES[:financial], User::ROLES[:admin]].include? current_user.role %>
+                        <input id="paymentMadeService" class="styled step-change" type="checkbox" data-next-step='8' data-previous-step='7'>
+                        <label for="paymentMadeService">
+                          Pagamento Realizado
+                        </label>
+                      <% else %>
+                        <input id="paymentMadeService" class="styled step-change blocked" type="checkbox" data-next-step='8' data-previous-step='7'>
+                        <label for="paymentMadeService">
+                          Pagamento Realizado
+                        </label>
+                      <% end %>
+                    </div>
+                    <div class="b-checkbox is-primary">
+                      <input id="aftersaleService" class="styled step-change" type="checkbox" data-next-step='9' data-previous-step='8'>
+                      <label for="aftersaleService">
+                        Pós-venda
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="history-container tab-container">
+            <div class="columns">
+              <div class="column is-12">
+                <div class="outter-box-title">Histórico</div>
+                <div class="history">
+                  <div class="actions">
+                    <div id="messageDescription" class="action-icon chat"><%= inline_svg "chat.svg" %></div>
+                  </div>
+                  <div id="actionDescriptionContent" class="interaction-description">
+                    <%= form_tag create_request_interaction_path, method: :post, multipart: true, id: 'newInteractionRequest' do %>
+                      <input type="hidden" name="interaction_type" value="comment">
+                      <input class="hidden-interaction-request-id" type="hidden" name="request[id]">
+                      <div class="columns">
+                        <div class="column forms is-10">
+                          <div class="columns is-vcentered no-margin-bottom">
+                            <div class="column">
+                              <div class="attachment-link padding-top-5">
+                                <input id="interactionFileInput" class="file-input interaction-file-input" type="file" name="interaction_attachment[]" multiple>
+                                <div><%= inline_svg "attachment.svg" %></div>
+                                <div id="fileName" class="text-underline file-name-content">Adicionar anexo</div>
+                              </div>
+                            </div>
+                          </div>
+                          <div>
+                            <textarea id="interactionContent" class="textarea textarea-interaction" placeholder="Descrição" name="content" required></textarea>
+                          </div>
+                        </div>
+                        <div class="column cta-button is-2 is-bottom-aligned">
+                          <button class="button is-primary is-fullwidth interaction-bt">Salvar</button>
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+                <div class="interactions"></div>
+              </div>
+            </div>
+          </div>
+          <button class="modal-close is-large" aria-label="close"></button>
+        </div>
+      </div>
+    </div>
+    <div class="request-uppy-container"></div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  var thrash_icon = `<%= inline_svg "remove.svg" %>`;
+  var info_icon = `<%= inline_svg "info.svg" %>`;
+  var uppy_current_request_id;
+  var is_proposal_present = false;
+  var is_proposal_approved = false;
+  var uploaded_proposal_from_steps = false;
+  var approved_proposal_from_steps = false;
+  var billed_from_request_steps = false
+  var is_request_full_billed = false;
+  var is_payment_complete = false;
+  var billed_started = false;
+  var is_qsc_present = false;
+  var is_photos_report_present = false;
+  var finished_by_aftersale_modal;
+  var request_type;
+
+  var request_uppy = Uppy({
+    autoProceed: false,
+    locale: Brazil_locale,
+    restrictions: {
+      maxFileSize: 10485760
+    }
+  })
+  .use(Dashboard, {
+    trigger: '#RequestUppyButton',
+    target: '.request-uppy-container',
+    replaceTargetContent: true,
+    showProgressDetails: true,
+    proudlyDisplayPoweredByUppy: false,
+    closeModalOnClickOutside: true,
+    note: 'Adicionar Arquivos',
+    height: 470,
+    browserBackButtonClose: true
+  })
+  .use(XHRUpload, {
+    endpoint: '/upload_request_file',
+    method: 'POST',
+    formData: true,
+    fieldName: 'files[]'
+  })
+
+  request_uppy.on('file-added', (file) => {
+    request_uppy.setFileMeta(file.id, {
+      request_id: uppy_current_request_id
+    })
+    request_uppy.setFileMeta(file.id, {
+      authenticity_token: "<%= form_authenticity_token %>"
+    })
+  })
+
+  $("#requestModal .tab").click(function(e) {
+    e.stopPropagation();
+
+    $("#requestModal .tab").removeClass("selected");
+    $(this).addClass("selected");
+
+    $("#requestModal .tab-container").hide();
+    var container = $(this).data('container');
+    $(`#requestModal ${container}`).show();
+  });
+
+  $('#addHindranceButtonModal').click(function() {
+    $('#newHindrance').addClass('is-active');
+  });
+
+  $('#addTechnicianModalButton').click(function() {
+    $('#technicianModalRequestId').text($('#requestNumber').text());
+    $('#technicianModalEnterpriseName').text($('#enterpriseName').text());
+    $('#technicianModalName').text($('#requestTitle').text());
+    $('#addTechnician').addClass('is-active');
+  });
+
+  $('.real-values-container').click(function() {
+    $('.real-value-edit').show();
+    $('.planned-value-edit').hide();
+    $('#valuesEditionModal').addClass('is-active');
+
+    $('input[name="real_value[request]"]').val($('#requestRealValue').text());
+    $('input[name="real_value[products]"]').val($('#productsRealValue').text());
+    $('input[name="real_value[service]"]').val($('#serviceRealValue').text());
+    $('input[name="real_value[loose]"]').val($('#looseRealValue').text());
+  });
+
+  $('#manageInstallmentsBt').click(function() {
+    loadCurrentInstallmentInfos();
+    $('#installmentsModal').addClass('is-active');
+  });
+
+/*=================================================================================================================
+//
+//                             LOGICA BOTÃO CONDIÇÕES!!!
+//
+================================================================================================================*/
+
+$('#condicBt').click(function() {
+
+  var apirequest = 0;    
+  var id;
+
+  $.ajax({
+    url: '<%= conditions_get_url %>.json',
+    type: "GET",
+    data:{ 
+    authenticity_token: '<%= form_authenticity_token %>'
+    }
+  })
+  .done(function(resposta) {
+    var validator = true;
+    resposta.forEach(res => {
+    //Validation 
+      if($('.request-modal').data('request-id') == res.request_id){
+          id = res.id;
+          request_id = res.request_id        
+          validator = false;
+          alert("Você já possui uma condição cadastrada!")
+          GetEnterpriseID(res);
+          document.getElementById("editCondic").disabled = false
+          OnOffCondicFields(1);
+          SetReqCondition(res);  
+        }
+      })
+
+  if(validator == true){
+    GetAPI();
+    //STORAGE_CENTER DEFAULT VALUE
+    document.getElementById("ca").value = "022"
+    document.getElementById("editCondic").disabled = true  
+  }
+
+})
+
+  $('#editCondic').click(function() {
+
+    if (document.getElementById("tippag").disabled == true) {        
+
+      //Unica requisição a API por Edição
+      if (apirequest == 0) {
+        GetAPI();
+        apirequest = 1;        
+      }
+      document.getElementById("editCondic").firstChild.data = "Salvar" 
+      OnOffCondicFields(0);
+       
+    }else{
+      var request_condition = {
+      payment_type: $("#tippag").val(),
+      operation_type: $("#tipope").val(),
+      storage_center: $("#ca").val(),
+      payment_code: $("#codpag").val(),
+      request_id: $('.request-modal').data('request-id')        
+      }
+
+      EditCondic(request_condition,id);
+      OnOffCondicFields(1);
+      document.getElementById("editCondic").firstChild.data = "Editar Condição"
+      
+    }
+  });
+
+    $('#condicModal').addClass('is-active');
+    
+  });
+
+/*=================================================================================================================
+//
+//                             LOGICA CONDIÇÕES!!!
+//
+================================================================================================================*/
+
+
+  $('.planned-values-container').click(function() {
+    $('.real-value-edit').hide();
+    $('.planned-value-edit').show();
+    $('#valuesEditionModal').addClass('is-active');
+
+    $('input[name="planned_value[request]"]').val($('#requestPlannedValue').text());
+    $('input[name="planned_value[products]"]').val($('#productsPlannedValue').text());
+    $('input[name="planned_value[service]"]').val($('#servicePlannedValue').text());
+    $('input[name="planned_value[loose]"]').val($('#loosePlannedValue').text());
+  });
+
+  $('.change-hindrance-bt').click(function() {
+    $('#changeHindrance').addClass('is-active');
+  });
+
+  $(".interaction-file-input").change(function(e) {
+    $(this).closest('.attachment-link').find('.file-name-content').text(`${e.target.files.length} arquivo(s) selecionados`);
+  });
+
+  $('#requestFiles').click(function() {
+    $('#filesModal').addClass('is-active');
+  });
+
+  $('#requestProposals').click(function(e) {
+    var $button = $(this);
+
+    var table =`
+    <table>
+      <thead>
+        <th><div>Nome do arquivo</div></th>
+        <th><div>Data de upload</div></th>
+        <th><div>Tamanho</div></th>
+        <th><div>Situação</div></th>
+        <th><div>Ações</div></th>
+      </thead>
+      <tbody>
+    `;
+
+    $.ajax({
+      method: 'GET',
+      url: '<%= get_request_proposals_url %>',
+      dataType: 'json',
+      data: {
+        id: $('.request-modal').data('request-id'),
+      },
+      beforeSend: function() {
+        $button.html('<div class="loader"><div>');
+      },
+      success: function(data) {
+        if(data) {
+          for (var i = 0; i < data.length; i++) {
+
+            if (data[i].blob_path == 'none') {
+              table += `
+              <tr data-proposal-id="${data[i].id}">
+                <td>${data[i].filename}</td>
+                <td><div>${data[i].date}</div></td>
+                <td><div>${data[i].size}</div></td>
+                <td><div class="${ data[i].situation == 'Aprovada' ? 'situation-column green-highlight' : 'situation-column' }">${data[i].situation}</div></td>
+                <td class="display-flex">
+                  <div class="remove-enterprise-file approve-proposal-icon" title="Status da Proposta">${info_icon}</div>
+                </td>
+              </tr>
+              `;
+            } else {
+              table += `
+              <tr data-proposal-id="${data[i].id}">
+                <td><a href='${data[i].blob_path}'>${data[i].filename}</a></td>
+                <td><div>${data[i].date}</div></td>
+                <td><div>${data[i].size}</div></td>
+                <td><div class="${ data[i].situation == 'Aprovada' ? 'situation-column green-highlight' : 'situation-column' }">${data[i].situation}</div></td>
+                <td class="display-flex">
+                  <div class="remove-enterprise-file remove-request-proposal" data-request-proposal-id="${data[i].proposal_id}">${thrash_icon}</div>
+                  <div class="remove-enterprise-file approve-proposal-icon" title="Status da Proposta">${info_icon}</div>
+                </td>
+              </tr>
+              `;
+            }
+          }
+        }
+
+        table += '</tbody></table>'
+        $('#proposalsFilesModal').find('.table-container').html(table);
+        $('#proposalsFilesModal').find('#proposalsModalNameSpan').text($('#requestNumber').text());
+        $("#proposalsFilesModal").addClass('is-active');
+        $button.html('Propostas');
+      }
+    });
+  });
+
+  $(document).on("click", ".approve-proposal-icon", function() {
+    var $icon = $(this);
+    var proposal_id = $(this).closest('tr').data('proposal-id');
+    var request_id = $('.request-modal').data('request-id');
+
+    loadProposalInfos(request_id, proposal_id);
+  });
+
+  function loadProposalInfos(request_id, proposal_id) {
+    var $select = $('#proposalsSelect');
+    $('#refuseProposalModal').addClass('is-active');
+
+    $.ajax({
+      method: 'GET',
+      url: '<%= get_request_proposals_url %>',
+      data: {
+        id: request_id
+      },
+      beforeSend: function() {
+        $select.parent().addClass('is-loading');
+        $select.prop('disabled', true);
+        $select.html('<option>Carregando..</option>');
+
+        $('#refuseProposalModal').find('.radio-buttons .selected').removeClass('selected');
+        $('#refuseProposalModal').find('input:checked').prop('checked', false);
+        $('#reasonDescription').val('');
+        $('.reasons-list input').prop('checked', false);
+      },
+      success: function(data) {
+        var options = '';
+        var current_proposal;
+        for (var i = 0; i < data.length; i++) {
+          options += `<option value="${data[i].id}">${data[i].filename}</option>`
+
+          if (data[i].id == proposal_id) {
+            current_proposal = data[i];
+          }
+        }
+
+        $('.refused-container').hide();
+        $('#saveProposalStatus').prop('disabled', true);
+
+        $select.html(options);
+        $select.parent().removeClass('is-loading');
+        $select.prop('disabled', false);
+
+        if (proposal_id) {
+          $select.val(proposal_id);
+
+          if (current_proposal.situation == 'Aprovada') {
+            $('#refuseProposalModal').find('input[value="accepted"]').parent().click();
+          } else if(current_proposal.situation == 'Recusada') {
+            $('#refuseProposalModal').find('input[value="refused"]').parent().click();
+          }
+
+          $('#reasonDescription').val(current_proposal.feedback_description);
+          for (i = 0; i < current_proposal.feedback_reasons.length; i++) {
+            $(`.reasons-list input[value="${current_proposal.feedback_reasons[i]}"]`).prop('checked', true);
+          }
+        }
+
+        if (!is_proposal_present) {
+          $('.approved-container').hide();
+        } else {
+          $('.approved-container').show();
+        }
+      },
+      error: function() {
+        $select.html('<option>Erro ao mostrar propostas.</option>');
+        $select.parent().removeClass('is-loading');
+      }
+    })
+  }
+
+  $('#requestFiles').click(function() {
+    var $button = $(this);
+    var table =`
+    <table>
+      <thead>
+        <th><div>Nome do arquivo</div></th>
+        <th><div>Data de upload</div></th>
+        <th><div>Tamanho</div></th>
+        <th><div>Tipo</div></th>
+        <th><div>Remover</div></th>
+      </thead>
+      <tbody>
+    `;
+
+    $.ajax({
+      method: 'GET',
+      url: '<%= get_request_files_url %>',
+      dataType: 'json',
+      data: {
+        id: $('.request-modal').data('request-id'),
+      },
+      beforeSend: function() {
+        $button.html('<div class="loader"><div>');
+      },
+      success: function(data) {
+        if(data) {
+          for (var i = 0; i < data.length; i++) {
+            table += `
+            <tr>
+              <td><a href='${data[i].blob_path}'>${data[i].filename}</a></td>
+              <td><div>${data[i].date}</div></td>
+              <td><div>${data[i].size}</div></td>
+              <td><div class="attachment-type">${data[i].attachment_type}</div></td>
+              <td><div class="remove-enterprise-file remove-request-file" data-blob-id="${data[i].blob_id}">${thrash_icon}</div></td>
+            </tr>
+            `;
+          }
+        }
+
+        table += '</tbody></table>'
+        $('#filesModal').find('.table-container').html(table);
+        $('#filesModal').find('#filesModalNameSpan').text($('#requestNumber').text());
+        $("#filesModal").addClass('is-active');
+        $button.html('Ver Anexos');
+      }
+    });
+  });
+
+  $(document).on("click", ".remove-request-file", function() {
+    var $el = $(this);
+    var attachment_type = $(this).closest('tr').find('.attachment-type').text();
+
+    if (confirm("Tem certeza que deseja remover este arquivo?")) {
+      $.ajax({
+        url: "<%= remove_request_file_url %>",
+        method: 'post',
+        data: {
+          id: $el.data('blob-id'),
+          authenticity_token: "<%= form_authenticity_token %>"
+        },
+        beforeSend: function() {
+          $el.html('<div class="loader disabled-pointer-events"></div>');
+        },
+        success: function() {
+          $el.closest('tr').remove();
+
+          if (attachment_type == 'QSC') {
+            last_qsc = true;
+
+            $('.attachment-type').each(function() {
+              if ($(this).text() == 'QSC') {
+                last_qsc = false;
+                return false;
+              }
+            });
+
+            if (last_qsc) {
+              $('#attachQSCBt').prop('disabled', false);
+              $('#attachQSCBt').find('.rounded-icon').removeClass('valid');
+              $('#attachQSCBt').find('svg').removeClass('valid');
+            }
+          }
+
+
+          if (attachment_type == 'Rel. 3 Fotos') {
+            last_rel = true;
+
+            $('.attachment-type').each(function() {
+              if ($(this).text() == 'Rel. 3 Fotos') {
+                last_rel = false;
+                return false;
+              }
+            });
+
+            if (last_rel) {
+              $('#attachPhotosRelBt').prop('disabled', false);
+              $('#attachPhotosRelBt').find('.rounded-icon').removeClass('valid');
+              $('#attachPhotosRelBt').find('svg').removeClass('valid');
+            }
+          }
+        }
+      });
+    }
+  });
+
+  $(document).on("click", ".remove-request-proposal", function() {
+    var $el = $(this);
+
+    if (confirm("Tem certeza que deseja remover esta proposta?")) {
+      $.ajax({
+        url: "<%= remove_request_proposal_url %>",
+        method: 'post',
+        data: {
+          id: $el.data('request-proposal-id'),
+          authenticity_token: "<%= form_authenticity_token %>"
+        },
+        beforeSend: function() {
+          $el.html('<div class="loader disabled-pointer-events"></div>');
+        },
+        success: function() {
+          $el.closest('tr').remove();
+        }
+      });
+    }
+  });
+
+</script>
+
+<script type="text/javascript">
+  $(document).on("click", ".request-row", function() {
+    var id = $(this).data('request-id');
+    uppy_current_request_id = id;
+
+    $('#requestModal .tab.details-tab').click();
+
+    $.ajax({
+      url: '<%= get_request_infos_url %>',
+      method: 'GET',
+      data: {
+        id: id
+      },
+      beforeSend: function() {
+        $('.consultant-box').html('');
+        $('.technician-box').html('');
+        $('.hindrace-box').html('');
+      },
+      success: function(data) {
+        updateModalInfos(data);
+        $(".hidden-interaction-request-id").val(id);
+        $(".interaction-bt").attr('request-id', id);
+        $("#requestId").val(id);
+        $(".step-change").attr('request-id', id);
+
+        $.getJSON("<%= get_request_infos_url('_id_') %>".replace("_id_", id), function(data) {
+          if (data['interactions']) {
+            $(".interactions").html('');
+
+            $.each(data.interactions, function(k, v) {
+              $(".interactions").prepend(v['content']);
+            });
+          }
+        });
+      }
+    });
+
+    $('#requestModal').addClass('is-active');
+  });
+
+  function updateRequestValues() {
+    $.ajax({
+      method: 'GET',
+      url: '<%= get_request_values_url %>',
+      data: {
+        id: $('.request-modal').data('request-id')
+      },
+      beforeSend: function() {
+        $('.request-values-box .value').html('<div class="loader"></div>');
+      },
+      success: function(data) {
+        $('#requestRealValue').text(data.real.request);
+        $('#productsRealValue').text(data.real.products);
+        $('#serviceRealValue').text(data.real.service);
+        $('#looseRealValue').text(data.real.loose)
+
+        $('#requestPlannedValue').text(data.planned.request);
+        $('#productsPlannedValue').text(data.planned.products);
+        $('#servicePlannedValue').text(data.planned.service);
+        $('#loosePlannedValue').text(data.planned.loose);
+      }
+    })
+  }
+
+  function updateModalInfos(request) {
+    var $modal = $('#requestModal');
+
+    $('.request-modal').data('request-id', request.raw_id);
+    $('.request-modal').data('request-type', request.request_type);
+    $('#requestNumber').text(request.id);
+    $('#enterpriseName').text(request.truncated_enterprise_name);
+    $('#enterpriseName').parent().attr('title', request.enterprise_name);
+    $('#elapsedTimeModal').text(request.total_time);
+    $("#requestTitle").text(request.title);
+
+    $('.edit-request-modal-bt').parent().attr('href', '<%= edit_request_url('_id_') %>'.replace('_id_', request.raw_id));
+
+    is_proposal_present = request.is_proposal_present;
+    is_proposal_approved = request.is_proposal_approved;
+    is_request_full_billed = request.is_request_full_billed;
+    request_type = request.request_type;
+    billed_started = request.billed_started;
+    is_qsc_present = request.is_qsc_present;
+    is_photos_report_present = request.is_photos_report_present;
+    request_uppy.cancelAll();
+    finished_by_aftersale_modal = false;
+
+    if (is_qsc_present) {
+      $('#attachQSCBt').prop('disabled', true);
+      $('#attachQSCBt').find('.rounded-icon').addClass('valid');
+      $('#attachQSCBt').find('svg').addClass('valid');
+    } else {
+      $('#attachQSCBt').prop('disabled', false);
+      $('#attachQSCBt').find('.rounded-icon').removeClass('valid');
+      $('#attachQSCBt').find('svg').removeClass('valid');
+    }
+
+
+    if (is_photos_report_present) {
+      $('#attachPhotosRelBt').prop('disabled', true);
+      $('#attachPhotosRelBt').find('.rounded-icon').addClass('valid');
+      $('#attachPhotosRelBt').find('svg').addClass('valid');
+    } else {
+      $('#attachPhotosRelBt').prop('disabled', false);
+      $('#attachPhotosRelBt').find('.rounded-icon').removeClass('valid');
+      $('#attachPhotosRelBt').find('svg').removeClass('valid');
+    }
+
+
+    // Resets File inputs
+    $('#sendFileButton').prop('disabled', true);
+    $('#specificFileType').val(null);
+    $('#specificFileType').parent().find('.file-name').text('');
+
+    // Resets Proposal inputs
+    $('#submitWithProposal').prop('disabled', true);
+    $('#proposalFileInput').val(null);
+    $('#proposalFileInput').parent().find('.file-name').text('');
+
+
+    if (is_request_full_billed) {
+      $('#requestFaturedService').parent().addClass('is-primary').removeClass('is-warning');
+      $('#requestFatured').parent().addClass('is-primary').removeClass('is-warning');
+    } else {
+      $('#requestFaturedService').parent().addClass('is-warning').removeClass('is-primary');
+      $('#requestFatured').parent().addClass('is-warning').removeClass('is-primary');
+    }
+
+    if (request.is_active) {
+      $('#archiveRequest').show();
+    } else {
+      $('#archiveRequest').hide();
+    }
+
+    $('.product-steps, .service-steps').addClass('hide');
+    $('.change-hindrance-bt').hide();
+
+    $('#realRequestValuesForm input[name="request_id"]').val(request.raw_id);
+    $('#plannedRequestValuesForm input[name="request_id"]').val(request.raw_id);
+    updateRequestValues();
+
+    if(request.request_type == 'product') {
+      $('.product-steps').removeClass('hide');
+    } else {
+      $('.service-steps').removeClass('hide');
+    }
+
+    var detainees = '';
+    var current_user_id = <%= current_user.id %>;
+
+    for (var i = 0; i < request.detainees.length; i++) {
+      detainees +=
+      `<div class="person-tag">
+        <div class="sphere" style="background-color: ${request.detainees[i][3]}">
+          <div class="initials">${request.detainees[i][1]}</div>
+        </div>
+        <div class="name consultant-name">${request.detainees[i][0]}
+      `
+      if(request.detainees[i][2] == current_user_id) {
+        detainees += '<span class="you"> (você)</span>';
+        $('.change-hindrance-bt').show();
+      }
+
+      detainees +=`
+      </div>
+        <span class="remove-hindrance" user-id="${request.detainees[i][2]}">x</span>
+      </div>`;
+    }
+
+    $('.hindrace-box').html(detainees);
+
+    $('.consultant-box').html(
+      `<div class="person-tag">
+        <div class="sphere" style="background-color: ${request['consultant_color']}">
+          <div class="initials">${request['consultant_initials']}</div>
+        </div>
+        <div class="name consultant-name">${request['consultant_name']}</div>
+      </div>`
+    );
+
+    if(request['technician_name']) {
+      $('.technician-box').html(
+        `<div class="person-tag">
+          <div class="sphere" style="background-color: ${request['technician_color']}">
+            <div class="initials">${request['technician_initials']}</div>
+          </div>
+          <div class="name consultant-name">${request['technician_name']}</div>
+        </div>`
+      );
+    }
+
+    $(".request-products").html('');
+
+    $.each(request['products'], function(i, product) {
+      $(".request-products").append(`
+        <div id="requestSector" class="text">${product}</div>
+      `);
+    });
+
+    $(".cause-or-reason").html('');
+
+    $.each(request['cause_or_reason'], function(i, cause_or_reason) {
+      $(".cause-or-reason").append(`
+        <div id="requestType" class="text">${cause_or_reason}</div>
+      `);
+    });
+
+    $(".urgency-modal").attr('class', 'urgency urgency-modal').addClass(request['calculate_priority']);
+    $(".modal-urgency-percentage").html(request['calculate_priority_percentage']);
+
+    updateModalSteps(request.step);
+  }
+
+  function updateModalSteps(current_step) {
+    $.ajax({
+      url: '<%= update_request_step_url %>',
+      method: 'GET',
+      data: {
+        id: $('.request-modal').data('request-id'),
+        step: current_step
+      },
+      beforeSend: function() {
+        $("#stepChangeLoader").removeClass('hide');
+      },
+      success: function() {
+        $("#stepChangeLoader").addClass('hide');
+
+        var $step_list;
+        var step_length;
+
+        if($('.request-modal').data('request-type') == 'product')
+          $step_list = $('.product-steps .add-list .b-checkbox input');
+        else {
+          $step_list = $('.service-steps .add-list .b-checkbox input');
+        }
+
+        step_length = $step_list.length;
+
+        $step_list.each(function() {
+          $(this).prop('disabled', false);
+          $(this).prop('checked', false);
+        });
+
+        for (var i = 0; i < current_step - 1; i++) {
+          $($step_list[i-1]).prop('disabled', true);
+          $($step_list[i]).prop('checked', true);
+        }
+
+        for (var i = current_step; i < step_length; i++) {
+          $($step_list[i]).prop('disabled', true);
+        }
+
+        if (billed_started && !is_request_full_billed) {
+          $('#requestFaturedService').prop('disabled', false);
+          $('#requestFatured').prop('disabled', false);
+        }
+
+        if (finished_by_aftersale_modal) {
+          $('#finishServiceRequest').removeClass('is-loading');
+          finished_by_aftersale_modal = false;
+        }
+
+        $(".blocked").prop('disabled', true);
+      },
+      error: function() {
+        $("#stepChangeLoader").addClass('hide');
+        alert("Ocorreu um erro ao trocar a etapa do pedido.");
+      }
+    });
+  }
+
+  function addTechnicianToRequest() {
+    $('#addTechnician').addClass('is-active');
+  }
+
+  $('.step-change').click(function(e) {
+    if (this.checked) {
+      this.checked = false;
+    } else {
+      this.checked = true;
+    }
+
+    e.preventDefault();
+
+    var step;
+    var $input = $(this);
+
+    if($input.prop('checked') && $input.data('previous-step') != 'blocked') {
+      if(confirm("Tem certeza que deseja alterar o status do pedido?")) {
+        updateModalSteps($input.data('previous-step'));
+        $('tr[data-request-id="' + $('.request-modal').data('request-id') +'"]').remove();
+      }
+    } else if ($input.data('previous-step') == 'blocked') {
+      addTechnicianToRequest();
+    } else {
+
+      if (($input.data('next-step') == '3' && is_proposal_present == false)) {
+        uploaded_proposal_from_steps = true;
+        $('#proposalFileForm').find('.request-id').val($('.request-modal').data('request-id'));
+        $("#proposalFileModal").addClass('is-active');
+
+      } else if($input.data('next-step') == '4' && is_proposal_approved == false) {
+        loadProposalInfos($('.request-modal').data('request-id'), '');
+        approved_proposal_from_steps = true;
+
+      } else if(($input.data('next-step') == '5' && request_type == 'product' && billed_started == false && is_request_full_billed == false) ||
+                ($input.data('next-step') == '7' && request_type == 'service' && billed_started == false && is_request_full_billed == false)) {
+
+        $('#installmentsModal').addClass('is-active');
+        loadCurrentInstallmentInfos();
+        billed_from_request_steps = true;
+
+      } else if(($input.data('next-step') == '7' && request_type == 'product') ||
+                ($input.data('next-step') == '8' && request_type == 'service')) {
+
+        $('#installmentsModal').addClass('is-active');
+        loadCurrentInstallmentInfos();
+
+      } else if($input.data('next-step') == '9' && request_type == 'service') {
+        $('#aftersaleModal').addClass('is-active');
+      } else {
+
+        if(confirm("Tem certeza que deseja alterar o status do pedido?")) {
+          updateModalSteps($input.data('next-step'));
+
+          $('tr[data-request-id="' + $('.request-modal').data('request-id') +'"]').remove();
+        }
+      }
+    }
+  });
+
+  $('#addTechnicianModalButton').click(function() {
+    $('#addTechnician').addClass('is-active');
+  });
+
+  $("#newInteractionRequest").submit(function(e) {
+    e.preventDefault();
+
+    $.ajax({
+      url: '<%= create_request_interaction_path %>',
+      type: 'POST',
+      data: new FormData(this),
+      processData: false,
+      contentType: false,
+      beforeSend: function() {
+        $(".interaction-bt").addClass('is-loading');
+      },
+      complete: function() {
+        $(".interaction-bt").removeClass('is-loading');
+      },
+      success: function() {
+        resetInteractionForm();
+
+        $.getJSON("<%= get_request_infos_url('_id_') %>".replace("_id_", $(".interaction-bt").attr('request-id')), function(data) {
+          if (data['interactions']) {
+            $(".interactions").html('');
+
+            $.each(data.interactions, function(k, v) {
+              $(".interactions").prepend(v['content']);
+            });
+          }
+        });
+      }
+    });
+  });
+
+  var resetInteractionForm = function() {
+    $(".textarea-interaction").val('');
+    $(".file-name-content").html('Adicionar anexo');
+    $(".interaction-file-input").val('');
+  }
+
+  $('#archiveRequest').click(function() {
+    var $button = $(this);
+
+    if (confirm("Deseja realmente arquivar esse pedido?")) {
+      $.ajax({
+        method: 'POST',
+        url: '<%= archive_request_url %>',
+        data: {
+          id: $('.request-modal').data('request-id'),
+          authenticity_token: '<%= form_authenticity_token %>'
+        },
+        beforeSend: function() {
+          $button.addClass('is-loading');
+        },
+        success: function() {
+          $button.removeClass('is-loading');
+          $('#requestModal').removeClass('is-active');
+          $('tr[data-request-id="' + $('.request-modal').data('request-id') +'"]').remove();
+        },
+        error: function() {
+          $button.removeClass('is-loading');
+          alert('Ocorreu um erro ao arquivar o pedido');
+        }
+      });
+    }
+  });
+
+  $('#changeEnterprise').click(function() {
+    $('#updateEnterpriseModal').addClass('is-active');
+    $('#updateEnterpriseRequestId').val($('.request-modal').data('request-id'));
+  });
+
+  $('.request-modal').on('click', '.remove-hindrance', function(e) {
+    if (confirm('Tem certeza que deseja remover este impedimento?')) {
+      var $elem = $(this);
+
+      $.ajax({
+        method: 'POST',
+        url: '<%= remove_request_hindrance_url %>',
+        data: {
+          user_id: $elem.attr('user-id'),
+          request_id: $('.request-modal').data('request-id'),
+          authenticity_token: "<%= form_authenticity_token %>"
+        },
+        beforeSend: function() {
+          $elem.html('<div class="loader"></div>');
+        },
+        success: function(data) {
+          is_current_user_hindrance = $elem.closest('.person-tag').find('.you');
+
+          if (is_current_user_hindrance.length > 0) {
+            $('.change-hindrance-bt').hide();
+          }
+
+          $elem.closest('.person-tag').remove();
+
+          if ($('.hindrace-box .person-tag').length == 1) {
+            $('.hindrace-box .person-tag .remove-hindrance').hide();
+          }
+
+          alert(data.message);
+        },
+        error: function(data) {
+          $elem.html('x');
+          alert(data.responseJSON.message);
+        }
+      })
+    }
+  });
+
+
+
+</script>

@@ -1,0 +1,55 @@
+<div class="request-funnel-modal">
+  <div id="requestFunnelModal" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content funnels-container">
+      <div class="title">Funil de <span class="highlight">Produtos</span></div>
+      <div class="columns">
+        <div class="column is-3">
+          <div class="steps">
+            <div class="step">Fila</div>
+            <div class="step">Elaboração</div>
+            <div class="step">Aprovação</div>
+            <div class="step">Faturamento</div>
+            <div class="step">Mobilização</div>
+            <div class="step">Pagamento</div>
+          </div>
+        </div>
+        <div class="column is-6">
+          <div class="funnel-bars">
+            <div class="bar-container">
+              <div class="bar"><span id="inLineProductModal"></span></div>
+            </div>
+            <div class="bar-container">
+              <div class="bar"><span id="inElaborationProductModal"></span></div>
+            </div>
+            <div class="bar-container">
+              <div class="bar"><span id="inApprovalProductModal"></span></div>
+            </div>
+            <div class="bar-container">
+              <div class="bar"><span id="inRevenueProductModal"></span></div>
+            </div>
+            <div class="bar-container">
+              <div class="bar"><span id="inMobilizationProductModal"></span></div>
+            </div>
+            <div class="bar-container">
+              <div class="bar"><span id="inPaymentProductModal"></span></div>
+            </div>
+          </div>
+        </div>
+        <div class="column is-3 no-padding">
+          <% if !current_user.role?(User::ROLES[:service]) %>
+            <div class="conversions product-funnel">
+              <div class="converted in-line-amount-product"></div>
+              <div class="converted in-elaboration-amount-product"></div>
+              <div class="converted in-approval-amount-product"></div>
+              <div class="converted in-revenue-amount-product"></div>
+              <div class="converted in-mobilization-amount-product"></div>
+              <div class="converted in-payment-amount-product"></div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+  </div>
+</div>

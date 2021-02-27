@@ -1,0 +1,97 @@
+<div class="change-hindrance-modal">
+  <div id="newHindrance" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      <div>Indique quem será impedido no novo impedimento:</div>
+      <div class="hindrances-inputs">
+        <div class="input-title">Quem será impedido?</div>
+        <input class="input hidrance-autocomplete" type="text" placeholder="Digite o nome da pessoa" autocomplete="off">
+        <input id="detaineeId" type="hidden" autocomplete="off">
+        <div class="columns">
+          <div class="column">
+            <button id="addHindranceButton" class="button is-primary is-pulled-right">Concluir</button>
+          </div>
+        </div>
+      </div>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $(".hidrance-autocomplete").on("keyup", function() {
+    $('#addHindranceButton').prop('disabled', true);
+  });
+
+  $('#addHindranceButton').click(function() {
+    var $bt = $('#addHindranceButton');
+    var new_hindrance_name = $('.hidrance-autocomplete').val();
+
+    $.ajax({
+      url: '<%= create_hindrance_url %>',
+      method: 'POST',
+      data: {
+        request_id: $('.request-modal').data('request-id'),
+        detainee_id: $('#detaineeId').val(),
+        authenticity_token: "<%= form_authenticity_token %>"
+      },
+      beforeSend: function() {
+        $bt.addClass('is-loading');
+      },
+      error: function() {
+        $bt.removeClass('is-loading');
+        alert("Ocorreu um erro criar o impedimento.");
+      },
+      success: function(data) {
+        $bt.removeClass('is-loading');
+
+        if(data.presence) {
+          alert("Este usuário já está impedido neste pedido.");
+        } else {
+          alert("Novo impedimento foi criado.");
+          $('.hidrance-autocomplete').val('');
+          $('#newHindrance').removeClass('is-active');
+          $('.hindrace-box').append(
+            `<div class="person-tag">
+              <div class="sphere">
+                <div class="initials">${getInitialsFromName(new_hindrance_name)}</div>
+              </div>
+              <div class="name consultant-name">${new_hindrance_name}</div>
+              <span class="remove-hindrance" user-id="${data.user_id}">x</span>
+             </div>
+            `
+          );
+        }
+      }
+    })
+  });
+
+  $('.hidrance-autocomplete').autoComplete({
+    minChars: 2,
+    source: function(term, response) {
+      var xhr;
+      var matches = [];
+      term = term.toLowerCase();
+
+      try { xhr.abort(); } catch(e) {}
+      xhr = $.getJSON('/user_autocomplete', { q: term }, function(data) {
+
+        if (data.length > 0) {
+          for (i = 0; i < data.length; i++)
+            if (~data[i][0].toLowerCase().indexOf(term)) matches.push(data[i]);
+        }
+
+        response(matches);
+      });
+    },
+    renderItem: function (item, search) {
+      search = search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+      var re = new RegExp("(" + search.split(' ').join('|') + ")", "gi");
+      return '<div class="autocomplete-suggestion" data-user-id="' + item[1] +'" data-val="' + item[0] + '">'+ item[0].replace(re, "<b>$1</b>") + '</div>';
+    },
+    onSelect: function(event, term, item) {
+      $('#detaineeId').val(item.data('user-id'));
+      $('#addHindranceButton').prop('disabled', false);
+    }
+  });
+</script>

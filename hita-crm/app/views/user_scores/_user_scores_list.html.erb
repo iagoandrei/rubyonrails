@@ -1,0 +1,18 @@
+<% @users.each do |user| %>
+  <div class="head-table margin-bottom-10" style="background-color: white; color: #484848;">
+    <div class="columns is-vcentered">
+      <div class="column is-one-quarter bold">
+        <div class="person-tag no-margin-bottom person-tag-user-score-filter" user-id="<%= user.id %>">
+          <div class="sphere" style="background-color: <%= user.get_color %>">
+            <div class="initials"><%= user.get_initials %></div>
+          </div>
+          <div class="name consultant-name"><%= user.name %></div>
+        </div>
+      </div>
+      <% 6.times do |i| %>
+        <div id="monthScoreSlot<%= i %>" class="column is-1 text-center month-score-slot"><%= user.get_user_scores_month("#{@year}.#{@period}", i) %></div>
+      <% end %>
+      <div id="monthScoreTotalSlot" class="column text-right"><%= user.get_user_scores_semester("#{@year}.#{@period}") %> pt(s)</div>
+    </div>
+  </div>
+<% end %>

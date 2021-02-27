@@ -1,0 +1,320 @@
+@import "base";
+
+.events-main-page {
+  .dropdown-filter {
+    width: 100%;
+
+    .dropdown-trigger, .button {
+      width: 100%;
+    }
+
+    .dropdown-content {
+      padding-left: 10px;
+      padding-right: 10px;
+      border-radius: 0px;
+      max-height: 300px;
+      overflow-y: auto;
+      overflow-x: hidden;
+
+      &.toogle-view-content {
+        overflow-y: hidden;
+        overflow-x: hidden;
+        padding: 0;
+
+        a {
+          padding: 5px 10px;
+        }
+
+        .dropdown-divider {
+          margin: 0;
+        }
+      }
+
+      .b-checkbox {
+        label {
+          font-size: 14px;
+
+          &:before {
+            top: 6px;
+          }
+
+          &:after {
+            top: 8px;
+          }
+        }
+      }
+    }
+
+    .button {
+      border: 1px solid $alto;
+
+      label {
+        position: absolute;
+        left: 8px;
+        text-transform: none;
+        font-weight: 400;
+        font-size: 14px;
+      }
+
+      .icon {
+        position: absolute;
+        right: 8px;
+
+        svg {
+          fill: $black;
+          height: 5px;
+        }
+      }
+    }
+  }
+
+  .increment-date-container {
+    border-radius: 50%;
+    border: 1px solid $blue;
+    width: 25px;
+    height: 25px;
+    position: relative;
+    cursor: pointer;
+
+    svg {
+      height: 15px;
+    }
+  }
+
+  .remove-date-container {
+    width: 25px;
+    height: 25px;
+    position: relative;
+    cursor: pointer;
+    top: 24px;
+
+    svg {
+      height: 15px;
+      fill: $red;
+    }
+  }
+
+  .tabs {
+    margin-bottom: 0px;
+
+    a, ul {
+      border: none;
+      text-transform: uppercase;
+      color: $gray;
+    }
+
+    .is-active {
+      @include hita-default-box();
+
+      a {
+        color: $blue;
+      }
+    }
+  }
+
+  .events-container {
+    @include hita-default-box();
+    border-top-left-radius: 0px;
+    padding: 15px;
+
+    .text-period {
+      font-size: 12px;
+    }
+
+    .fc-today {
+      background: $blue_lighter !important;
+      border: none !important;
+      border-top: 1px solid #ddd !important;
+      font-weight: bold;
+    }
+
+    .fc-today-button:disabled {
+      background-color: $gray_disabled !important;
+      border-color: $gray_disabled !important;
+      color: $white !important;
+    }
+
+    .fc-today-button {
+      background-color: $blue_lighter !important;
+      border-color: $blue_lighter !important;
+      color: $blue !important;
+    }
+
+    .fc-day-grid-event {
+      font-weight: bold;
+      margin-bottom: 2px;
+    }
+
+    .fc-day-header {
+      text-align: center;
+      background-color: $blue_lighter;
+      color: $blue;
+      padding: 10px;
+      border: none;
+      text-transform: uppercase;
+      font-size: 14px;
+    }
+
+    .fc-sun {
+      color: $red;
+    }
+
+    .fc-head, .fc-body {
+      td {
+        border-color: $blue_lighter !important;
+      }
+    }
+  }
+
+  .icon-period-range {
+    fill: $gray;
+    width: 12px;
+    transform: rotate(270deg);
+  }
+
+  .modal-content {
+    .field {
+      &.calendar {
+        svg {
+          fill: $blue_light;
+          height: 17px;
+        }
+
+        span {
+          height: 100%;
+          background-color: $blue_lighter;
+          border-top-right-radius: 4px;
+          border-bottom-right-radius: 4px;
+          border: 1px solid $alto;
+        }
+      }
+    }
+  }
+
+  .remove-person, .remove-person-edit, .remove-consultant {
+    font-size: 18px;
+    padding-right: 10px;
+    padding-left: 10px;
+    color: $gray_placeholder;
+    cursor: pointer;
+    @include hita-default-transition();
+
+    &:hover {
+      color: $red;
+    }
+  }
+
+  .event-list-container {
+    .events {
+      .events-table {
+        .border {
+          border: 1px solid $gray_disabled;
+          margin-top: 30px;
+          margin-bottom: 10px;
+
+          &:last-child {
+            border: none;
+            margin: 0;
+          }
+        }
+      }
+
+      .loader {
+        margin: 0 auto;
+      }
+    }
+
+    .date-title {
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+
+    .event-item {
+      @include hita-default-box();
+      padding: 12px;
+      margin-bottom: 12px;
+
+      .event-row {
+        cursor: pointer;
+      }
+
+      .hour {
+        background-color: $blue_light;
+        color: $white;
+        border-top-left-radius: 4px;
+        border-bottom-left-radius: 4px;
+      }
+
+      .details-text {
+        color: $gray;
+        font-size: 13px;
+        cursor: pointer;
+
+        &.rotate {
+          svg {
+            transform: rotate(180deg);
+          }
+        }
+
+        svg {
+          fill: $gray;
+          height: 4px;
+          vertical-align: middle;
+          margin-left: 5px;
+        }
+      }
+
+      .event-title {
+        color: $black;
+      }
+
+      .event-body {
+        padding-bottom: 12px;
+        padding-top: 12px;
+        display: none;
+
+        .event-info {
+          font-size: 14px;
+
+          svg {
+            fill: $blue_light;
+            height: 15px;
+            margin-right: 5px;
+          }
+        }
+
+        .event-actions {
+          margin-top: 20px;
+
+          a {
+            svg {
+              fill: $danger;
+              height: 15px;
+            }
+          }
+
+          svg {
+            fill: $blue;
+            height: 10px;
+            padding-right: 8px;
+          }
+
+          .b-checkbox {
+            label {
+              font-size: 12px;
+              margin-left: 4px;
+
+              &:after {
+                top: 6px;
+              }
+
+              &:before {
+                top: 4px;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

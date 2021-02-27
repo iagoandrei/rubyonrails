@@ -1,0 +1,37 @@
+// Bulma Overrides
+@import "base";
+@import "bulma";
+
+.paging-links {
+  margin: 0 auto;
+  text-align: center;
+
+  .pagination {
+      display: inline-block;
+
+    a, .previous_page, .next_page {
+      @extend .pagination-link;
+      padding: 5px;
+      height: 25px;
+      min-width: 26px;
+      line-height: 1px;
+    }
+
+    .current {
+      @extend .pagination-link;
+      @extend .is-current;
+      padding: 5px;
+      height: 25px;
+      min-width: 26px;
+
+      &:hover {
+        color: $white;
+      }
+    }
+
+    .disabled {
+      color: $gray;
+      pointer-events: none;
+    }
+  }
+}

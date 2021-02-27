@@ -1,0 +1,214 @@
+<%= render partial: 'shared/main_upper_section', locals: { current_main_section: 'forms' } %>
+<div class="forms-main-page">
+  <div class="container">
+    <div class="columns">
+      <div class="column is-2">
+        <%= render partial: 'shared/main_sidebar', locals: { main_page: 'forms', current_page: 'form_keys' } %>
+      </div>
+      <div class="column is-10">
+        <%= render partial: '/shared/flash_message' %>
+        <div class="columns no-margin-bottom">
+          <div class="column">
+            <a href="<%= form_keys_index_path %>">
+              <button class="button is-secondary">
+                <- Voltar
+              </button>
+            </a>
+          </div>
+        </div>
+        <div class="default-box <%= 'margin-top-10' if flash[:notice].present? or flash[:alert].present? %>">
+          <%= form_tag update_form_keys_url, html: { autocomplete: 'off' }, method: :post do %>
+            <input type="hidden" name="form_key[id]" value="<%= @form_key.id %>">
+            <div class="columns">
+              <div class="column is-5">
+                <div class="input-title">Nome da chave:</div>
+                <input type="text" name="form_key[key_name]" class="input" placeholder="Digite um nome para a chave"  value="<%= @form_key.key_name %>" required>
+              </div>
+              <div class="column is-4">
+                <div class="input-title">Questionário:</div>
+                <div class="select">
+                  <%= select_tag "quiz_select", options_for_select(@avaliable_quizzes), prompt: "Selecione o questionário", name: 'form_key[request_quiz_id]', class: "select" %>
+                </div>
+              </div>
+              <div class="column is-3">
+                <div class="input-title">Condições</div>
+                <div class="dropdown dropdown-filter is-hoverable">
+                  <div class="dropdown-trigger">
+                    <div id="conditionsSelect" class="button" aria-haspopup="true" aria-controls="dropdown-menu" disabled>
+                      <label>Selecione um questionário</label>
+                      <span class="icon is-small">
+                        <%= inline_svg 'dropdown_arrow.svg' %>
+                      </span>
+                    </div>
+                  </div>
+                  <div id="conditionContent" class="dropdown-menu" role="menu">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="columns is-vcentered">
+              <div class="column is-5">
+                <div class="b-checkbox is-primary no-select">
+                  <input id="contentPrintable" name="form_key[is_answer_printable]" value="true" class="styled all-enterprise-type-checkbox" disabled type="checkbox" <%= 'checked' if @form_key.is_answer_printable %>>
+                  <label for="contentPrintable">
+                    Imprimir resposta do questionário.
+                  </label>
+                </div>
+              </div>
+              <div class="column is-4">
+                <div class="dropdown dropdown-filter is-hoverable">
+                  <div class="dropdown-trigger">
+                    <div id="answersSelect" class="button conditions-select" aria-haspopup="true" aria-controls="dropdown-menu" disabled>
+                      <label>Selecione as perguntas</label>
+                      <span class="icon is-small">
+                        <%= inline_svg 'dropdown_arrow.svg' %>
+                      </span>
+                    </div>
+                  </div>
+                  <div id="answersContent" class="dropdown-menu" role="menu">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="columns">
+              <div class="column no-padding-top">
+                <textarea id="contentTextarea" class="textarea" name="form_key[content]" placeholder="Digite o texto da chave" required <%= 'disabled' if @form_key.is_answer_printable %>><%= @form_key.content %></textarea>
+              </div>
+            </div>
+            <div class="columns">
+              <div class="column display-flex is-2">
+                <button class="button is-primary is-fullwidth is-bottom-aligned">Salvar</button>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  var answers_options;
+  var conditions     = <%= raw @form_key.conditions %>;
+  var answersToPrint = <%= raw @form_key.answers_to_print %>;
+
+  $(function() {
+    $("#quiz_select").val(<%= @form_key.request_quiz.id %>);
+    $("#quiz_select").change();
+  });
+
+  $('#quiz_select').change(function() {
+    var $select = $(this);
+    var $conditions_select = $('#conditionContent');
+    var $answers_select = $('#answersContent');
+    var id = $(this).val();
+
+    if (id != '') {
+      $.ajax({
+        url: '<%= get_request_quiz_identifiers_url %>',
+        method: 'GET',
+        data: {
+          id: id
+        },
+        beforeSend: function() {
+          $select.prop('disabled', true);
+          $conditions_select.html('');
+        },
+        success: function(data) {
+          answers_options = '<div class="dropdown-content">';
+          var options_str = '<div class="dropdown-content">';
+
+          for (var i = 0; i < data.length; i++) {
+            options_str +=`
+              <div class="b-checkbox is-primary no-select">
+                <input id="${data[i].question.id}" name="conditions[]" value=${data[i].question.id} class="styled all-enterprise-type-checkbox" type="checkbox" disabled>
+                <label for="${data[i].question.id}">
+                  ${data[i].question.id} - ${data[i].question.text}
+                </label>
+              </div>`
+
+            answers_options +=`
+              <div class="b-checkbox is-primary no-select">
+                <input id="${data[i].question.id}_answer" name="form_key[answers_to_print][]" value=${data[i].question.id} class="styled all-enterprise-type-checkbox" type="checkbox" disabled>
+                <label for="${data[i].question.id}_answer">
+                  ${data[i].question.id} - ${data[i].question.text}
+                </label>
+              </div>`
+
+            for (var j = 0; j < data[i].answers.length; j++) {
+              options_str +=`
+                <div class="b-checkbox is-primary no-select">
+                  <input id="${data[i].answers[j].id}" name="conditions[]" value=${data[i].answers[j].id} class="styled all-enterprise-type-checkbox" type="checkbox" disabled>
+                  <label for="${data[i].answers[j].id}">
+                    ${data[i].answers[j].id} - ${data[i].answers[j].text}
+                  </label>
+                </div>`
+            }
+          }
+
+          options_str += '</div>';
+          answers_options += '</div>';
+
+          if ($('#answersSelect').attr('disabled')) {
+            $answers_select.html(answers_options);
+          }
+
+          $conditions_select.html(options_str);
+          $('#conditionsSelect label').text('Nenhuma selecionada.');
+          $select.prop('disabled', true);
+
+          var event = new Event('change');
+
+          $.each(conditions, function(i, e) {
+            document.getElementById(`${e}`).checked = true;
+            document.getElementById(`${e}`).dispatchEvent(new Event('change'));
+          });
+
+          $.each(answersToPrint, function(i, e) {
+            document.getElementById(`${e}_answer`).checked = true;
+            document.getElementById(`${e}_answer`).dispatchEvent(new Event('change'));
+          });
+
+          $('.dropdown-content input').change();
+        }
+      });
+    } else {
+      $conditions_select.html('');
+      $answers_select.html('');
+      $('#conditionsSelect label').text('Selecione um questionário.');
+    }
+  });
+
+  $('.file-input').change(function(e) {
+    var fileName = e.target.files[0].name;
+    $(this).parent().find('.file-name').text(fileName);
+  });
+
+  $(document).on('change', '.dropdown-content input', function() {
+    var selected_number = $(this).closest('.dropdown').find('.dropdown-content input:checked').length;
+
+    if (selected_number == 0) {
+      $(this).closest('.dropdown').find('.dropdown-trigger label').text('Nenhuma selecionada.');
+    } else if (selected_number == 1) {
+      $(this).closest('.dropdown').find('.dropdown-trigger label').text('1 selecionada.');
+    } else {
+      $(this).closest('.dropdown').find('.dropdown-trigger label').text(`${selected_number} selecionadas.`);
+    }
+  });
+
+  $('#contentPrintable').change(function() {
+    $('#contentTextarea').prop('disabled', function(i, v) { return !v; });
+    $('#answersSelect').attr('disabled', function(i, v) {
+
+      if (v) {
+        $('#answersContent').html(answers_options);
+      } else {
+        $('#answersContent').html('');
+      }
+
+      $('#answersSelect label').text('Nenhuma selecionada');
+      return !v;
+    });
+  });
+
+</script>

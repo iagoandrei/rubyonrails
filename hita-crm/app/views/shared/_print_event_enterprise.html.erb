@@ -1,0 +1,35 @@
+<div class="interaction">
+  <div class="columns">
+    <div class="column is-1 title">
+      <div class="circle green initials-name">
+        <%= inline_svg 'menu_scheduler.svg' %>
+      </div>
+    </div>
+    <div class="column message-content no-padding-left">
+      <div class="columns no-margin-bottom">
+        <div class="column is-9 title padding-bottom-5">
+          <%= InteractionHelper::INTERACTION[interaction.interaction_type.to_sym] %> - <%= interaction.event.title %>
+        </div>
+        <div class="column date padding-bottom-5"><%= interaction.created_at.strftime("%d/%m/%Y %H:%M") %></div>
+      </div>
+      <div class="columns">
+        <div class="column">
+          <div><span class="bold">Tipo do evento:</span> <%= interaction.event.event_type %></div>
+          <div><span class="bold">Data:</span> <%= interaction.event.start_date.strftime("%d/%m/%Y") %></div>
+          <div>
+            <% if interaction.event.is_all_day %>
+              <span class="bold">Horário:</span> Todo o dia.
+            <% else %>
+              <span class="bold">Horário:</span> <%= interaction.event.start_date.strftime("%H:%M") %>
+            <% end %>
+          </div>
+          <% if interaction.event.street %>
+            <div>
+              <span class="bold">Local: </span> <%= interaction.event.street %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,76 @@
+<%= render partial: 'shared/main_upper_section', locals: { current_main_section: 'forms' } %>
+
+<div class="forms-main-page">
+  <div class="container">
+    <div class="columns">
+      <div class="column is-2">
+        <%= render partial: 'shared/main_sidebar', locals: { main_page: 'forms', current_page: 'generate_form' } %>
+      </div>
+      <div class="column is-10">
+        <%= render partial: 'shared/flash_message' %>
+
+        <% if @forms.size > 0 %>
+          <div class="default-box <%= 'margin-top-10' if flash[:notice].present? or flash[:alert].present? %>">
+            <div class="columns">
+              <div class="column">
+                <div>Selecione o modelo de relatório para gerar:</div>
+                <div class="form-list">
+                  <% @forms.each do |form| %>
+                    <div class="form-item" data-form-id='<%= form.id %>'><%= form.name %></div>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% else %>
+          <div class="default-box <%= 'margin-top-10' if flash[:notice].present? or flash[:alert].present? %>">
+            <div class="columns is-vcentered is-centered">
+              <div class="column is-narrow">
+                <div>Ainda não existem formulários cadastrados</div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <%= render 'select_request_modal' %>
+</div>
+
+<script type="text/javascript">
+  $('.enterprise-select').change(function() {
+    if($(this).val() != '') {
+      $.ajax({
+        url: "<%= get_enterprise_requests_url('_id_') %>".replace("_id_", $(this).val()),
+        method: 'GET',
+        beforeSend: function() {
+          $('.request-select').parent().addClass('is-loading');
+          $('.request-select').html('<option value>Carregando...</option>')
+        },
+        success: function(data) {
+          var options = ''
+          if(data.length > 0) {
+            for (var i = 0; i < data.length; i++) {
+              options += `<option value='${data[i].id}'>${data[i].visual_id}</option>`
+            }
+
+            $('.request-select').attr('disabled', false);
+          } else {
+            options = '<option value>Nenhuma oportunidade encontrada</option>'
+            $('.request-select').attr('disabled', true);
+          }
+
+          $('.request-select').parent().removeClass('is-loading');
+          $('.request-select').html(options)
+        }
+      });
+    }
+  });
+
+  $('.form-item').click(function() {
+    $('#selectRequestId').val($(this).data('form-id'));
+    $('#selectRequest').addClass('is-active');
+  });
+
+</script>

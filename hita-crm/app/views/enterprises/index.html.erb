@@ -1,0 +1,888 @@
+<%= render partial: 'shared/main_upper_section', locals: { current_main_section: 'enterprise' } %>
+
+<div class="enterprises-main-page">
+  <div class="enterprises-main-container container">
+    <%= render partial: 'shared/flash_message' %>
+    <div class="columns">
+      <div class="column is-2">
+        <%= render partial: 'shared/main_sidebar', locals: { main_page: 'enterprises', current_page: 'enterprises' } %>
+      </div>
+      <div class="column is-10">
+        <div class="filters-container">
+          <div class="filters">
+            <div class="filter-title">Filtros <span class="weight-300 text-11">(Tecle Enter p/ pesquisar)</span></div>
+            <div class="filter-inputs">
+              <div class="columns is-variable is-1">
+                <% if can? :read, Enterprise, :user_id %>
+                  <% unless current_user.role?(User::ROLES[:consultant]) %>
+                    <div class="column is-one-fifth">
+                      <div class="input-title">Nome do consultor</div>
+                      <div class="input-enterprise">
+                        <input id="enterpriseConsultantNameFilter" class="input" value="<%= params[:consultant] if params[:consultant] %>"></input>
+                      </div>
+                    </div>
+                  <% end %>
+                <% end %>
+                <div class="column is-one-fifth">
+                  <div class="input-title">Nome da Empresa</div>
+                  <div class="input-enterprise">
+                    <input id="enterpriseNameFilter" class="input" value="<%= params[:enterprise] if params[:enterprise] %>"></input>
+                  </div>
+                </div>
+                <div class="column">
+                  <div class="input-title">Tipo</div>
+                  <div class="input-enterprise">
+                    <div class="select">
+                      <% if params[:enterprise_type] %>
+                        <%= select_tag "", options_for_select(@type, params[:enterprise_type]), prompt: "--", id: "enterpriseTypeFilter", class: "select filter-change-event" %>
+                      <% else %>
+                        <%= select_tag "", options_for_select(@type), prompt: "--", id: "enterpriseTypeFilter", class: "select filter-change-event" %>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+                <div class="column is-one-fifth">
+                  <div class="input-title">Setor da Indústria</div>
+                  <div class="select">
+                    <% if params[:industry_sector] %>
+                      <%= select_tag "", options_for_select(@sectors, params[:industry_sector]), prompt: "--", id: "enterpriseSectorFilter", class: "select filter-change-event" %>
+                    <% else %>
+                      <%= select_tag "", options_for_select(@sectors), prompt: "--", id: "enterpriseSectorFilter", class: "select filter-change-event" %>
+                    <% end %>
+                  </div>
+                </div>
+                <div class="column">
+                  <div class="input-title">U.F.</div>
+                  <div class="select">
+                    <% if params[:state] %>
+                      <%= select_tag("enterpriseStateFilter", options_for_select(@states, params[:state]), {:class => "select filter-change-event"}) %>
+                    <% else %>
+                      <%= select_tag("enterpriseStateFilter", options_for_select(@states), {:class => "select filter-change-event"}) %>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+              <div class="columns is-variable is-1">
+                <div class="column is-one-fifth">
+                  <div class="input-title">Cidade</div>
+                  <div class="input-enterprise">
+                    <input id="enterpriseCityFilter" class="input" value="<%= params[:city] if params[:city] %>"></input>
+                  </div>
+                </div>
+                <% if can? :read, Enterprise, :revenue %>
+                  <div class="column is-one-fifth">
+                    <div class="input-title">Ordenar por:</div>
+                    <div class="select">
+                      <%= select_tag("enterpriseOrder", options_for_select(['Faturamento', 'Nome']), {:class => "select filter-change-event"}) %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+            <div class="filter-buttons">
+              <div class="field is-grouped">
+                <div class="control">
+                  <% if can? :create, Enterprise %>
+                    <button id="addNewEnterprise" class="button is-primary"><%= inline_svg "plus.svg" %> Adicionar nova empresa</button>
+                  <% end %>
+                </div>
+              </div>
+              <button id="clearFilters" class="button is-secondary">Limpar Filtros</button>
+            </div>
+          </div>
+        </div>
+        <div class="hita-enterprises-table"></div>
+      </div>
+    </div>
+  </div>
+
+  <%= render 'enterprise_modal' %>
+  <%= render 'requests/request_modal' %>
+  <%= render 'new_enterprise_modal' %>
+  <%= render 'edit_enterprise_modal' %>
+  <%= render 'collaborators/new_collaborator_modal' %>
+  <%= render 'collaborators/collaborator_modal' %>
+  <%= render 'collaborators/edit_collaborator_modal' %>
+  <%= render 'organization_chart_modal' %>
+  <%= render 'flow_chart_modal' %>
+  <%= render 'shared/files_modal' %>
+  <%= render 'shared/organization_chart_files_modal' %>
+  <%= render 'shared/flow_chart_files_modal' %>
+  <%= render 'shared/new_hindrance_modal' %>
+  <%= render 'shared/change_hindrance_modal' %>
+  <%= render 'requests/add_technician_modal' %>
+  <%= render 'requests/request_values_edition_modal' if can? :update_request_values, Request %>
+  <%= render 'requests/request_proposals_modal' %>
+  <%= render 'requests/installments_modal' %>
+  <%= render 'requests/refuse_proposal_modal' %>
+  <%= render 'requests/update_request_enterprise' %>
+  <%= render 'requests/proposal_file_modal' %>
+  <%= render 'requests/specific_file_modal' %>
+
+</div>
+
+<script type="text/javascript">
+  var mention_values = [];
+  var current_collaborators_modal = '';
+  var uppy_current_enterprise_id;
+  var enterprise_selected_flag = false;
+  var enterprise_changed_flag = false;
+  var edit_current_selected_state = '';
+  var edit_cities = [];
+  var current_page = 'enterprise';
+  var change_enterprise_state_flag = false;
+
+  var enterprise_uppy = Uppy({
+    autoProceed: false,
+    locale: Brazil_locale,
+    restrictions: {
+      maxFileSize: 10485760
+    }
+  })
+  .use(Dashboard, {
+    trigger: '#UppyButton',
+    target: '.uppy-container',
+    replaceTargetContent: true,
+    showProgressDetails: true,
+    proudlyDisplayPoweredByUppy: false,
+    closeModalOnClickOutside: true,
+    note: 'Adicionar Arquivos',
+    height: 470,
+    browserBackButtonClose: true
+  })
+  .use(XHRUpload, {
+    endpoint: '/upload_enterprise_file',
+    method: 'POST',
+    formData: true,
+    fieldName: 'files[]'
+  })
+
+  enterprise_uppy.on('file-added', (file) => {
+    enterprise_uppy.setFileMeta(file.id, {
+      enterprise_id: uppy_current_enterprise_id,
+      authenticity_token: '<%= form_authenticity_token %>'
+    })
+  })
+
+  $(function() {
+    searchEnterprises(1);
+  });
+
+  $("#addNewEnterprise").click(function() {
+    $("#newEnterpiseModal").addClass('is-active');
+  });
+
+  $(document).on("click", ".enterprise-row", function() {
+    $('#enterpriseModal .tab.details-tab').click();
+
+    $.getJSON("<%= get_enterprise_infos_url('_id_') %>".replace("_id_", $(this).data('enterprise-id')), function(data) {
+      $("#enterpriseModal").addClass('is-active');
+      $("#enterpriseTitle").text(data.name);
+      $("#enterpriseAddress").text(data.complete_address);
+      $("#addressLink").attr("href", `https://maps.google.com/?q=${data.complete_address}`);
+      $("#enterpriseSector").text(data.industry_sector);
+      $("#enterpriseType").text(data.enterprise_type);
+      $("#enterpriseBusinessName").text(data.business_name);
+      $("#enterpriseCNPJ").text(data.cnpj);
+      $(".enterprise-id-chart").val(data.id);
+      $(".enterprise-modal").data('enterprise-id', data.id);
+      $(".database-redirect-link").prop('href', '<%= index_database_path :filter => "enterprise", :filter_value => "_value_" %>'.replace('_value_', data.name));
+      $(".report-redirect-link").prop('href', '<%= report_index_path :filter => "enterprise", :filter_value => "_value_" %>'.replace('_value_', data.name));
+      $(".request-redirect-link").prop('href', '<%= new_request_path :enterprise_id => "_value_" %>'.replace('_value_', data.id))
+
+      $("#enterpriseCEP").text(data.cep);
+      $("#enterpriseRequestsSize").text(data.requests);
+      $("#enterpriseRequestsRevenue").text(data.revenue);
+
+      enterprise_uppy.cancelAll();
+      uppy_current_enterprise_id = data.id
+
+      $(".enterprise-auto-complete").val(data.name);
+      $(".edit-enterprise-modal-bt").attr('enterprise-id', data.id);
+      $(".hidden-interaction-enterprise-id").val(data.id);
+      $(".interaction-bt").attr('enterprise-id', data.id);
+      $(".interaction-message-bt").attr('enterprise-id', data.id);
+      $(".hidden-interaction-enterprise-id").attr('enterprise-id', data.id);
+
+      $(".contacts-box").html('');
+      $("#interactionCollaboratorSelect").html('');
+      $("#interactionCollaboratorSelect").append($('<option>', {
+        text: 'Contato',
+        value: ''
+      }));
+
+      $(".remove-enterprise-bt").attr('href', "<%= destroy_enterprise_path('_id_') %>".replace('_id_', data.id));
+      $(".enterprise-share-bt").attr('enterprise-id', data.id);
+      $(".enterprise-modal").attr('data-enterprise-id', data.id);
+
+      $.each(data.collaborators, function(k, v) {
+        $(".contacts-box").append(
+          `<div class="person-tag-no-name">
+            <div class="sphere collaborator-sphere-modal" data-collaborator-id=${v['id']} style="background-color: ${v['color']}">
+              <div class="initials">${v['initials']}</div>
+            </div>
+          </div>`
+        );
+
+        $("#interactionCollaboratorSelect").append($('<option>', {
+          value: v['id'],
+          text: v['name']
+        }));
+      });
+
+      $(".person-tag").html('');
+
+      if (data['consultant']) {
+        $(".person-tag").append(
+          `<div class="sphere" style="background-color: ${data['consultant']['color']}">
+            <div class="initials">${data['consultant']['initials_name']}</div>
+          </div>
+          <div class="name consultant-name">${data['consultant']['name']}</div>`
+        );
+      }
+
+      if (data['interactions']) {
+        $(".interactions").html('');
+
+        $.each(data.interactions, function(k, v) {
+          $(".interactions").prepend(v['content']);
+        });
+      }
+    });
+  });
+
+  $(document).on("click", ".collaborator-sphere-modal", function() {
+    $.getJSON("<%= get_collaborator_infos_url('_id_') %>".replace("_id_", $(this).data('collaborator-id')), function(data) {
+      $("#collaboratorModal").addClass('is-active');
+      $("#collaboratorName").html(data.name);
+      $("#collaboratorJob").html(data.job_role);
+      $("#collaboratorEnterprise").html(data.enterprise_name);
+      $("#collaboratorRelation").html(data.degree_of_relationship);
+      $(".hidden-collaborator-id").val(data.id);
+
+      if (data.phone_area && data.phone)
+        $("#collaboratorPhone").html(`(${data.phone_area}) ${data.phone}`);
+
+      $("#collaboratorEmail").html(data.email);
+      $("#collaboratorStatus").html(data.status_name);
+
+      $("#editCollaboratorModalBt").attr('collaborator-id', data.id);
+
+      if (data['interactions']) {
+        $(".interactions").html('');
+
+        if(data.interactions.length > 0) {
+          $.each(data.interactions, function(k, v) {
+            $(".interactions").prepend(v['content']);
+          });
+        } else {
+          $(".interactions").html('Não há interações para exibir.');
+        }
+      } else {
+        $(".interactions").html('Não há interações para exibir.');
+      }
+
+    });
+  });
+
+  $(document).on("click", ".edit-bt", function(e) {
+    e.stopPropagation();
+
+    var enterprise_id = $(this).closest('tr').data('enterprise-id');
+    showEditEnterpriseForm(enterprise_id)
+  });
+
+  $("#editEnterpriseBt").click(function() {
+    $(this).addClass('is-loading');
+  });
+
+  var is_user_admin = <%= current_user.role?(User::ROLES[:admin]) %>;
+
+  function validateEnterprise() {
+    $('#newEnterpriseAlert').hide();
+
+    $form = $('#new_enterprise');
+    $form.find('input[name="enterprise[name]"]').removeClass('is-danger');
+    $form.find('input[name="enterprise[cnpj]"]').removeClass('is-danger');
+    $form.find('input[name="enterprise[city]"]').removeClass('is-danger');
+    $form.find('select[name="enterprise[consultant_id]"]').parent().removeClass('is-danger');
+
+    data = {
+      name: $form.find('input[name="enterprise[name]"]').val(),
+      cnpj: $form.find('input[name="enterprise[cnpj]"]').val(),
+      consultant: $form.find('select[name="enterprise[consultant_id]"]').val()
+    }
+
+    if (isBlank(data.name)) {
+      $('#newEnterpriseAlert').text('Nome da Empresa não pode ficar em branco.');
+      $('#newEnterpriseAlert').show();
+      $form.find('input[name="enterprise[name]"]').addClass('is-danger');
+      $form.find('button').removeClass('is-loading');
+      return false;
+    }
+
+    <% unless current_user.role?(User::ROLES[:consultant]) %>
+      if (isBlank(data.consultant)) {
+        $('#newEnterpriseAlert').text('Consultor não pode ficar em branco');
+        $('#newEnterpriseAlert').show();
+        $form.find('select[name="enterprise[consultant_id]"]').parent().addClass('is-danger');
+        $form.find('button').removeClass('is-loading');
+        return false;
+      }
+    <% end %>
+
+    // if ($.inArray($('.city-autocomplete').val(), cities) < 0) {
+    //   $('#newEnterpriseAlert').text('Selecione uma das cidades listadas');
+    //   $('#newEnterpriseAlert').show();
+    //   $form.find('input[name="enterprise[city]"]').addClass('is-danger');
+    //   $form.find('button').removeClass('is-loading');
+    //   return false;
+    // }
+
+    $.ajax({
+      method: 'POST',
+      url: '<%= check_enterprise_existence_path %>',
+      data: data,
+      success: function(data) {
+        if (data == null || is_user_admin) {
+          $form.submit();
+        } else {
+          $form.find('button').removeClass('is-loading');
+          $form.find('input[name="enterprise[name]"]').addClass('is-danger');
+          $form.find('input[name="enterprise[cnpj]"]').addClass('is-danger');
+
+          $('#newEnterpriseAlert').text('Já existe uma empresa cadastrada com este Nome e CNPJ.');
+          $('#newEnterpriseAlert').show();
+        }
+      }
+    });
+  }
+
+  function validateEditEnterprise() {
+    $('#editEnterpriseAlert').hide();
+
+    $form = $('#editEnterpriseForm');
+    $form.find('input[name="enterprise[name]"]').removeClass('is-danger');
+    $form.find('input[name="enterprise[cnpj]"]').removeClass('is-danger');
+    $form.find('input[name="enterprise[city]"]').removeClass('is-danger');
+
+    data = {
+      name: $form.find('input[name="enterprise[name]"').val(),
+      cnpj: $form.find('input[name="enterprise[cnpj]"').val()
+    }
+
+    if (isBlank(data.name)) {
+      $('#editEnterpriseAlert').text('Nome da Empresa não pode ficar em branco.');
+      $('#editEnterpriseAlert').show();
+      $form.find('input[name="enterprise[name]"]').addClass('is-danger');
+      $form.find('button').removeClass('is-loading');
+      return false;
+    }
+
+    // if ($.inArray($('.edit-city-autocomplete').val(), edit_cities) < 0) {
+    //   $('#editEnterpriseAlert').text('Selecione uma das cidades listadas');
+    //   $('#editEnterpriseAlert').show();
+    //   $form.find('input[name="enterprise[city]"]').addClass('is-danger');
+    //   $form.find('button').removeClass('is-loading');
+    //   return false;
+    // }
+
+    $form.submit();
+  }
+
+  $("#newEnterpriseBt").click(function(e) {
+    e.preventDefault();
+    $(this).addClass('is-loading');
+    validateEnterprise();
+  });
+
+  $("#editEnterpriseBt").click(function(e) {
+    e.preventDefault();
+    $(this).addClass('is-loading');
+    validateEditEnterprise();
+  });
+
+  $(".filter-change-event").change(function() {
+    searchEnterprises(1);
+  });
+
+  $("#enterpriseNameFilter, #enterpriseCityFilter, #enterpriseConsultantNameFilter").on('keypress', function(e) {
+    if(e.which == 13) {
+      searchEnterprises(1);
+    }
+  });
+
+  $("#clearFilters").click(function() {
+    $("#enterpriseNameFilter").val('');
+    $("#enterpriseTypeFilter").val('');
+    $("#enterpriseSectorFilter").val('');
+    $("#enterpriseStateFilter").val('');
+    $("#enterpriseCityFilter").val('');
+    $("#enterprisePeriodFilter").val('');
+    $("#enterpriseConsultantNameFilter").val('');
+    $(".start-date, .end-date").val('');
+
+    searchEnterprises(1);
+  });
+
+  $(".add-new-collaborator").click(function() {
+    current_collaborators_modal = 'new_collaborator';
+
+    $("#newCollaboratorsModal").addClass('is-active');
+    $("#newCollaboratorsModal").find('input[name="enterprise_name"]').prop('disabled', true);
+    $('#enterpriseIdNew').val($('.enterprise-modal').data('enterprise-id'));
+  });
+
+  $(".edit-enterprise-modal-bt").click(function() {
+    $("#editEnterpiseModal").addClass('is-active');
+    showEditEnterpriseForm($(this).attr('enterprise-id'));
+  });
+
+  $("#editCollaboratorModalBt").click(function() {
+    $("#editCollaboratorsModal").addClass('is-active');
+    showEditCollaboratorForm($(this).attr('collaborator-id'));
+  });
+
+  var showEditEnterpriseForm = function(enterprise_id) {
+    $.getJSON("<%= get_enterprise_infos_url('_id_') %>".replace("_id_", enterprise_id), function(data) {
+      $editForm = $("#editEnterpiseModal");
+      $editForm.addClass('is-active');
+      $editForm.find('input[name="id"]').val(data.id);
+      $editForm.find('input[name="enterprise[name]"]').val(data.name);
+      $editForm.find('input[name="enterprise[business_name]"]').val(data.business_name);
+      $editForm.find('input[name="enterprise[cnpj]"]').val(data.cnpj);
+      $editForm.find('select[name="enterprise[enterprise_type]"]').val(data.enterprise_type);
+      $editForm.find('select[name="enterprise[industry_sector]"]').val(data.industry_sector);
+      $editForm.find('input[name="enterprise[cep]"]').val(data.cep);
+      $editForm.find('select[name="enterprise[state]"]').val(data.state);
+      $editForm.find('input[name="enterprise[city]"]').val(data.city);
+      $editForm.find('input[name="enterprise[address]"]').val(data.address);
+      $editForm.find('select[name="enterprise[price_table]"]').val(data.price_table);
+      $editForm.find('select[name="enterprise[consultant_id]"]').val(data.consultant.id);
+
+      $(".remove-enterprise-bt").attr('href', "<%= destroy_enterprise_path('_id_') %>".replace('_id_', data.id));
+
+      edit_current_selected_state = data.state;
+
+      $.getJSON(`/get_city_list/${edit_current_selected_state}`, function(data) {
+        edit_cities = data;
+      });
+    });
+  }
+
+  var showEditCollaboratorForm = function(collaborator_id) {
+    $.getJSON("<%= get_collaborator_infos_url('_id_') %>".replace("_id_", collaborator_id), function(data) {
+      $editForm = $("#editCollaboratorsModal");
+
+      $editForm.addClass('is-active');
+      $editForm.find('input[name="collaborator[id]"]').val(data.id);
+      $editForm.find('input[name="collaborator[name]"]').val(data.name);
+      $editForm.find('input[name="collaborator[job_role]"]').val(data.job_role);
+      $editForm.find('input[name="collaborator[phone]"]').val(`(${data.phone_area}) ${data.phone}`);
+      $editForm.find('input[name="collaborator[email]"]').val(data.email);
+      $editForm.find('select[name="collaborator[degree_of_relationship]"]').val(data.degree_of_relationship);
+      $editForm.find('select[name="collaborator[status]"').val(data.status);
+      $editForm.find('input[name="enterprise_autocomplete"]').val(data.enterprise_name);
+
+      $('#enterpriseIdEdit').val(data.enterprise_id);
+    });
+  }
+
+  function searchEnterprises(page) {
+    var table_container = $('.hita-enterprises-table');
+
+    var filters = {};
+    filters['name'] = $("#enterpriseNameFilter").val();
+    filters['enterprise_type'] = $("#enterpriseTypeFilter").val();
+    filters['industry_sector'] = $("#enterpriseSectorFilter").val();
+    filters['state'] = $("#enterpriseStateFilter").val();
+    filters['city'] = $("#enterpriseCityFilter").val();
+    filters['time_period'] = $("#enterprisePeriodFilter").val();
+    filters['consultant_name'] = $("#enterpriseConsultantNameFilter").val();
+    filters['page'] = page
+    filters['start_date'] = $(".start-date").val();
+    filters['end_date'] = $(".end-date").val();
+    filters['order'] = $("#enterpriseOrder").val();
+
+    $.ajax({
+      url: '<%= render_current_enterprises_url %>',
+      data: filters,
+      dataType: 'script',
+      beforeSend: function() {
+        table_container.html(`
+          <div class="default-box margin-top-10">
+            <div id="loadingMessage" class="columns is-vcentered is-centered">
+              <div class="column is-narrow">
+                <div>Carregando tabela de empresas</div>
+                <div class="columns is-centered">
+                  <div class="column is-narrow"><div class="loader is-loading"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `);
+      },
+      success: function() {
+        <% if @enterprise_id %>
+          $("#enterpriseRow<%= @enterprise_id %>").trigger('click');
+          $(".history-tab").trigger('click');
+        <% end %>
+      },
+      error: function() {
+        table_container.html(`
+          <div class="default-box margin-top-10">
+            <div id="errorMessage" class="columns is-vcentered is-centered">
+              <div class="column is-narrow">
+                <div>Ocorreu um erro ao mostrar a tabela.</div>
+              </div>
+            </div>
+          </div>
+        `);
+      }
+    });
+  };
+
+  $('.enterprise-auto-complete').autoComplete({
+    minChars: 2,
+    source: function(term, response) {
+      var xhr;
+      var matches = [];
+      term = term.toLowerCase();
+
+      try { xhr.abort(); } catch(e) {}
+      xhr = $.getJSON('/enterprise_autocomplete', { q: term }, function(data) {
+
+        if (data.length > 0) {
+          for (i = 0; i < data.length; i++)
+            if (~data[i][0].toLowerCase().indexOf(term)) matches.push(data[i]);
+        }// else {
+        //  matches.push("Nenhuma empresa encontrada");
+        //}
+
+        response(matches);
+      });
+    },
+    renderItem: function (item, search) {
+      search = search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+      var re = new RegExp("(" + search.split(' ').join('|') + ")", "gi");
+      return '<div class="autocomplete-suggestion" data-enterprise-id="' + item[1] +'" data-val="' + item[0] + '">'+ item[0].replace(re, "<b>$1</b>") + '</div>';
+    },
+    onSelect: function(event, term, item) {
+      if(current_collaborators_modal == 'new_collaborator')
+        $('#enterpriseIdNew').val(item.data('enterprise-id'));
+      else
+        $('#enterpriseIdEdit').val(item.data('enterprise-id'));
+    }
+  });
+
+  $("#newInteractionForm").submit(function(e) {
+    e.preventDefault();
+
+    $.ajax({
+      url: '<%= create_enterprise_interaction_path %>',
+      type: 'POST',
+      data: new FormData(this),
+      processData: false,
+      contentType: false,
+      beforeSend: function() {
+        $(".interaction-bt, .interaction-message-bt").addClass('is-loading');
+      },
+      complete: function() {
+        $(".interaction-bt, .interaction-message-bt").removeClass('is-loading');
+      },
+      success: function() {
+        resetInteractionForm();
+
+        $.getJSON("<%= get_enterprise_interactions_url('_id_') %>".replace("_id_", $(".interaction-bt").attr('enterprise-id')), function(data) {
+          if (data['interactions']) {
+            $(".interactions").html('');
+
+            $.each(data.interactions, function(k, v) {
+              $(".interactions").prepend(v['content']);
+            });
+          }
+        });
+      }
+    });
+  });
+
+  $("#newInteractionMessageForm").submit(function(e) {
+    e.preventDefault();
+
+    $.ajax({
+      url: '<%= create_enterprise_interaction_path %>',
+      type: 'POST',
+      data: new FormData(this),
+      processData: false,
+      contentType: false,
+      beforeSend: function() {
+        $(".interaction-bt, .interaction-message-bt").addClass('is-loading');
+      },
+      complete: function() {
+        $(".interaction-bt, .interaction-message-bt").removeClass('is-loading');
+      },
+      success: function() {
+        resetInteractionForm();
+
+        $.getJSON("<%= get_enterprise_interactions_url('_id_') %>".replace("_id_", $(".interaction-message-bt").attr('enterprise-id')), function(data) {
+          if (data['interactions']) {
+            $(".interactions").html('');
+
+            $.each(data.interactions, function(k, v) {
+              $(".interactions").prepend(v['content']);
+            });
+          }
+        });
+      }
+    });
+  });
+
+  var resetInteractionForm = function() {
+    $(".textarea-interaction").val('');
+    $("#interactionTypeSelect").val('');
+    $("#interactionCollaboratorSelect").val('');
+    $(".file-name-content").html('Adicionar anexo');
+    $(".interaction-file-input").val('');
+    mention_values = [];
+  }
+
+  $(document).on("submit", "#organizationChartForm", function(e) {
+    e.preventDefault();
+    var $submitButton = $(this).find('button');
+    $submitButton.addClass('is-loading');
+
+    $.ajax({
+      url:'<%= upload_enterprise_chart_url %>',
+      type: 'POST',
+      data: new FormData(this),
+      processData: false,
+      contentType: false,
+      success: function() {
+        $submitButton.removeClass('is-loading');
+        alert("O arquivo foi enviado com Sucesso!");
+        $("#organizationChartModal").removeClass('is-active');
+        $("#organizationChartLink").trigger('click');
+      },
+      error: function() {
+        $submitButton.removeClass('is-loading');
+        alert("Ocorreu um erro ao enviar o arquivo");
+      }
+    });
+  });
+
+  $(document).on("submit", "#flowChartForm", function(e) {
+    e.preventDefault();
+    var $submitButton = $(this).find('button');
+    $submitButton.addClass('is-loading');
+
+    $.ajax({
+      url:'<%= upload_enterprise_chart_url %>',
+      type: 'POST',
+      data: new FormData(this),
+      processData: false,
+      contentType: false,
+      success: function() {
+        $submitButton.removeClass('is-loading');
+        alert("O arquivo foi enviado com Sucesso!");
+        $("#flowChartModal").removeClass('is-active');
+        $("#flowChartLink").trigger('click');
+      },
+      error: function() {
+        $submitButton.removeClass('is-loading');
+        alert("Ocorreu um erro ao enviar o arquivo");
+      }
+    });
+  });
+
+  $(document).on("change", '.chart-file-input', function(e) {
+    var fileName = e.target.files[0].name;
+
+    $(this).parent().find('.file-name').text(fileName)
+  });
+
+  $(document).on("click", ".remove-enterprise-file", function() {
+    var $el = $(this);
+
+    $.ajax({
+      url: "<%= remove_enterprise_file_url %>",
+      method: 'post',
+      data: {
+        id: $el.data('blob-id')
+      },
+      beforeSend: function() {
+        $el.html('<div class="loader disabled-pointer-events"></div>');
+      },
+      success: function() {
+        $el.closest('tr').remove();
+      }
+    });
+  });
+
+  $('#organizationChartLink').click(function() {
+    var $button = $(this);
+    var thrash_icon = `<%= inline_svg "remove.svg" %>`;
+    var table =`
+    <table>
+      <thead>
+        <th><div>Nome do arquivo</div></th>
+        <th><div>Data de upload</div></th>
+        <th><div>Tamanho</div></th>
+        <th><div>Remover</div></th>
+      </thead>
+      <tbody>
+    `;
+
+    $.ajax({
+      method: 'GET',
+      url: '<%= get_enterprise_charts_path %>',
+      dataType: 'json',
+      data: {
+        id: $('.enterprise-modal').data('enterprise-id'),
+        chart_type: $(this).data('chart-type'),
+      },
+      beforeSend: function() {
+        $button.html('<div class="loader"><div>');
+      },
+      success: function(data) {
+        for (var i = 0; i < data.files.length; i++) {
+          table += `
+          <tr>
+            <td><a href='${data.files[i].blob_path}'>${data.files[i].filename}</a></td>
+            <td><div>${data.files[i].date}<div></td>
+            <td><div>${data.files[i].size}<div></td>
+            <td><div class="remove-enterprise-file" data-blob-id="${data.files[i].blob_id}">${thrash_icon}</div></td>
+          </tr>
+          `;
+        }
+
+        table += '</tbody></table>'
+        $('#organizationChartModalFiles').find('.table-container').html(table);
+        $('#organizationChartModalFiles').find('.chart-enterprise-name').text(data.enterprise_name);
+        $("#organizationChartModalFiles").addClass('is-active');
+        $button.html('Organogramas');
+      }
+    });
+  });
+
+  $('#flowChartLink').click(function() {
+    var $button = $(this);
+    var thrash_icon = `<%= inline_svg "remove.svg" %>`;
+    var table =`
+    <table>
+      <thead>
+        <th><div>Nome do arquivo</div></th>
+        <th><div>Data de upload</div></th>
+        <th><div>Tamanho</div></th>
+        <th><div>Remover</div></th>
+      </thead>
+      <tbody>
+    `;
+
+    $.ajax({
+      method: 'GET',
+      url: '<%= get_enterprise_charts_path %>',
+      dataType: 'json',
+      data: {
+        id: $('.enterprise-modal').data('enterprise-id'),
+        chart_type: $(this).data('chart-type'),
+      },
+      beforeSend: function() {
+        $button.html('<div class="loader"><div>');
+      },
+      success: function(data) {
+        for (var i = 0; i < data.files.length; i++) {
+          table += `
+          <tr>
+            <td><a href='${data.files[i].blob_path}'>${data.files[i].filename}</a></td>
+            <td><div>${data.files[i].date}<div></td>
+            <td><div>${data.files[i].size}<div></td>
+            <td><div class="remove-enterprise-file" data-blob-id="${data.files[i].blob_id}">${thrash_icon}</div></td>
+          </tr>
+          `;
+        }
+
+        table += '</tbody></table>'
+        $('#flowChartModalFiles').find('.table-container').html(table);
+        $('#flowChartModalFiles').find('.chart-enterprise-name').text(data.enterprise_name);
+        $("#flowChartModalFiles").addClass('is-active');
+        $button.html('Fluxogramas');
+      }
+    });
+  });
+
+  $('#editStateSelectNewEnterprise').change(function() {
+    edit_current_selected_state = $(this).val();
+
+    if (!change_enterprise_state_flag) {
+      $('.address input').val('');
+      $('.edit-city-autocomplete').val('');
+      $('.edit-enterprise-input-cep').val('')
+    }
+
+    if (edit_current_selected_state != '') {
+      $('.edit-city-autocomplete').prop('disabled', false);
+
+      $.getJSON(`/get_city_list/${edit_current_selected_state}`, function(data) {
+        edit_cities = data;
+      });
+    } else {
+      $('.edit-city-autocomplete').prop('disabled', true);
+    }
+  });
+
+  $('.edit-city-autocomplete').autoComplete({
+    minChars: 2,
+    source: function(term, response) {
+      var xhr;
+      var matches = [];
+      term = term.toLowerCase();
+
+      try { xhr.abort(); } catch(e) {}
+      xhr = $.getJSON(`/get_city_list/${edit_current_selected_state}`, { q: term }, function(data) {
+
+        if (data.length > 0) {
+          for (i = 0; i < data.length; i++)
+            if (~data[i].toLowerCase().indexOf(term)) matches.push(data[i]);
+        }
+        response(matches);
+      });
+    },
+    renderItem: function (item, search) {
+      search = search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+      var re = new RegExp("(" + search.split(' ').join('|') + ")", "gi");
+      return '<div class="autocomplete-suggestion">'+ item.replace(re, "<b>$1</b>") + '</div>';
+    },
+    onSelect: function(event, term, item) {
+      current_selected_city = item.text();
+      $('.edit-city-autocomplete').val(current_selected_city);
+    }
+  });
+
+  var $startDate = $('.start-date');
+  var $endDate = $('.end-date');
+
+  $startDate.datepicker({
+    autoHide: true,
+    language: 'pt-BR'
+  });
+
+  $endDate.datepicker({
+    autoHide: true,
+    language: 'pt-BR',
+    startDate: $startDate.datepicker('getDate'),
+  });
+
+  $startDate.on('change', function () {
+    $endDate.datepicker('setStartDate', $startDate.datepicker('getDate'));
+  });
+
+  $(".start-date, .end-date").on('change', function() {
+    if ($(".start-date").val() != '' && $(".end-date").val() != '') {
+      searchEnterprises(1);
+    }
+  });
+
+  <% if @show_new_enterprise.present? %>
+    $("#newEnterpiseModal").addClass('is-active');
+  <% end %>
+</script>

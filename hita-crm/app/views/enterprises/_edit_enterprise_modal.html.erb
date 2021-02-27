@@ -1,0 +1,169 @@
+<div class="hita-modal">
+  <div id="editEnterpiseModal" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      <div class="columns">
+        <div class="column is-full">
+          <p id="editEnterpriseAlert" class="modal-alert alert danger">Já existe uma empresa com este Nome e CNPJ cadastrados.</p>
+        </div>
+      </div>
+      <%= form_for :enterprise, url: update_enterprise_url, html: { id: 'editEnterpriseForm' }, method: :post do %>
+        <div class="columns">
+          <div class="column is-9">
+            <div class="title">Edição de informações da <span class="highlight-color">empresa</span></div>
+            <div class="subtitle">Preencha corretamente o formulário abaixo para atualizar uma empresa já existente.</div>
+            <div class="columns is-variable is-1">
+              <input type="hidden" name="id">
+              <% if can? :read, Enterprise, :user_id %>
+                <% unless current_user.role?(User::ROLES[:consultant]) %>
+                  <div class="column">
+                    <div class="input-title">Consultor</div>
+                    <div class="select">
+                      <%= select_tag "enterprise[consultant_id]", options_for_select(@consultants_or_commercials), class: "select" %>
+                    </div>
+                  </div>
+                <% end %>
+              <% end %>
+              <div class="column">
+                <div class="input-title">Nome da empresa</div>
+                <input type="text" name="enterprise[name]" class="input" placeholder="Digite o número da empresa" required>
+              </div>
+              <div class="column">
+                <div class="input-title">Razão Social</div>
+                <input type="text" name="enterprise[business_name]" class="input" placeholder="Digite a Razão Social" <%= 'disabled' if current_user.role?(User::ROLES[:consultant]) %> >
+              </div>
+              <div class="column">
+                <div class="input-title">CNPJ</div>
+                <input type="text" name="enterprise[cnpj]" class="input input-cnpj" placeholder="Digite o CNPJ" <%= 'disabled' if current_user.role?(User::ROLES[:consultant]) %>>
+              </div>
+            </div>
+            <div class="columns is-variable is-1">
+              <div class="column">
+                <div class="input-title">Tipo</div>
+                <div class="select">
+                  <%= select_tag "enterprise[enterprise_type]", options_for_select(@type), prompt: "Selecione o tipo", class: "select" %>
+                </div>
+              </div>
+              <div class="column">
+                <div class="input-title">Setor</div>
+                <div class="select">
+                  <%= select_tag "enterprise[industry_sector]", options_for_select(@sectors), prompt: "Selecione o setor", class: "select" %>
+                </div>
+              </div>
+              <div class="column">
+                <div class="input-title">CEP</div>
+                <input type="text" name="enterprise[cep]" class="input edit-enterprise-input-cep" placeholder="Digite o CEP">
+              </div>
+              <div class="column">
+                <div class="input-title">Estado</div>
+                <div class="select">
+                  <%= select_tag("editStateSelectNewEnterprise", options_for_select(@states), {:class => "select", :name => "enterprise[state]"}) %>
+                </div>
+              </div>
+              <div class="column">
+                <div class="input-title">Cidade</div>
+                <input type="text" name="enterprise[city]" class="input edit-city-autocomplete" placeholder="Digite a cidade" autocomplete="off">
+              </div>
+            </div>
+            <div class="columns">
+              <div class="column is-9">
+                <div class="address">
+                  <div class="input-title">Endereço</div>
+                  <div class="control">
+                    <input class="input" type="text" name="enterprise[address]">
+                  </div>
+                </div>
+              </div>
+              <% if current_user.role?(User::ROLES[:technical_manager]) or current_user.role?(User::ROLES[:admin]) %>
+                <div class="column">
+                  <div class="input-title">Tabela de Preço</div>
+                  <div class="select">
+                    <%= select_tag("priceTableSelectNewEnterprise", options_for_select(@price_tables), {:class => "select", :name => "enterprise[price_table]"}) %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+            <div class="column is-offset-8 is-4 no-padding-right">
+              <div class="columns is-variable is-1">
+                <% if can? :destroy, Enterprise %>
+                  <div class="column">
+                    <a href="#" class="button is-fullwidth remove-enterprise-bt" data-confirm="Deseja realmente excluir a empresa?" data-method="delete">Excluir</a>
+                  </div>
+                <% end %>
+                <div class="column">
+                  <button id="editEnterpriseBt" class="button is-primary is-fullwidth">Concluir</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+  </div>
+</div>
+
+<% content_for :tail_script do %>
+  <script>
+    $(".input-cnpj").mask('00.000.000/0000-00', {reverse: true});
+    $('.edit-enterprise-input-cep').mask('00000-000');
+
+    $('.edit-enterprise-input-cep').keyup(function() {
+      var current_cep = $('.edit-enterprise-input-cep').val();
+
+      if (current_cep.length >= 9) {
+        editEnterpriseRetrieveAdressByCEP(current_cep);
+      }
+    });
+
+    function editEnterpriseRetrieveAdressByCEP(cep) {
+      $.ajax({
+        method: 'GET',
+        url: 'https://viacep.com.br/ws/' + cep +  '/json/',
+        dataType: 'json',
+        beforeSend: function() {
+          $('#editStateSelectNewEnterprise').parent().addClass('is-loading');
+          $('.edit-city-autocomplete').parent().addClass('is-loading');
+          $('.address input').parent().addClass('is-loading');
+        },
+        success: function(data) {
+          $('#editStateSelectNewEnterprise').parent().removeClass('is-loading');
+          $('.edit-city-autocomplete').parent().removeClass('is-loading');
+          $('.address input').parent().removeClass('is-loading');
+
+          $('.address input').val('');
+          $('.edit-city-autocomplete').val();
+          $('#editStateSelectNewEnterprise').val('');
+
+          $('.edit-city-autocomplete').val(data.localidade);
+          $('.edit-city-autocomplete').prop('disabled', false);
+          $('#editStateSelectNewEnterprise').val(data.uf);
+
+          change_enterprise_state_flag = true;
+          $('#editStateSelectNewEnterprise').trigger('change');
+          change_enterprise_state_flag = false;
+
+          if (data.logradouro && data.logradouro != '') {
+            $('.address input').val($('.address input').val() + data.logradouro + ', ');
+          }
+
+          if (data.complemento && data.complemento != '') {
+            $('.address input').val($('.address input').val() + data.complemento + ', ');
+          }
+
+          if ($('.address input').val() != '') {
+            var str = $('.address input').val();
+            str = str.replace(/,\s*$/, "");
+            $('.address input').val(str);
+          }
+        },
+        error: function() {
+          $('#stateSelectNewEnterprise').parent().removeClass('is-loading');
+          $('.edit-city-autocomplete').parent().removeClass('is-loading');
+          $('.address input').parent().removeClass('is-loading');
+        }
+      })
+    }
+
+  </script>
+<% end %>

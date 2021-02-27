@@ -1,0 +1,59 @@
+@import "base";
+
+.users-management-container {
+  .request-table {
+    tbody {
+      background-color: $white;
+    }
+  }
+
+  .new-user-container {
+    .inputs {
+      margin-top: 15px;
+
+      span {
+        font-size: 12px;
+      }
+    }
+
+    .button-container {
+      svg {
+        fill: $gray_font;
+        height: 10px;
+        padding-right: 8px;
+        margin-bottom: 2px;
+      }
+    }
+
+    .fixed-size-file-name {
+      width: 177px !important;
+    }
+
+    .remove-image-link {
+      margin-top: 10px;
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      svg {
+        position: relative;
+        top: 1px;
+        height: 15px;
+        fill: $blue;
+      }
+    }
+  }
+
+  .table-users {
+    svg {
+      @include hita-default-transition();
+      fill: $gray;
+      height: 10px;
+
+      &:hover {
+        fill: $blue;
+      }
+    }
+  }
+}

@@ -1,0 +1,133 @@
+<div class="main-sidebar">
+  <div class="sidebar-box">
+    <div class="sidebar-title">
+      <% if main_page == 'enterprises' %>
+        <div class="title-text">Empresas</div>
+      <% elsif main_page == 'proposals' %>
+        <div class="title-text">Propostas</div>
+      <% elsif main_page == 'stock' %>
+        <div class="title-text">Estoque</div>
+      <% elsif main_page == 'requests' %>
+        <div class="title-text">Oportunidades</div>
+      <% elsif main_page == 'event' %>
+        <div class="title-text">Agenda</div>
+      <% elsif main_page == 'hindrances' %>
+        <div class="title-text">Impedimentos</div>
+      <% elsif main_page == 'forms' %>
+        <div class="title-text">Formulários</div>
+      <% elsif main_page == 'reports' %>
+        <div class="title-text">Relatórios</div>
+      <% elsif main_page == 'requirements' %>
+        <div class="title-text">Top</div>
+      <% elsif main_page == 'requirements' %>
+        <div class="title-text">Top</div>
+      <% elsif main_page == 'forms' %>
+        <div class="title-text">Formulários</div>
+      <% end %>
+    </div>
+    <div class="sidebar-itens">
+      <% if main_page == 'enterprises' %>
+        <a href="<%= enterprises_index_path %>">
+          <div class="sidebar-item <%= 'active-item' if current_page == 'enterprises' %>">Empresas</div>
+        </a>
+        <a href="<%= collaborators_index_path %>">
+          <div class="sidebar-item <%= 'active-item' if current_page == 'collaborators' %>">Contatos</div>
+        </a>
+        <a href="<%= enterprises_map_path %>">
+          <div class="sidebar-item <%= 'active-item' if current_page == 'map' %>">Mapa</div>
+        </a>
+      <% elsif main_page == 'proposals' %>
+        <a href="<%= new_request_path %>">
+          <div class="sidebar-item <%= 'active-item' if current_page == 'request_proposal' %>">Solicitar Prop.</div>
+        </a>
+        <% if can? :elaborate_proposals, Request %>
+          <a href="<%= elaborate_proposals_index_path %>">
+            <div class="sidebar-item <%= 'active-item' if current_page == 'elaborate_proposal' %>">Elaborar Prop.</div>
+          </a>
+        <% end %>
+        <a href="<%= see_drafts_path %>">
+          <div class="sidebar-item <%= 'active-item' if current_page == 'drafts' %>">Rascunhos</div>
+        </a>
+      <% elsif main_page == 'stock' %>
+        <a href="<%= stocks_index_path %>">
+          <div class="sidebar-item <%= 'active-item' if current_page == 'download' %>">Consultar</div>
+        </a>
+        <% if can? :upload, Stock %>
+          <a href="<%= stocks_new_path %>">
+            <div class="sidebar-item <%= 'active-item' if current_page == 'upload' %>">Enviar</div>
+          </a>
+        <% end %>
+      <% elsif main_page == 'event' %>
+        <a href="<%= events_index_path %>">
+          <div class="sidebar-item <%= 'active-item' if current_page == 'my_schedule' %>">Minha Agenda</div>
+        </a>
+        <% if can? :show_all, Event %>
+          <a href="<%= show_all_events_path %>">
+            <div class="sidebar-item <%= 'active-item' if current_page == 'schedules' %>">Outras</div>
+          </a>
+        <% end %>
+      <% elsif main_page == 'requests' %>
+        <a href="<%= requests_index_url %>">
+          <div class="sidebar-item <%= 'active-item' if current_page == 'products' %>">Produtos</div>
+        </a>
+        <a href="<%= services_index_url %>">
+          <div class="sidebar-item <%= 'active-item' if current_page == 'services' %>">Serviços</div>
+        </a>
+      <% elsif main_page == 'hindrances' %>
+        <a href="<%= hindrance_index_url %>">
+          <div class="sidebar-item <%= 'active-item' if current_page == 'my_hindrances' %>">Meus Impedim.</div>
+        </a>
+        <% if can? :index, Hindrance %>
+          <a href="<%= others_hindrances_url %>">
+            <div class="sidebar-item <%= 'active-item' if current_page == 'others' %>">Outros</div>
+          </a>
+        <% end %>
+      <% elsif main_page == 'forms' %>
+        <a href="<%= forms_index_url %>">
+          <div class="sidebar-item <%= 'active-item' if current_page == 'generate_form' %>">Gerar Formulário</div>
+        </a>
+        <% if can? :index_proposal, Form %>
+          <a href="<%= forms_proposal_index_url %>">
+            <div class="sidebar-item <%= 'active-item' if current_page == 'generate_proposal' %>">Gerar Proposta</div>
+          </a>
+        <% end %>
+
+        <% if can? :new_form, Form %>
+          <a href="<%= new_form_url %>">
+            <div class="sidebar-item <%= 'active-item' if current_page == 'create_form' %>">Criar Formulários</div>
+          </a>
+        <% end %>
+        <% if can? :new_proposal_form, Form %>
+          <a href="<%= new_proposal_form_url %>">
+            <div class="sidebar-item <%= 'active-item' if current_page == 'create_proposal' %>">Criar Propostas</div>
+          </a>
+        <% end %>
+        <% if can? :index, FormKey %>
+          <a href="<%= form_keys_index_url %>">
+            <div class="sidebar-item <%= 'active-item' if current_page == 'form_keys' %>">Chaves</div>
+          </a>
+        <% end %>
+      <% elsif main_page == 'reports' %>
+        <a href="<%= report_index_path %>">
+          <div class="sidebar-item <%= 'active-item' if current_page == 'reports' %>">Empresas</div>
+        </a>
+        <a href="<%= report_products_index_path %>">
+          <div class="sidebar-item <%= 'active-item' if current_page == 'reports_products' %>">Produtos</div>
+        </a>
+        <a href="<%= report_services_index_path %>">
+          <div class="sidebar-item <%= 'active-item' if current_page == 'reports_services' %>">Serviços</div>
+        </a>
+      <% elsif main_page == 'requirements' %>
+        <a href="#">
+          <div class="sidebar-item <%= 'active-item' if current_page == 'my_points' %>">
+            <% if current_user.role?(User::ROLES[:technical_manager]) or current_user.role?(User::ROLES[:admin]) or current_user.role?(User::ROLES[:regional_coordinator]) or current_user.role?(User::ROLES[:commercial]) %>
+              Pontos
+            <% else %>
+              Meus pontos
+            <% end %>
+          </div>
+        </a>
+      <% end %>
+    </div>
+  </div>
+</div>

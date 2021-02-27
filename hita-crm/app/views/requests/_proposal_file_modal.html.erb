@@ -1,0 +1,113 @@
+<div class="flow-chart-modal">
+  <div id="proposalFileModal" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      <div>Enviar <span class="has-text-weight-bold">Proposta</span></div>
+      <%= form_tag upload_request_specific_files_url, method: :post, multipart: true, id: 'proposalFileForm' do %>
+        <div class="columns margin-top-10 files-content">
+          <div class="column">
+            <div class="file has-name">
+              <label class="file-label fluid">
+                <input type="hidden" name="request[id]" class="request-id" value="">
+                <input id="proposalFileInput" class="file-input proposal-file-input" type="file" name="request[proposal]">
+                <span class="file-cta">
+                  <span class="file-label">
+                    Escolha um arquivo...
+                  </span>
+                </span>
+                <span class="file-name fluid">
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="columns no-margin-bottom">
+          <div class="column">
+            <button id="submitWithProposal" class="button is-primary is-fullwidth" disabled>Enviar Arquivo</button>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column">
+            <button id="submitWithoutProposal" class="button is-secondary is-fullwidth">Prosseguir sem Proposta</button>
+          </div>
+        </div>
+      <% end %>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+
+  function crateFakeProposal(request_id) {
+    $.ajax({
+      method: 'POST',
+      url: '<%= create_fake_request_proposal_url %>',
+      data: {
+        request_id: request_id,
+        authenticity_token: "<%= form_authenticity_token %>"
+      },
+      success: function() {
+        updateModalSteps('3');
+        $('tr[data-request-id="' + $('.request-modal').data('request-id') +'"]').remove();
+        $("#proposalFileModal").removeClass('is-active');
+      },
+      error: function() {
+        alert('Ocorreu um erro ao criar a proposta.');
+        $("#proposalFileModal").removeClass('is-active');
+      }
+    });
+  }
+
+  $('.proposal-file-input').change(function(e) {
+    if (e.target.files.length > 0) {
+      $('#submitWithProposal').prop('disabled', false);
+    } else {
+      $('#submitWithProposal').prop('disabled', true);
+    }
+
+    var fileName = e.target.files[0].name;
+    $(this).parent().find('.file-name').text(fileName);
+  });
+
+  $('#submitWithoutProposal').click(function(e) {
+    e.preventDefault();
+
+    if (confirm('Tem certeza que deseja prosseguir sem anexar uma proposta?')) {
+      crateFakeProposal($('.request-modal').data('request-id'));
+    }
+  });
+
+  $('#submitWithProposal').click(function(e) {
+    e.preventDefault();
+    var $submitButton = $(this);
+    $submitButton.addClass('is-loading');
+
+    var form_data = new FormData(document.getElementById('proposalFileForm'));
+
+    $.ajax({
+      url:'<%= upload_request_specific_files_url %>',
+      type: 'POST',
+      data: form_data,
+      processData: false,
+      contentType: false,
+      success: function() {
+        $submitButton.removeClass('is-loading');
+        alert("O arquivo foi enviado com Sucesso!");
+        $("#proposalFileModal").removeClass('is-active');
+        $('#proposalFileInput').val(null);
+        $('#proposalFileInput').parent().find('.file-name').text('');
+        $('#submitWithProposal').prop('disabled', true);
+
+        is_proposal_present = true;
+        updateModalSteps('3');
+        $('tr[data-request-id="' + $('.request-modal').data('request-id') +'"]').remove();
+      },
+      error: function() {
+        $submitButton.removeClass('is-loading');
+        alert("Ocorreu um erro ao enviar o arquivo");
+      }
+    });
+  });
+
+</script>

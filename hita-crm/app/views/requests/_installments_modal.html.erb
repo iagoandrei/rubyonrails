@@ -1,0 +1,844 @@
+<div class="installments-modal">
+  <div id="installmentsModal" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content personalized-scroll-y">
+      <div class="columns is-centered">
+        <div class="column">
+          <div class="title">Gerenciamento de Faturas</div>
+        </div>
+      </div>
+      <div class="installments-container">
+        <div class="columns is-variable is-2 head no-margin is-centered">
+          <div class="column is-1"></div>
+          <div class="column is-4">Valor</div>
+          <div class="column is-3">Data de faturamento</div>
+          <div class="column is-2">Faturado</div>
+          <div class="column is-1">Pago</div>
+          <div class="column is-1"></div>
+        </div> 
+
+        <div class="installments">        
+          <div class="current-installments">
+          </div>
+          <div class="new-installments">
+          </div>
+          <div class="fixed-installment">
+            <div class="installment columns no-margin-bottom is-variable is-2 is-centered is-vcentered">
+              <div class="column is-1">
+                <span class="installment-number fixed-number"></span>
+              </div>
+              <div class="column is-4">
+                <input class="input fixed-installment-value installment-value" disabled>
+              </div>
+              <div class="column is-3">
+                <input class="input fixed-installment-date installment-date" <%= "disabled" if can? :save_installments, RequestInstallment %>>
+              </div>
+              <div class="column is-2">
+                <div class="b-checkbox is-primary">
+                  <input id="revenued" class="styled billed-check reset-check" type="checkbox" <%= "disabled" if can? :save_installments, RequestInstallment %>>
+                  <label for="revenued"></label>
+                </div>
+              </div>
+              <div class="column is-1">
+                <div class="b-checkbox is-primary">
+                  <input id="paid" class="styled paid-check" type="checkbox" disabled>
+                  <label for="paid"></label>
+                </div>
+              </div>
+              <div class="column is-1"></div>
+            </div>
+          </div>
+          <div id="warningMessage" class="messages">
+            <div class="columns is-centered">
+              <div class="column is-11">
+                <div class="text">*Valor total das parcelas ultrapassa o valor do pedido</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="columns is-centered is-variable is-1 margin-top-10">
+          <div class="column is-4">
+            <button id="addNewInstallment" class="button is-primary is-fullwidth" <%= 'disabled' unless can? :save_installments, RequestInstallment %>><%= inline_svg "plus.svg" %> Adicionar Parcela</button>
+          </div>
+          <div class="column is-4">
+            <button id="saveInstallments" class="button is-secondary is-fullwidth" <%= 'disabled' unless can? :save_installments, RequestInstallment %>>Salvar</button>
+          </div>
+        </div>
+      </div>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+  </div>
+</div>
+
+<div class="condic-modal">
+  <div id="condicModal" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content personalized-scroll-y">
+      <div class="columns is-centered">
+        <div class="column">
+          <div class="title">Condições</div>
+        </div>
+      </div>
+      <d iv class="installments-container">        
+        <div class="installments">
+          <div class="columns is-variable is-2 head no-margin is-centered">
+            <div class="column is-2">Tipo de Pagamento</div>
+            <div class="column is-2">Tipo de Operação</div>
+            <div class="column is-3">Centro de Armazenagem</div>
+            <div class="column is-3">Codigo de Pagamento</div>
+          </div>
+          <div id="condicForm" class="installment columns no-margin-bottom is-variable is-2 is-centered is-vcentered">                  
+        </div>
+          <form id="condicForm" class="installment columns no-margin-bottom is-variable is-2 is-centered is-vcentered">                
+            <div class="column is-2">
+              <div class="select">
+                <select class="select payment_type" id='tippag'></select>
+              </div>              
+            </div>  
+            <div class="column is-2">
+              <div class="select">
+                <select class="select operation_type" id='tipope'></select>
+              </div>
+            </div>              
+            <div class="column is-3">
+              <input class="input" id='ca'>
+            </div>                           
+            <div class="column is-3">
+              <div class="select">
+                <select class="select payment_term" id='codpag'></select>
+              </div>            
+            </div> 
+          </form>
+        <div class="columns is-centered is-variable is-1 margin-top-10">
+          <div class="column is-4">
+            <button id="saveCondic" class="button is-primary is-fullwidth"><%= inline_svg "plus.svg" %> Adicionar Condição</button>
+          </div>
+          <div class="column is-4">
+            <button id="editCondic" class="button is-primary is-fullwidth">Editar Condição</button>
+          </div>
+        </div>
+      </div>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+
+/*==================================================================================================================
+
+                    REQUISIÇÕES PARA API -> BOTÃO CONDICÕES
+
+- IAGO333DEV
+=================================================================================================================*/
+
+const OperationDOM = document.querySelector('.operation_type');
+const PaymentTypeDOM = document.querySelector('.payment_type');
+const PaymentCodeDOM = document.querySelector('.payment_term');
+const BaseURL = "http://187.44.162.250:8281/webservicehomolog/cigam/Integrador/"; 
+const statusRegistro = "L";
+const viaTransporte = "R";
+const codigoUnidadeNegocio = "001";
+const controle = "25";
+
+data = "pin=001"
+pin = "001"
+let result = '';
+let result2 = '';
+let result3 = '';
+
+//retorna valor de Codigo Divisão a Depender do Estado
+function setcodigoDivisao(UF){
+  if(UF === "RS" || UF === "SC" || UF === "PR"){
+    return "01";
+  }else if(UF == "SP"){
+    return "02";
+  }else if(UF == "RJ" || UF == "ES"){
+    return "03";
+  }else if(UF == "MG" || UF == "GO" || UF == "DF" || UF == "MT" || UF == "MS" || UF == "TO" ){
+    return "04";
+  }else if(UF == "BA"){
+    return "05";
+  }else if(UF == "SE" || UF == "AL" || UF == "PE" || UF == "PB" || UF == "RN" || UF == "CE" || UF == "PI"){
+    return "06";
+  }else if(UF == "MA" || UF == "AM" || UF == "PA" || UF == "RO" || UF == "AC" || UF == "AP" || UF == "RR"){
+    return "07";
+  }else if(UF == "EX"){
+    return "08";
+  }
+}
+
+//Busca Empresa na API atraves do CNPJ 
+function GetEnterpriseAPI(enterprise,request) {
+
+ // enterprise.cnpj = sanitizeString(enterprise.cnpj);
+
+  enterprise.cnpj = "21354728000191";
+
+  $.ajax({
+    url:  BaseURL+'CadastroEmpresas.integrador.ashx/ListarPorCnpjCpf',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    type: "POST",
+    dataType: 'json',	
+    data: {
+      pin: pin,
+      cnpjCpf: enterprise.cnpj,     
+      listarEndereco: "true", 
+    },
+    dataType: 'json',
+    success: function (resposta) {   
+      if(resposta.exception){
+        console.log("Empresa Não Cadastrada no CIGAM");
+        console.log("Cadastrando Empresa...");
+       PostEnterpriseAPI(enterprise,request);
+      }
+      //SE HOUVER EMPRESA CRIAR PEDIDO
+      else{
+        console.log("Empresa Cadastrada no CIGAM");
+        console.log("Criando pedido...");
+        //CadastroPedidos(request,resposta.codigoEmpresa);   
+        GetRequestCode(request,enterprise,resposta.codigoEmpresa);
+      }
+    }
+  })  
+}
+
+//Função Limpar string
+function sanitizeString(str){
+  str = str.replace(/[^az0-9áéíóúñü \,_]/gim,"");
+  return str.trim();
+}
+
+//Cadastro empresa
+function PostEnterpriseAPI(enterprise,request) {
+
+ var codigoDivisao = setcodigoDivisao(enterprise.state);
+  enterprise.city = enterprise.city.toUpperCase();
+  enterprise.cep = sanitizeString(enterprise.cep);
+
+  var settings = {
+    "url": BaseURL+"CadastroEmpresas.integrador.ashx/Cadastrar",
+    "method": "POST",
+    "headers": {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    data: {
+      pin: pin,
+      statusRegistro: statusRegistro,
+      nomeCompleto: enterprise.business_name,
+      inscrito: "false",
+      inscricao: "ISENTO",
+      fantasia: enterprise.name,
+      codigoUnidadeNegocio: codigoUnidadeNegocio,
+      ativo: "true",
+      codigoTipoPagamento: request.payment_type,
+      codigoTipoOperacao: request.operation_type,
+      codigoCentroArmazenagem: request.storage_center,
+      codigoCondicaoPagamento: request.payment_code,
+      endereco: enterprise.address,
+      bairro: "HITA-CRM",
+      municipio: enterprise.city,
+      uf: enterprise.state,
+      cep: enterprise.cep,
+      CpfCnpj: enterprise.cnpj,
+      codigoDivisao: codigoDivisao,
+      codigoMercado: "05"
+    },
+  }
+  
+  $.ajax(settings).done(function (response) {
+    console.log("POST EMPRESA CIGAM");    
+    console.log(response);    
+  });
+  
+  
+}
+
+//Retorna Empresa atraves do ID Request
+function GetEnterpriseID(request){
+  $.ajax({
+  url:  '<%= get_enterprise_id_url  %>',
+  type: "GET",
+  data:{ 
+    request_id: request.request_id,
+    authenticity_token: '<%= form_authenticity_token %>'
+  }
+  })
+  .done(function(enterprise) {
+  if (enterprise.cnpj == null) {
+      OnOffCondicFields(1);
+      alert("ERROR! CNPJ da empresa "+enterprise.name+" Nulo,");      
+      throw new Error("ERROR! CNPJ da empresa "+enterprise.name+" Nulo");
+    }else{
+     GetEnterpriseAPI(enterprise,request);  
+
+    }
+    // console.log(empresa);  
+})
+  .fail(function(resposta) {
+    console.log("Error GetEnterpriseID");    
+  })
+
+}
+
+function GetRequestCode(request,enterprise,codigoEmpresa) {
+
+  $.ajax({
+  url:  '<%= getrequestcode_url %>',
+  type: "POST",
+  data:{ 
+    request_id: request.request_id,
+    authenticity_token: '<%= form_authenticity_token %>'
+  }
+  })
+  .done(function(resp) {
+     // console.log(resp.request_code); 
+     CadastroPedidos(request,codigoEmpresa,resp.request_code); 
+
+  })
+  .fail(function(resposta) {
+    console.log(resposta);    
+  })
+  
+}
+
+
+function CadastroPedidos(request_condition,codigoCobranca,request_code) { 
+  var data = new Date();
+  var Data = data.getDate()+'-'+data.getMonth()+'-'+data.getFullYear(); 
+
+
+ $.ajax({
+  url:  BaseURL+'CadastroPedidos.integrador.ashx/Cadastrar',
+  headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+  type: "POST",
+  dataType: 'json',	
+  data: {
+    pin: pin,
+    statusRegistro: statusRegistro,     
+    codigoCobranca: codigoCobranca,
+    dataPedido: Data,
+    viaTransporte: viaTransporte,
+    codigoCliente: codigoCobranca,
+    prazoEntrega: Data,
+    prazoPrgramado: Data,
+    codigoUnidadeNegocio: codigoUnidadeNegocio,
+    controle: controle,
+    codigoTipoPagamento: request_condition.payment_type,
+    codigoTipoOperacao: request_condition.operation_type,
+    codigoCondicaoPagamento: request_condition.payment_code,
+    codigoPedido: request_code
+  },
+  dataType: 'json',
+  success: function (resposta) { 
+    console.log(resposta);
+    ListarLogIntegrador(resposta.idRegistro,request_condition);
+    }
+  })
+}
+
+function SetReqCondition(obj){
+
+  result+=`<option value="${obj.operation_type}" selected>${obj.operation_type}</option>`
+  result2+=`<option value="${obj.payment_type}" selected>${obj.payment_type}</option>`
+  result3+=`<option value="${obj.payment_code}" selected>${obj.payment_code}</option>`
+  document.getElementById("ca").value = `${obj.storage_center}`;
+
+
+  OperationDOM.innerHTML = result;
+  PaymentTypeDOM.innerHTML = result2;   
+  PaymentCodeDOM.innerHTML = result3; 
+}
+
+function GetAPI(){
+ 
+  link = BaseURL+"CadastroTipoOperacao.integrador.ashx/ListarId"
+
+  $.ajax({
+    url: link,
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    type: "POST", 
+    data: data,        
+    dataType: 'json',		
+    success: function (api_type_operation) {
+      api_type_operation.forEach(operation => {                
+        result+=`<option value="${operation.codigoTipoOperacao}">${operation.codigoTipoOperacao}</option>`
+      })         
+        OperationDOM.innerHTML = result;     
+    }
+  })
+
+    //Tipo de Operação
+
+  link = BaseURL+"CadastroTipoPagamento.integrador.ashx/ListarId"
+
+  $.ajax({
+    url: link,
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    type: "POST", 
+    data: data,        
+    dataType: 'json',		
+      success: function (api_payment_type) {
+        api_payment_type.forEach(payment => {                            
+          result2+=`<option value="${payment.codigoTipoPagamento}">${payment.codigoTipoPagamento}</option>`
+        })         
+      PaymentTypeDOM.innerHTML = result2;     
+    }
+  });  
+  link = BaseURL+"CadastroPrazoPagamento.integrador.ashx/ListarId"
+
+  $.ajax({
+    url: link,
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    type: "POST", 
+    data: data,        
+    dataType: 'json',		
+      success: function (api_deadline_payment) {
+        api_deadline_payment.forEach(deadline => {                         
+          result3+=`<option value="${deadline.codigoCondicaoPagamento}">${deadline.codigoCondicaoPagamento}</option>`
+        })         
+          PaymentCodeDOM.innerHTML = result3;
+      }
+  });  
+}
+
+function OnOffCondicFields(binary){
+  if (binary == 1) {
+    document.getElementById("tippag").disabled = true; 
+    document.getElementById("tipope").disabled = true;
+    document.getElementById("ca").disabled = true;  
+    document.getElementById("codpag").disabled = true;   
+    document.getElementById("saveCondic").disabled = true;    
+  } else {
+    document.getElementById("tippag").disabled = false; 
+    document.getElementById("tipope").disabled = false;
+    document.getElementById("ca").disabled = false;  
+    document.getElementById("codpag").disabled = false;    
+  }
+}
+
+function EditCondic(request_condition,id) {
+
+  var url = "/request_conditions/"+id;
+
+  $.ajax({
+    url: url,
+    type: "PUT",
+    data:{ 
+      request_condition: request_condition,
+      authenticity_token: '<%= form_authenticity_token %>'
+    }
+  }).fail(function(resposta) {
+    console.log(resposta);    
+  })  
+}
+
+$("#saveCondic").click(function (event) {
+  if(!$("#tippag").val() || !$("#tipope").val() || !$("#ca").val() || !$("#codpag").val()){
+    return alert("Preencha todos os campos!");
+  }
+
+  var request_condition = {
+        payment_type: $("#tippag").val(),
+        operation_type: $("#tipope").val(),
+        storage_center: $("#ca").val(),
+        payment_code: $("#codpag").val(),   
+        request_id: $('.request-modal').data('request-id'),      
+      }
+
+  $.ajax({
+    url: '<%= conditions_create_url %>',
+    type: "POST",
+    data:{ 
+      request_condition: request_condition,
+      authenticity_token: '<%= form_authenticity_token %>'
+    }
+  })
+
+  $('#condicModal').removeClass('is-active')
+  $('#condicModal').addClass('is-hovered')
+});
+
+function ListarLogIntegrador(idIntegracao,request) {  
+
+  $.ajax({
+  url:  BaseURL+'Log.integrador.ashx/ListarLogIntegrador',
+  headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+  type: "POST",
+  dataType: 'json',	
+  data: {
+    pin: pin,
+    idIntegracao: idIntegracao,     
+  },
+  dataType: 'json',
+  success: function (resposta) { 
+    }
+  })  
+}
+
+//ListarLogIntegrador(115);
+
+
+/*=============================================================================================================
+
+                    FIM REQUISIÇÕES API
+
+=============================================================================================================*/
+/*=============================================================================================================
+
+                    FIM REQUISIÇÕES API
+
+=============================================================================================================*/
+
+  var uniq_installment_id = 1;
+  var total_revenue = 0;
+  var number_of_installments = 0;
+  var removed_installments = [];
+
+function VerifCondit() {
+    var binary = 0;
+    $.ajax({
+    url: '<%= conditions_get_url %>.json',
+    type: "GET",
+    data:{ 
+    authenticity_token: '<%= form_authenticity_token %>'
+    }
+  })
+  .done(function(res) {
+    var modal_id = $('.request-modal').data('request-id');
+  
+    if(res != 0){
+      res.forEach(element => {
+        if(element.request_id == modal_id){ binary = 1 }
+      });
+    }
+
+    if(binary == 0){
+      alert("Cadastre uma Condição antes!")
+      throw new Error("Cadastre uma Condição antes!");      
+    }
+  })
+  
+}
+
+
+
+
+  $('#addNewInstallment').click(function() {
+    VerifCondit();
+    $('.new-installments').append(buildInstallmentLine('', '', false, false));
+    $('.new-installments .installment:last-child .installment-value').mask('000.000.000.000.000,00', { reverse: true });
+    $('.new-installments .installment:last-child .installment-date').mask("99/99/9999");
+    updateInstallmentsNumber();
+  });
+
+
+
+
+$(document).on('click', '.remove-installments-bt', function() {
+    var $installment_row = $(this).closest('.installment');
+    var is_checked = $installment_row.find('.billed-check').is(':checked');
+    var is_disabled = $installment_row.find('.billed-check').is(':disabled');
+
+    if (is_checked && is_disabled) {
+      var removed = {
+        'date': $installment_row.find('.installment-date').val(),
+        'value': $installment_row.find('.installment-value').val()
+      }
+
+      removed_installments.push(JSON.stringify(removed));
+    }
+
+    $(this).closest('.columns').remove();
+    $('.installment-value').trigger('change');
+  });
+
+  $(document).on('click', '.billed-label', function(e) {
+    if (!confirm('Marcando a parcela como faturada irá desabilitar o opção de editar data e valor após salvar. Deseja continuar?')) {
+      e.preventDefault();
+    }
+  });
+
+  // $('#isSplitted').change(function() {
+  //   if ($(this).is(':checked')) {
+  //     $('.installments-container').slideDown();
+  //     $('#billButton').prop('disabled', true);
+  //   } else {
+  //     $('.installments-container').slideUp();
+  //     $('#billButton').prop('disabled', false);
+  //   }
+  // });
+
+  $('#saveInstallments').click(saveRequestInstallments);
+
+
+
+  $(document).on('change', '.installment-value', function() {
+    var last_installment = total_revenue;
+
+    $('.installment-value').not('.fixed-installment-value').each(function() {
+      if ($(this).val() != '')
+        last_installment -= parseFloat($(this).val().replace(/[R$.]+/g, "").replace(/,/g, '.'));
+    });
+
+    var $fixed_value = $('.fixed-installment-value');
+    last_installment = parseFloat(last_installment.toFixed(2));
+
+    if (last_installment < 0) {
+      $fixed_value.val(last_installment.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }).replace('R$ ', ''));
+
+      if (!$fixed_value.hasClass('red-color')) {
+        $fixed_value.addClass('red-color');
+        $('#warningMessage').show();
+      }
+
+      $('.fixed-installment-date').prop('disabled', true);
+      $('.reset-check').prop('disabled', true);
+    } else if(last_installment > 0) {
+      $fixed_value.val(last_installment.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }).replace('R$ ', ''));
+      $fixed_value.removeClass('red-color');
+      $('#warningMessage').hide();
+
+      $('.fixed-installment-date').prop('disabled', false);
+      $('.reset-check').prop('disabled', false);
+    } else {
+      $fixed_value.val('Parcelas completas.');
+      $fixed_value.removeClass('red-color');
+      $('#warningMessage').hide();
+
+      $('.fixed-installment-date').prop('disabled', true);
+      $('.reset-check').prop('disabled', true);
+    }
+
+    updateInstallmentsNumber();
+  });
+
+  function buildInstallmentLine(value, date, is_billed, is_paid) {
+    var installment_line = `
+      <div class="installment columns no-margin-bottom is-variable is-2 is-centered is-vcentered">
+        <div class="column is-1">
+          <span class="installment-number"></span>
+        </div>
+        <div class="column is-4">
+          <input class="input installment-value" value="${value}" ${ is_billed ? 'disabled' : '' }>
+        </div>
+        <div class="column is-3">
+          <input class="input installment-date" value="${date}" ${ is_billed ? 'disabled' : '' }>
+        </div>
+        <div class="column is-2">
+          <div class="b-checkbox is-primary">
+            <input id="revenued_${uniq_installment_id}" class="styled billed-check" type="checkbox" ${ is_billed ? 'checked disabled' : '' } >
+            <label for="revenued_${uniq_installment_id}" class="billed-label"></label>
+          </div>
+        </div>
+        <div class="column is-1">
+          <div class="b-checkbox is-primary">
+            <input id="paid_${uniq_installment_id}" class="styled paid-check" type="checkbox" ${ is_paid ? 'checked' : '' } ${ is_billed ? '' : 'disabled' }>
+            <label for="paid_${uniq_installment_id}"></label>
+          </div>
+        </div>
+        <div class="column is-1">
+          <button class="button remove-installments-bt"><%= inline_svg "remove.svg", class: "no-margin" %></button>
+        </div>
+      </div>`;
+    uniq_installment_id++;
+    return installment_line;
+  }
+
+  function updateInstallmentsNumber() {
+    $('.installment-number').each(function(index) {
+      if ($(this).hasClass('fixed-number')) {
+        var input_value = $(this).closest('.installment').find('.installment-value').val();
+
+        if (input_value != 'Parcelas completas.') {
+          $(this).text(index + 1 + "ª");
+        } else {
+          $(this).text("");
+        }
+      } else {
+        $(this).text(index + 1 + "ª");
+      }
+    });
+  }
+
+  function loadCurrentInstallmentInfos() {
+    $('.current-installments').html('');
+    $('.new-installments').html('');
+    removed_installments = [];
+
+    $.ajax({
+      method: 'GET',
+      url: '<%= get_request_installments_infos_url %>',
+      data: {
+        id: $('.request-modal').data('request-id')
+      },
+      success: function(data) {
+        var left_value_for_billing = data.calculated_revenue;
+        total_revenue = left_value_for_billing;
+
+        $('.fixed-installment-value').removeClass('red-color');
+        $('#warningMessage').hide();
+
+        for(i = 0; i < data.installments.length; i++) {
+          installment = buildInstallmentLine(
+            data.installments[i].value,
+            data.installments[i].date,
+            data.installments[i].is_billed,
+            data.installments[i].is_paid
+          );
+
+          left_value_for_billing -= parseFloat(data.installments[i].value.replace(/[R$.]+/g,"").replace(/,/g,'.'))
+          $('.current-installments').append(installment);
+        }
+
+        if(data.installments.length == 0) {
+          $('.new-installments .installment:last-child .installment-value').mask('000.000.000.000.000,00', { reverse: true });
+          $('.new-installments .installment:last-child .installment-date').mask("99/99/9999");
+        }
+
+        if (parseFloat(left_value_for_billing.toFixed(2)) < 0) {
+          $('.fixed-installment-value').val(0);
+          $('.fixed-installment-date').prop('disabled', false);
+          $('.reset-check').prop('disabled', false);
+        } else if(left_value_for_billing > 0) {
+          $('.fixed-installment-value').val(left_value_for_billing.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }).replace('R$ ', ''));
+          $('.fixed-installment-date').prop('disabled', false);
+          $('.reset-check').prop('disabled', false);
+        } else {
+          $('.fixed-installment-value').val('Parcelas completas.');
+          $('.fixed-installment-date').prop('disabled', true);
+          $('.reset-check').prop('disabled', true);
+        }
+
+        updateInstallmentsNumber();
+
+        $('.installment-value').not('.fixed-installment-value').mask('000.000.000.000.000,00', { reverse: true });
+        $('.installment-date').mask("99/99/9999");
+
+        <% unless can? :save_installments, RequestInstallment %>
+          $('.installments-modal').find('input').prop('disabled', true);
+        <% end %>
+      },
+    })
+  }
+
+  function getCurrentInstallments() {
+    var installments = [];
+
+    $('.installment').each(function() {
+      var installment = {
+        value: $(this).find('.installment-value').val(),
+        date: $(this).find('.installment-date').val(),
+        is_billed: $(this).find('.billed-check').is(':checked'),
+        is_paid: $(this).find('.paid-check').is(':checked')
+      }
+
+      if (installment.value !== 'Parcelas completas.') {
+        installments.push(JSON.stringify(installment));
+      }
+    });
+
+    return installments;
+  }
+
+
+
+  function saveRequestInstallments() {
+
+    VerifCondit();
+
+    var is_valid = true;
+
+    $('.installment-date').each(function() {
+      if (isValidDate($(this).val()) || $(this).closest('.installment').find('.installment-value').val() == 'Parcelas completas.') {
+        $(this).removeClass('is-danger');
+      } else {
+        $(this).addClass('is-danger');
+        is_valid = false;
+      }
+    });
+
+    $('.installment-value').each(function() {
+      var value = parseFloat($(this).val().replace(/[R$.]+/g, "").replace(/,/g, '.'));
+
+      if ($(this).val() == '' || value == 0) {
+        $(this).addClass('is-danger');
+        is_valid = false;
+      } else {
+        $(this).removeClass('is-danger');
+      }
+    });
+
+    if ($('.fixed-installment-value').val()[0] == '-') {
+      $('.fixed-installment-value').addClass('is-danger');
+      is_valid = false;
+    } else {
+      $('.fixed-installment-value').removeClass('is-danger');
+    }
+
+    if (is_valid) {
+      var $button = $(this);
+      var installments = getCurrentInstallments();
+
+      $.ajax({
+        method: 'POST',
+        url: '<%= save_installments_url %>',
+        data: {
+          installments: installments,
+          request_id: $('.request-modal').data('request-id'),
+          removed_installments: removed_installments,
+          authenticity_token: '<%= form_authenticity_token %>'
+        },
+        beforeSend: function() {
+          $button.addClass('is-loading');
+        },
+        success: function(data) {
+          loadCurrentInstallmentInfos();
+
+          if (billed_from_request_steps && data.next_step > 0) {
+            updateModalSteps(data.next_step);
+            $('tr[data-request-id="' + $('.request-modal').data('request-id') +'"]').remove();
+          }
+
+          if (data.next_step > 6) {
+            updateModalSteps(data.next_step);
+            $('tr[data-request-id="' + $('.request-modal').data('request-id') +'"]').remove();
+          }
+
+          $button.removeClass('is-loading');
+          $('.fixed-installment-date').val('');
+          $('.reset-check').prop('checked', false);
+          alert('As parcelas foram salvas com sucesso.');
+
+        },
+        error: function() {
+          $button.removeClass('is-loading');
+          alert('Houve um erro ao salvar as parcelas.');
+        }
+      });
+    }
+  }
+
+  function isValidDate(dateString) {
+    if(!/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dateString))
+      return false;
+
+    var parts = dateString.split("/");
+    var day = parseInt(parts[0], 10);
+    var month = parseInt(parts[1], 10);
+    var year = parseInt(parts[2], 10);
+
+    if(year < 1000 || year > 3000 || month == 0 || month > 12)
+      return false;
+
+    var monthLength = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
+
+    if(year % 400 == 0 || (year % 100 != 0 && year % 4 == 0))
+      monthLength[1] = 29;
+
+    return day > 0 && day <= monthLength[month - 1];
+  };
+
+
+
+</script>

@@ -1,0 +1,60 @@
+<div class="question">
+  <div class="header">
+    <div class="id">ID: <span></span></div>
+    <div class="question-title-label"><span></span></div>
+    <div class="controls">
+      <div class="hide-question">
+        <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+          <path fill="#000000" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" />
+        </svg>
+      </div>
+      <div class="delete-question">
+        <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+          <path fill="#000000" d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z" />
+        </svg>
+      </div>
+    </div>
+  </div>
+  <div class="body">
+    <div class="form-group">
+      <textarea class="question-title-input" rows="4" required="required"/>
+      <label for="input" class="control-label">Texto da pergunta</label><i class="bar"></i>
+    </div>
+    <div class="form-group">
+      <select class="answer-type-select">
+        <option value="button">Botão</option>
+        <option value="select">Lista</option>
+        <option value="fluid_list">Lista de fluidos</option>
+        <option value="text">Texto</option>
+        <option value="checkbox">Checkbox</option>
+      </select>
+      <label for="select" class="control-label">Tipo de resposta</label><i class="bar"></i>
+    </div>
+    <div class="form-group">
+      <select class="required-question-select">
+        <option selected value="false">Obrigatória</option>
+        <option value="true">Opcional</option>
+      </select>
+      <label for="select" class="control-label">Obrigatória ou Opcional?</label><i class="bar"></i>
+    </div>
+    <div class="answers-label ans-section">
+      <div class="ans-label">
+        Respostas
+      </div>
+      <div class="controls">
+        <div class="hide-answers">
+          <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+            <path fill="#000000" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" />
+          </svg>
+        </div>
+        <div class="new-answer">
+          <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+            <path fill="#000000" d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
+          </svg>
+        </div>
+      </div>
+    </div>
+    <div class="answers ans-section">
+    </div>
+  </div>
+</div>

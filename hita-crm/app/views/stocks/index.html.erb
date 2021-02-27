@@ -1,0 +1,126 @@
+<%= render partial: 'shared/main_upper_section', locals: { current_main_section: 'stock' } %>
+
+<div class="stock-main-page">
+  <div class="container">
+    <div class="columns">
+      <div class="column is-2">
+        <%= render partial: 'shared/main_sidebar', locals: { main_page: 'stock', current_page: 'download' } %>
+      </div>
+      <div class="column is-10">
+        <div class="default-box">
+          <div>Selecione a categoria para visualizar o estoque:</div>
+          <div class="columns is-variable is-1 margin-top-10">
+            <% if can? :upload, Stock %>
+              <div class="column is-narrow">
+                <a href="<%= rails_blob_path(@materials.file, disposition: "attachment") if @materials %>" class="button is-primary">Materiais</a>
+              </div>
+            <% end %>
+            <div class="column is-narrow">
+              <button id='requestProductTable' class="button is-primary">Produtos</button>
+            </div>
+            <div class="column is-narrow">
+              <button id='requestReservedProductTable' class="button is-primary" data-is-reserved=true>Produtos Reservados</button>
+            </div>
+            <% if can? :upload, Stock %>
+              <div class="column is-narrow">
+                <a href="<%= rails_blob_path(@labor.file, disposition: "attachment") if @labor %>" class="button is-primary">Mão de Obra</a>
+              </div>
+            <% end %>
+          </div>
+        </div>
+        <div class="request-table-container margin-top-20">
+          <div id="productTableResponse" class="default-box hide">
+            <div id="loadingMessage" class="columns is-vcentered is-centered">
+              <div class="column is-narrow">
+                <div>Carregando tabela de produtos</div>
+                <div class="columns is-centered">
+                  <div class="column is-narrow"><div class="loader is-loading"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="errorMessageContainer" class="default-box hide">
+            <div class="columns is-vcentered is-centered">
+              <div class="column is-narrow">
+                <div id="errorMessage">Algum erro ocorreu e a tabela não pode ser exibida.</div>
+              </div>
+            </div>
+          </div>
+          <table id="productTable" class="request-table fluid"></table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $("#requestProductTable, #requestReservedProductTable").click(function() {
+    $('#productTableResponse').removeClass('hide');
+    $('#productTable').addClass('hide');
+
+    if (!$('#errorMessageContainer').hasClass('hide')){
+      $('#errorMessageContainer').addClass('hide');
+    }
+
+    var url = '';
+    if ($(this).data('is-reserved')) {
+      url = "<%= request_product_table_url('reserved') %>";
+    } else {
+      url = "<%= request_product_table_url %>";
+    }
+
+    $.ajax({
+      url: url,
+      method: 'GET',
+      dataType: 'json',
+      beforeSend: function() {
+        $("#requestProductTable, #requestReservedProductTable").prop('disabled', true);
+      },
+      success: function(data) {
+        plotProductTable(data);
+        $('#productTableResponse').addClass('hide');
+        $('#productTable').removeClass('hide');
+
+        if (!$('#errorMessageContainer').hasClass('hide')){
+          $('#errorMessageContainer').addClass('hide');
+        }
+
+        $("#requestProductTable, #requestReservedProductTable").prop('disabled', false);
+      },
+      error: function(data) {
+        $('#errorMessageContainer').removeClass('hide');
+        $('#productTableResponse').addClass('hide');
+        $('#productTable').addClass('hide');
+        $("#requestProductTable, #requestReservedProductTable").prop('disabled', false);
+      }
+    })
+  });
+
+  function plotProductTable(data) {
+    $('#productTable').html('');
+    var table =
+      `<thead><tr>\
+      <th>Código</th>\
+      <th>Descrição</th>\
+      <th>U.M.</th>\
+      <th>QTD</th>\
+      <th>NCM</th>\
+      </tr></thead>`;
+
+    table += `<tbody>`
+    for(i = 0; i < data.length; i++) {
+      table += '<tr><>'
+      table +=
+      ` <td>${data[i].Cd_material}</td>\
+        <td>${data[i].Descricao}</td>\
+        <td>${data[i].Cd_unidade_medi}</td>\
+        <td>${data[i].estoque}</td>\
+        <td>${data[i].Classificacao_f}</td>\
+      `
+      table += '</tr>'
+    }
+    table += `</tbody>`
+
+    $('#productTable').html(table);
+  }
+</script>

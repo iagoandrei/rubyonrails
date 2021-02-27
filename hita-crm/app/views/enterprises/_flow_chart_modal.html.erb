@@ -1,0 +1,34 @@
+<div class="flow-chart-modal">
+  <div id="flowChartModal" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      <div>Enviar <span class="has-text-weight-bold">Fluxograma</span></div>
+      <%= form_tag upload_enterprise_chart_url, method: :post, multipart: true, id: 'flowChartForm' do %>
+        <div class="columns margin-top-10 files-content">
+          <div class="column">
+            <div class="file has-name">
+              <label class="file-label fluid">
+                <input type="hidden" name="enterprise_id" class="enterprise-id-chart" value="">
+                <input type="hidden" name="chart_type" value="flow">
+                <input class="file-input chart-file-input" type="file" name="file" accept=".doc, .docx, .xls, .csv, .pdf, .ppt, pptx" required>
+                <span class="file-cta">
+                  <span class="file-label">
+                    Escolha um arquivo...
+                  </span>
+                </span>
+                <span class="file-name fluid">
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column">
+            <button class="button is-primary is-fullwidth">Enviar Arquivo</button>
+          </div>
+        </div>
+      <% end %>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+  </div>
+</div>

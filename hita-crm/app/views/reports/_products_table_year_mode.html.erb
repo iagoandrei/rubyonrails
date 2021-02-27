@@ -1,0 +1,133 @@
+<% if @products.present? %>
+  <div class="top-bar">
+    <div class="consultants-container">
+      <table class="table fixed-table">
+        <thead>
+          <tr>
+            <th class="cell-fixed gray-bg"></th>
+            <% @years.each do |year| %>
+              <% if @data_view == 'resumed' %>
+                <th colspan="1" class="<%= 'blue-lighter-bg blue-color' if year == Date.today.year %> resumed"><%= year %></th>
+              <% else %>
+                <th colspan="4" class="<%= 'blue-lighter-bg blue-color' if year == Date.today.year %>"><%= year %></th>
+              <% end %>
+            <% end %>
+          </tr>
+          <tr class="bold">
+            <td class="cell-fixed gray-bg"></td>
+            <% if @data_view == 'resumed' %>
+              <% @years.each do |year| %>
+                <td class="text-center">Realizado</td>
+              <% end %>
+            <% else %>
+              <% @years.each do |year| %>
+                <td></td>
+                <td class="text-center">Realizado</td>
+                <td>QTD</td>
+                <td class="text-right">Contribuição</td>
+              <% end %>
+            <% end %>
+
+          </tr>
+          <tr class="blue-bg white-color bold">
+            <td class="cell-fixed blue-bg">Total</td>
+
+            <% if @data_view == 'resumed' %>
+              <% @years.each do |year| %>
+                <td><%= print_money_alignment ReportsHelper.show_product_accomplished_year_total(year, product_ids, enterprise_filter, request_type) %></td>
+              <% end %>
+            <% else %>
+              <% @years.each do |year| %>
+                <td></td>
+                <td><%= print_money_alignment ReportsHelper.show_product_accomplished_year_total(year, product_ids, enterprise_filter, request_type) %></td>
+                <td><%= ReportsHelper.show_products_quantity_total_year(year, product_ids, enterprise_filter, request_type) %> produto(s)</td>
+                <td class="text-right"><%= ReportsHelper.show_product_contribuition_year_total(year, product_ids, product_filter, enterprise_filter, request_type) %> %</td>
+              <% end %>
+            <% end %>
+          </tr>
+        </thead>
+        <tbody>
+
+          <% if request_type == 'product' %>
+            <% product = Product.find_by_name 'Frete' %>
+            <tr class="gray-disabled-bg">
+              <td class="bold cell-fixed gray-disabled-bg" title="<%= product.name %>"><div class="fixed-column-width"><%= product.name %></div></td>
+
+              <% if @data_view == 'resumed' %>
+                <% @years.each do |year| %>
+                  <td><%= print_money_alignment product.get_accomplished_year(year, enterprise_filter, request_type) %></td>
+                <% end %>
+              <% else %>
+                <% @years.each do |year| %>
+                  <td></td>
+                  <td><%= print_money_alignment product.get_accomplished_year(year, enterprise_filter, request_type) %></td>
+                  <td>(<%= product.get_product_quantity_year_request(year, enterprise_filter, request_type) %>)</td>
+                  <td class="text-right"></td>
+                <% end %>
+              <% end %>
+            </tr>
+          <% else %>
+            <% product = Product.find_by_name 'Frete' %>
+            <tr class="gray-disabled-bg">
+              <td class="bold cell-fixed gray-disabled-bg" title="<%= product.name %>"><div class="fixed-column-width"><%= product.name %></div></td>
+
+              <% if @data_view == 'resumed' %>
+                <% @years.each do |year| %>
+                  <td><%= print_money_alignment product.get_accomplished_year(year, enterprise_filter, request_type) %></td>
+                <% end %>
+              <% else %>
+                <% @years.each do |year| %>
+                  <td></td>
+                  <td><%= print_money_alignment product.get_accomplished_year(year, enterprise_filter, request_type) %></td>
+                  <td>(<%= product.get_product_quantity_year_request(year, enterprise_filter, request_type) %>)</td>
+                  <td class="text-right"></td>
+                <% end %>
+              <% end %>
+            </tr>
+
+            <% product = Product.find_by_name 'Valor Serviço' %>
+            <tr class="gray-disabled-bg">
+              <td class="bold cell-fixed gray-disabled-bg" title="<%= product.name %>"><div class="fixed-column-width"><%= product.name %></div></td>
+
+              <% if @data_view == 'resumed' %>
+                <% @years.each do |year| %>
+                  <td><%= print_money_alignment product.get_accomplished_year(year, enterprise_filter, request_type) %></td>
+                <% end %>
+              <% else %>
+                <% @years.each do |year| %>
+                  <td></td>
+                  <td><%= print_money_alignment product.get_accomplished_year(year, enterprise_filter, request_type) %></td>
+                  <td>(<%= product.get_product_quantity_year_request(year, enterprise_filter, request_type) %>)</td>
+                  <td class="text-right"></td>
+                <% end %>
+              <% end %>
+            </tr>
+          <% end %>
+
+          <% products.each do |product| %>
+            <tr class="white-bg">
+              <td class="bold cell-fixed white-bg" title="<%= product.name %>"><div class="fixed-column-width"><%= product.name %></div></td>
+
+              <% if @data_view == 'resumed' %>
+                <% @years.each do |year| %>
+                  <td><%= print_money_alignment product.get_accomplished_year(year, enterprise_filter, request_type) %></td>
+                <% end %>
+              <% else %>
+                <% @years.each do |year| %>
+                  <td></td>
+                  <td><%= print_money_alignment product.get_accomplished_year(year, enterprise_filter, request_type) %></td>
+                  <td><%= product.get_product_quantity_year_request(year, enterprise_filter, request_type) %></td>
+                  <td class="text-right"><%= product.get_contribution(year, product_filter, enterprise_filter, request_type) %> %</td>
+                <% end %>
+              <% end %>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% else %>
+  <div class="columns">
+    <div class="column text-center">Sem registros.</div>
+  </div>
+<% end %>

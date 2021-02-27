@@ -1,0 +1,65 @@
+<div class="request-funnel-modal">
+  <div id="requestFunnelModal" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content funnels-container">
+      <div class="title">Funil de <span class="highlight">Serviços</span></div>
+      <div class="columns">
+        <div class="column is-3">
+          <div class="steps">
+            <div class="step">Fila</div>
+            <div class="step">Elaboração</div>
+            <div class="step">Aprovação</div>
+            <div class="step">Mobilização</div>
+            <div class="step">Execução</div>
+            <div class="step">Faturamento</div>
+            <div class="step">Pagamento</div>
+            <div class="step">Pós-venda</div>
+          </div>
+        </div>
+        <div class="column is-6">
+          <div class="funnel-bars">
+            <div class="bar-container">
+              <div class="bar"><span id="inLineServiceModal"></span></div>
+            </div>
+            <div class="bar-container">
+              <div class="bar"><span id="inElaborationServiceModal"></span></div>
+            </div>
+            <div class="bar-container">
+              <div class="bar"><span id="inApprovalServiceModal"></span></div>
+            </div>
+            <div class="bar-container">
+              <div class="bar"><span id="inMobilizationServiceModal"></span></div>
+            </div>
+            <div class="bar-container">
+              <div class="bar"><span id="inExecutionServiceModal"></span></div>
+            </div>
+            <div class="bar-container">
+              <div class="bar"><span id="inRevenueServiceModal"></span></div>
+            </div>
+            <div class="bar-container">
+              <div class="bar"><span id="inPaymentServiceModal"></span></div>
+            </div>
+            <div class="bar-container">
+              <div class="bar"><span id="inAftersaleServiceModal"></span></div>
+            </div>
+          </div>
+        </div>
+        <div class="column is-3 no-padding">
+          <% if !current_user.role?(User::ROLES[:service]) %>
+            <div class="conversions product-funnel">
+              <div class="converted in-line-amount-service"></div>
+              <div class="converted in-elaboration-amount-service"></div>
+              <div class="converted in-approval-amount-service"></div>
+              <div class="converted in-mobilization-amount-service"></div>
+              <div class="converted in-execution-amount-service"></div>
+              <div class="converted in-revenue-amount-service"></div>
+              <div class="converted in-payment-amount-service"></div>
+              <div class="converted in-aftersale-amount-service"></div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+  </div>
+</div>

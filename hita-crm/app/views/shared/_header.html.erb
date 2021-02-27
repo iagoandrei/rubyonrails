@@ -1,0 +1,93 @@
+<header class="hita-header">
+  <div class="header-container container is-12">
+    <div class="columns">
+      <div class="column">
+        <a href="<%= root_path %>">
+          <div class="hita-logo">
+            <%= image_tag "hita_logo_white.png" %>
+          </div>
+        </a>
+      </div>
+      <div class="column">
+        <div class="right-icons columns is-pulled-right">
+          <div class="notifications-icon column">
+            <div class="dropdown is-hoverable is-right">
+              <div class="circle-notification is-hidden"></div>
+              <div class="dropdown-trigger">
+                <%= inline_svg "email.svg" %>
+              </div>
+              <div class="dropdown-menu notifications-menu is-hidden">
+                <div class="dropdown-content notification-content"></div>
+              </div>
+            </div>
+          </div>
+          <div class="user-icon column">
+            <div class="dropdown is-hoverable">
+              <div class="dropdown-trigger">
+                <%= inline_svg "profile.svg" %>
+              </div>
+              <div class="dropdown-menu user-menu">
+                <div class="dropdown-content">
+                  <a href="<%= edit_user_path(current_user.id) %>">
+                    <div class="dropdown-item">Editar Perfil</div>
+                  </a>
+                  <% if can? :index, User %>
+                    <a href="<%= index_user_path %>">
+                      <div class="dropdown-item">Gerenciar Usuários</div>
+                    </a>
+                  <% end %>
+                  <% if can? :index, User %>
+                    <a href="<%= request_quiz_index_path %>">
+                      <div class="dropdown-item">Gerenciar Perguntas</div>
+                    </a>
+                  <% end %>
+                  <% if can? :index, User %>
+                    <a href="<%= manage_quizzes_index_path %>">
+                      <div class="dropdown-item">Gerenciar Questionários</div>
+                    </a>
+                  <% end %>
+                  <% if can? :index, User %>
+                    <a href="<%= equipments_index_path %>">
+                      <div class="dropdown-item">Gerenciar Equipamentos</div>
+                    </a>
+                  <% end %>
+                  <% if can? :index, Product %>
+                    <a href="<%= products_index_path %>">
+                      <div class="dropdown-item">Gerenciar Preços de Produtos</div>
+                    </a>
+                  <% end %>
+                  <%= link_to destroy_user_session_path, method: :delete do %>
+                    <div class="dropdown-item">Sair</div>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="columns"></div>
+  </div>
+</header>
+
+<% content_for :tail_script do %>
+  <script>
+    $(function() {
+      $.ajax({
+        url: "<%= render_current_notifications_url %>",
+        method: 'get',
+        dataType: 'html',
+        success: function(notifications) {
+          var qtd = $(notifications).find('.dropdown-item').length;
+
+          if (qtd > 0) {
+            $(".circle-notification").removeClass('is-hidden');
+            $(".circle-notification").html(qtd);
+            $(".notifications-menu").removeClass('is-hidden');
+            $(".notification-content").html(notifications);
+          }
+        }
+      });
+    });
+  </script>
+<% end %>

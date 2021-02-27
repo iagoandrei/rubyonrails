@@ -1,0 +1,60 @@
+$(".request-table-container").html('');
+$(".request-table-container").append('<%= escape_javascript(render(:partial => "requests/requests_table", :locals => { :requests => @requests })) %>');
+$('.tabs .requests-count').each(function(index) {
+  $(this).text(`<%=  %>`);
+});
+
+<% @step_quantities.each_with_index do |step_tab, index| %>
+  var tabs = $('.tabs .requests-count')
+  $(tabs[parseInt('<%= index %>')]).text('<%= step_tab %>');
+<% end %>
+
+<% if @request_type == 'product' %>
+  $('#inLineProduct, #inLineProductModal').text("<%= @funnel_steps[:in_line][:size] %>");
+  $('#inLineProduct, #inLineProductModal').parent().css("width", "<%= @funnel_steps[:in_line][:bar_width] %>%");
+  $('#inElaborationProduct, #inElaborationProductModal').text("<%= @funnel_steps[:elaboration][:size] %>");
+  $('#inElaborationProduct, #inElaborationProductModal').parent().css("width", "<%= @funnel_steps[:elaboration][:bar_width] %>%");
+  $('#inApprovalProduct, #inApprovalProductModal').text("<%= @funnel_steps[:approval][:size] %>");
+  $('#inApprovalProduct, #inApprovalProductModal').parent().css("width", "<%= @funnel_steps[:approval][:bar_width] %>%");
+  $('#inRevenueProduct, #inRevenueProductModal').text("<%= @funnel_steps[:revenue][:size] %>");
+  $('#inRevenueProduct, #inRevenueProductModal').parent().css("width", "<%= @funnel_steps[:revenue][:bar_width] %>%");
+  $('#inMobilizationProduct, #inMobilizationProductModal').text("<%= @funnel_steps[:mobilization][:size] %>");
+  $('#inMobilizationProduct, #inMobilizationProductModal').parent().css("width", "<%= @funnel_steps[:mobilization][:bar_width] %>%");
+  $('#inPaymentProduct, #inPaymentProductModal').text("<%= @funnel_steps[:payment][:size] %>");
+  $('#inPaymentProduct, #inPaymentProductModal').parent().css("width", "<%= @funnel_steps[:payment][:bar_width] %>%");
+
+  $('.in-line-amount-product').text("<%= number_to_currency @funnel_steps[:in_line][:amount] %>");
+  $('.in-elaboration-amount-product').text("<%= number_to_currency @funnel_steps[:elaboration][:amount] %>");
+  $('.in-approval-amount-product').text("<%= number_to_currency @funnel_steps[:approval][:amount] %>");
+  $('.in-revenue-amount-product').text("<%= number_to_currency @funnel_steps[:revenue][:amount] %>");
+  $('.in-mobilization-amount-product').text("<%= number_to_currency @funnel_steps[:mobilization][:amount] %>");
+  $('.in-payment-amount-product').text("<%= number_to_currency @funnel_steps[:payment][:amount] %>");
+
+<% else %>
+  $('#inLineService, #inLineServiceModal').text("<%= @funnel_steps[:in_line][:size] %>");
+  $('#inLineService, #inLineServiceModal').parent().css("width", "<%= @funnel_steps[:in_line][:bar_width] %>%");
+  $('#inElaborationService, #inElaborationServiceModal').text("<%= @funnel_steps[:elaboration][:size] %>");
+  $('#inElaborationService, #inElaborationServiceModal').parent().css("width", "<%= @funnel_steps[:elaboration][:bar_width] %>%");
+  $('#inApprovalService, #inApprovalServiceModal').text("<%= @funnel_steps[:approval][:size] %>");
+  $('#inApprovalService, #inApprovalServiceModal').parent().css("width", "<%= @funnel_steps[:approval][:bar_width] %>%");
+  $('#inMobilizationService, #inMobilizationServiceModal').text("<%= @funnel_steps[:mobilization][:size] %>");
+  $('#inMobilizationService, #inMobilizationServiceModal').parent().css("width", "<%= @funnel_steps[:mobilization][:bar_width] %>%");
+  $('#inExecutionService, #inExecutionServiceModal').text("<%= @funnel_steps[:execution][:size] %>");
+  $('#inExecutionService, #inExecutionServiceModal').parent().css("width", "<%= @funnel_steps[:execution][:bar_width] %>%");
+  $('#inRevenueService, #inRevenueServiceModal').text("<%= @funnel_steps[:revenue][:size] %>");
+  $('#inRevenueService, #inRevenueServiceModal').parent().css("width", "<%= @funnel_steps[:revenue][:bar_width] %>%");
+  $('#inPaymentService, #inPaymentServiceModal').text("<%= @funnel_steps[:payment][:size] %>");
+  $('#inPaymentService, #inPaymentServiceModal').parent().css("width", "<%= @funnel_steps[:payment][:bar_width] %>%");
+
+  $('#inAftersaleService, #inAftersaleServiceModal').text("<%= @funnel_steps[:aftersale][:size] %>");
+  $('#inAftersaleService, #inAftersaleServiceModal').parent().css("width", "<%= @funnel_steps[:aftersale][:bar_width] %>%");
+
+  $('.in-line-amount-service').text("<%= number_to_currency @funnel_steps[:in_line][:amount] %>");
+  $('.in-elaboration-amount-service').text("<%= number_to_currency @funnel_steps[:elaboration][:amount] %>");
+  $('.in-approval-amount-service').text("<%= number_to_currency @funnel_steps[:approval][:amount] %>");
+  $('.in-mobilization-amount-service').text("<%= number_to_currency @funnel_steps[:mobilization][:amount] %>");
+  $('.in-execution-amount-service').text("<%= number_to_currency @funnel_steps[:execution][:amount] %>");
+  $('.in-revenue-amount-service').text("<%= number_to_currency @funnel_steps[:revenue][:amount] %>");
+  $('.in-payment-amount-service').text("<%= number_to_currency @funnel_steps[:payment][:amount] %>");
+  $('.in-aftersale-amount-service').text("<%= number_to_currency @funnel_steps[:aftersale][:amount] %>");
+<% end %>

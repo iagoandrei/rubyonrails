@@ -1,0 +1,120 @@
+<%= render partial: 'shared/main_upper_section', locals: { current_main_section: nil } %>
+
+<div class="users-management-container container">
+  <%= render partial: '/shared/flash_message' %>
+  <div class="columns no-margin-bottom">
+    <div class="column">
+      <a href="<%= index_user_url %>">
+        <button class="button is-secondary">
+          <- Voltar
+        </button>
+      </a>
+    </div>
+  </div>
+  <div class="columns">
+    <div class="column is-three-fifths">
+      <div class="new-user-container default-box">
+        <%= form_tag update_user_path, method: :post do %>
+          <input class="input" type="hidden" name="user[id]" value="<%= @user.id %>">
+          <div class="columns">
+            <div class="column">
+              <div>Editar</div>
+              <div class="inputs">
+                <div class="columns is-variable is-1">
+                  <div class="column">
+                    <span>E-mail</span>
+                    <input class="input" type="text" name="user[email]" value="<%= @user.email %>"></input>
+                  </div>
+                  <div class="column">
+                    <span>Nome</span>
+                    <input class="input" type="text" name="user[name]" value="<%= @user.name %>"></input>
+                  </div>
+                  <div class="column">
+                    <span>Telefone</span>
+                    <input id="phone" class="input" type="text" name="user[phone]" value="<%= @user.phone %>"></input>
+                  </div>
+                </div>
+              </div>
+              <div class="inputs">
+                <div class="columns is-variable is-1">
+                  <% if can? :manage, User %>
+                    <div class="column is-one-third">
+                      <span>Grupo</span>
+                      <div class="select">
+                        <%= select_tag "user[role]", options_for_select(@roles, @user.role), class: "fluid" %>
+                      </div>
+                    </div>
+                    <div class="column is-one-third">
+                      <span>Equipe</span>
+                      <div class="select">
+                        <%= select_tag "user[team]", options_for_select(('A'..'Z').to_a, @user.team), prompt: 'Selecione', class: "fluid" %>
+                      </div>
+                    </div>
+                    <div class="column is-one-third">
+                      <span>Data de ingresso</span>
+                      <input id="admission" class="input" type="text" name="user[admission]" value="<%= @user.admission&.strftime('%d/%m/%Y') %>" autocomplete="off"></input>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+              <% if can? :manage, User %>
+                <div class="inputs">
+                  <div class="columns">
+                    <div class="column">
+                      <div class="b-checkbox is-primary">
+                        <input type='hidden' value='0' name='user[is_active]'>
+                        <input id="userStatus" name="user[is_active]" type="checkbox" <%= 'checked' if @user.is_active %>>
+                        <label for="userStatus">Usuário Habilitado</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+          <div class="columns is-variable is-1 button-container">
+            <div class="column is-one-third">
+              <button class="button is-secondary fluid">Salvar</button>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+    <div class="column">
+      <div class="default-box new-user-container">
+        <div class="columns">
+          <div class="column">
+            <%= form_tag update_user_password_path, method: :post do %>
+              <input type="hidden" name="user[email]" value="<%= @user.email %>">
+              <div>Alterar senha</div>
+              <div class="inputs">
+                <div class="columns">
+                  <div class="column is-half">
+                    <span>Nova senha</span>
+                    <input class="input" type="password" name="password" required></input>
+                  </div>
+                </div>
+                <div class="columns button-container">
+                  <div class="column is-half">
+                    <button class="button is-secondary fluid">Alterar senha</button>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% content_for :tail_script do %>
+  <script>
+    $('#phone').mask('(00) 00000-0000');
+
+    $('#admission').datepicker({
+      language: 'pt-BR',
+      autoHide: true
+    });
+  </script>
+<% end %>

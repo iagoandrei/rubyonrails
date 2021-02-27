@@ -1,0 +1,89 @@
+<%= render partial: 'shared/main_upper_section', locals: { current_main_section: 'forms' } %>
+
+<div class="forms-main-page">
+  <div class="container">
+    <div class="columns">
+      <div class="column is-2">
+        <%= render partial: 'shared/main_sidebar', locals: { main_page: 'forms', current_page: 'create_form' } %>
+      </div>
+      <div class="column is-10">
+        <%= render partial: '/shared/flash_message' %>
+
+        <div class="default-box <%= 'margin-top-10' if flash[:notice].present? or flash[:alert].present? %>">
+          <%= form_tag create_new_form_url, html: { autocomplete: 'off' }, multipart: true, method: :post do %>
+            <div class="columns">
+              <div class="column is-5">
+                <div class="input-title">Nome do Formulário:</div>
+                <input type="text" name="form[name]" class="input" placeholder="Digite um nome para o formulário" required>
+              </div>
+              <div class="column is-5">
+                <div class="input-title">Escolha o template do formulário:</div>
+                <div class="file has-name">
+                  <label class="file-label fluid">
+                    <input type="hidden" name="form[filename]" value="materials">
+                    <input class="file-input" type="file" name="form[file]" accept=".doc, .docx" required>
+                    <span class="file-cta">
+                      <span class="file-label">
+                        Escolha um arquivo...
+                      </span>
+                    </span>
+                    <span class="file-name fluid">
+                    </span>
+                  </label>
+                </div>
+              </div>
+              <div class="column display-flex is-2">
+                <button class="button is-primary is-fullwidth is-bottom-aligned">Enviar</button>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        <div class="default-box margin-top-20">
+          <div class="available-forms-list request-table">
+            <table>
+              <thead>
+                <th>Nome do Formulário</th>
+                <th>Formulário</th>
+                <th>Ações</th>
+              </thead>
+              <tbody>
+                <% @forms.each do |form| %>
+                  <tr>
+                    <td><div class="name"><%= form.name %></div></td>
+                    <td><div class="file-link"><a href="<%= rails_blob_path(form.template, disposition: 'attachment') %>"><%= form.template.filename %></a></div></td>
+                    <td>
+                      <div class="actions" data-current-form="<%= form.id %>">
+                        <div class="icon update-modal"><%= inline_svg "change_hindrance.svg" %></div>
+                        <div class="icon">
+                          <%= link_to inline_svg("remove.svg"),
+                          destroy_form_template_url(form.id),
+                          method: :delete,
+                          data: { confirm: 'Tem certeza que deseja remover este template?' } %>
+                      </div>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%= render 'update_form_modal' %>
+</div>
+
+<script type="text/javascript">
+  $('.update-modal').click(function() {
+    var id = $(this).closest('.actions').data('current-form');
+
+    $('.form-id').val(id);
+    $('#updateFormModal').addClass('is-active');
+  });
+
+  $('.file-input').change(function(e) {
+    var fileName = e.target.files[0].name;
+    $(this).parent().find('.file-name').text(fileName);
+  });
+</script>

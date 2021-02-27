@@ -1,0 +1,3 @@
+$("#filesTableContainer").html('');
+$("#filesTableContainer").append('<%= escape_javascript(render(:partial => "shared/files_table", :locals => { :files => @files })) %>');
+$("#filesModalNameSpan").html('<%= @enterprise_name %>');

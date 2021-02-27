@@ -1,0 +1,30 @@
+<div class="index-welcome">
+  <%= render partial: 'shared/flash_message' %>
+  <div class="index-welcome-container container is-12">
+    <div class="main-title">
+      Olá, <%= current_user.name %>, Seja bem vindo ao CRM HITA
+    </div>
+    <div class="subtitle">
+      Selecione uma Atividade Rápida abaixo ou navegue utilizando os ícones acima.
+    </div>
+    <div class="cta-buttons">
+      <div class="columns">
+        <div class="column">
+          <a href="<%= enterprises_index_path :new_enterprise => true %>" class="button is-fullwidth is-primary">ADICIONAR EMPRESA</a>
+        </div>
+        <div class="column">
+          <a href="<%= new_request_path %>" class="button is-fullwidth is-primary">SOLICITAR PROPOSTA</a>
+        </div>
+        <div class="column">
+          <a href="<%= events_index_path %>" class="button is-fullwidth is-primary">VER MINHA AGENDA</a>
+        </div>
+        <div class="column">
+          <a href="<%= stocks_index_path %>" class="button is-fullwidth is-primary">CONSULTAR ESTOQUE</a>
+        </div>
+        <div class="column">
+          <a href="<%= requirements_index_path %>" class="button is-fullwidth is-primary">ADICIONAR PONTOS</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

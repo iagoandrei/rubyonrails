@@ -1,0 +1,1820 @@
+<%= render partial: 'shared/main_upper_section', locals: { current_main_section: 'proposals' } %>
+
+<div class="proposals-main-page">
+  <div class="proposals-main-container container">
+    <div class="columns">
+      <div class="column is-2">
+        <%= render partial: 'shared/main_sidebar', locals: { main_page: 'proposals', current_page: 'request_proposal' } %>
+      </div>
+      <div class="column is-10">
+        <div class="new-proposal-container">
+          <div class="default-box">
+            <div class="columns">
+              <div class="column is-two-fifths">Selecione o tipo de proposta:</div>
+              <div class="column">
+                <div class="radio-buttons">
+                  <label class="selected">
+                    <input type="radio" name="proposal[proposal_type]" value="product" checked>
+                    <span></span>
+                    Produto
+                  </label>
+                  <label>
+                    <input type="radio" name="proposal[proposal_type]" value="service">
+                    <span></span>
+                    Serviço
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="default-box">
+            <div>Nome da Empresa</div>
+            <div class="columns is-variable is-2">
+              <div class="column is-half">
+                <input class="input" type="text" name="proposal[enterprise_id]">
+              </div>
+              <div class="column is-narrow">
+                <button class="button is-secondary"><%= inline_svg "edit.svg" %> Editar empresa</button>
+              </div>
+              <div class="column is-pulled-left">
+                <button class="button is-primary is-fullwidth"><%= inline_svg "plus.svg" %> Cadastrar Nova Empresa</button>
+              </div>
+            </div>
+          </div>
+          <div class="default-box">
+            <div class="columns">
+              <div class="column is-one-fifth">Reposição de estoque?</div>
+              <div class="column">
+                <div class="radio-buttons">
+                  <label>
+                    <input type="radio" name="proposal[stock_replacement]" value="true">
+                    <span></span>
+                    Sim
+                  </label>
+                  <label class="selected">
+                    <input type="radio" name="proposal[stock_replacement]" value="false" checked>
+                    <span></span>
+                    Não
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="default-box">
+            <div>Produto</div>
+            <div class="columns is-variable is-2">
+              <div class="column is-half">
+                <input class="input" type="text" name="proposal[product_name]">
+              </div>
+              <div class="column is-narrow">
+                <button class="button is-secondary" disabled><%= inline_svg "magnifier.svg" %> Verificar Estoque</button>
+              </div>
+            </div>
+          </div>
+          <div class="default-box">
+            <div class="columns is-vcentered dis-variable is-2">
+              <div class="column"><div>Noção de valor do serviço:</div></div>
+              <div class="column">
+                <input class="input" type="text" name="proposal[estimated_value]" placeholder="Valor em R$">
+              </div>
+              <div class="column"><div>Prazo de resposta (dias):</div></div>
+              <div class="column">
+                <input class="input" type="text" name="proposal[feedback_time]" placeholder="Prazo em dias">
+              </div>
+            </div>
+          </div>
+          <div class="proposal-section operational-conditions">
+            <div class="default-box align-center">
+              <div class="section-title">
+                Condições Operacionais
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-quarter">
+                  <div>Equipamento ou Superfície:</div>
+                </div>
+                <div class="column is-one-quarter">
+                  <div class="select">
+                    <select class="select" name="proposal[equipment_name]" required>
+                      <option value="">Nenhum</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-quarter">
+                  <div>Tipo de Equipamento:</div>
+                </div>
+                <div class="column is-two-fifths">
+                  <div class="select">
+                    <select class="select" name="proposal[equipment_type]" required>
+                      <option value="">Nenhum</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-quarter">
+                  <div>REC:</div>
+                </div>
+                <div class="column is-three-fifths">
+                  <input class="input" type="text" name="proposal[rec]" placeholder="REC">
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-quarter">
+                  <div>TAG:</div>
+                </div>
+                <div class="column is-three-fifths">
+                  <input class="input" type="text" name="proposal[tag]" placeholder="TAG">
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-quarter">
+                  <div>Substrato:</div>
+                </div>
+                <div class="column is-two-fifths">
+                  <div class="select">
+                    <select class="select" name="proposal[substratrum]" required>
+                      <option value="">Nenhum</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-quarter">
+                  <div>Fluido:</div>
+                </div>
+                <div class="column is-two-fifths">
+                  <div class="select">
+                    <select class="select" name="proposal[fluid]" required>
+                      <option value="">Nenhum</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-quarter">
+                  <div>Concentração:</div>
+                </div>
+                <div class="column is-one-fifth">
+                  <input class="input" type="text" name="proposal[concentration]" placeholder="Concentração">
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-quarter">
+                  <div>Temperatura:</div>
+                </div>
+                <div class="column is-one-fifth">
+                  <input class="input" type="text" name="proposal[temperature]" placeholder="Temperatura">
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-quarter">
+                  <div>Pressão:</div>
+                </div>
+                <div class="column is-one-fifth">
+                  <input class="input" type="text" name="proposal[pressure]" placeholder="Pressão">
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-one-quarter">Há sólidos em suspensão?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label class="show-alternative-answer">
+                      <input type="radio" name="proposal[suspension_solids]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="hide-alternative-answer selected">
+                      <input type="radio" name="proposal[suspension_solids]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="alternative-answer">
+                <div class="columns is-vcentered">
+                  <div class="column is-one-quarter">
+                    <div>Granulometria:</div>
+                  </div>
+                  <div class="column is-one-fifth">
+                    <input class="input" type="text" name="proposal[suspension_solids_granulometry]" placeholder="% de Granulometria">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-two-fifths">Condição especial de operação (picos)?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label class="show-alternative-answer">
+                      <input type="radio" name="proposal[special_operating_conditions]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="hide-alternative-answer selected">
+                      <input type="radio" name="proposal[special_operating_conditions]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="alternative-answer">
+                <div class="columns is-vcentered">
+                  <div class="column is-two-fifths">
+                    <div>Descreva:</div>
+                  </div>
+                  <div class="column">
+                    <input class="input" type="text" name="proposal[suspension_solids_granulometry]" placeholder="Descrição">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-one-quarter">Processo de limpeza?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label class="show-alternative-answer">
+                      <input type="radio" name="proposal[cleaning_process]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="hide-alternative-answer selected">
+                      <input type="radio" name="proposal[cleaning_process]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="alternative-answer">
+                <div class="columns is-vcentered">
+                  <div class="column is-one-quarter">
+                    <div>Descreva:</div>
+                  </div>
+                  <div class="column">
+                    <input class="input" type="text" name="proposal[cleaning_process_description]" placeholder="Descrição">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-one-fifth">Equipamento novo?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label>
+                      <input type="radio" name="proposal[new_equipment]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="selected">
+                      <input type="radio" name="proposal[new_equipment]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-two-fifths">Necessidade de Recuperação?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label class="show-alternative-answer">
+                      <input type="radio" name="proposal[is_recovery_needed]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="hide-alternative-answer selected">
+                      <input type="radio" name="proposal[is_recovery_needed]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="alternative-answer">
+                <div class="columns is-vcentered">
+                  <div class="column">
+                    <div>Espessura:</div>
+                  </div>
+                  <div class="column">
+                    <input class="input" type="text" name="proposal[recovery_thickness]" placeholder="Descrição">
+                  </div>
+                  <div class="column">
+                    <div>Área Estimada Desgastada</div>
+                  </div>
+                  <div class="column">
+                    <input class="input" type="text" name="proposal[recovery_worn_out]" placeholder="Descrição">
+                  </div>
+                </div>
+                <div class="columns is-vcentered">
+                  <div class="column is-one-quarter">
+                    <div>Quantidade estimada de massa:</div>
+                  </div>
+                  <div class="column is-one-quarter">
+                    <input class="input" type="text" name="proposal[recovery_mass_needed]" placeholder="Descrição">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-two-fifths">Necessidade de proteção UV?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label>
+                      <input type="radio" name="proposal[is_uv_necessary]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="selected">
+                      <input type="radio" name="proposal[is_uv_necessary]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-quarter">
+                  <div>Problema:</div>
+                </div>
+              </div>
+              <div class="checkboxes-container">
+                <div class="columns is-multiline">
+                  <% ProposalsHelper::PROBLEMS.each_with_index do |problem, index| %>
+                    <div class="column is-one-third">
+                      <div class="b-checkbox is-primary">
+                          <input id="checkbox_<%= index %>" class="styled" type="checkbox">
+                          <label for="checkbox_<%= index %>">
+                            <%= problem %>
+                          </label>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+              <div class="columns is-vcentered margin-top-10">
+                <div class="column is-one-quarter">
+                  <div>Descrição do problema:</div>
+                </div>
+                <div class="column">
+                  <input class="input" type="text" name="proposal[problem_description]" placeholder="Descrição">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="proposal-section proposal-conditions">
+            <div class="default-box align-center">
+              <div class="section-title">
+                Condições da Proposta
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-quarter">
+                  <div>Prazo para resposta:</div>
+                </div>
+                <div class="column is-two-fifths">
+                  <div class="select">
+                    <select class="select alternative-select-answer" name="proposal[answer_urgency]" required>
+                      <option value="Sem prazo">Sem prazo</option>
+                      <option value="Urgente">Urgente - 24h</option>
+                      <option value="Alta">Alta - 2 dias</option>
+                      <option value="Média">Média - 3 dias</option>
+                      <option class="show-alternative" value="Programado">Programado</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="alternative-answer">
+                <div class="columns is-vcentered">
+                  <div class="column is-one-quarter">
+                    <div>Data programada:</div>
+                  </div>
+                  <div class="column is-two-fifths">
+                    <input class="input" type="text" name="proposal[answer_programed_date]" placeholder="--/--/--">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-two-fifths">Inserir Procedimento Simplificado de aplicação?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label>
+                      <input type="radio" name="proposal[simplified_application_procedure]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="selected">
+                      <input type="radio" name="proposal[simplified_application_procedure]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-quarter">
+                  <div>Local do Serviço:</div>
+                </div>
+                <div class="column is-two-fifths">
+                  <div class="select">
+                    <select class="select alternative-select-answer" name="proposal[place_of_service]" required>
+                      <option value="">-----</option>
+                      <option value="Urgente">Cliente</option>
+                      <option value="Alta">Hita</option>
+                      <option class="show-alternative" value="Programado">Outro</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="alternative-answer">
+                <div class="columns is-vcentered">
+                  <div class="column is-one-quarter">
+                    <div>Descreva:</div>
+                  </div>
+                  <div class="column is-two-fifths">
+                    <input class="input" type="text" name="proposal[place_description]">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-quarter">
+                  <div>Regime de trabalho:</div>
+                </div>
+                <div class="column is-two-fifths">
+                  <div class="select">
+                    <select class="select alternative-select-answer" name="proposal[work_regime]" required>
+                      <option value="">-----</option>
+                      <option value="Normal">Normal/ADM</option>
+                      <option value="12x12">12x12</option>
+                      <option value="OFF-SHORE">OFF-SHORE</option>
+                      <option value="Noturno">Noturno</option>
+                      <option class="show-alternative" value="Fim de semana/Feriado ou Parada Geral">Fim de semana/Feriado ou Parada Geral</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="alternative-answer">
+                <div class="columns is-vcentered">
+                  <div class="column is-one-quarter">
+                    <div>Data da Parada:</div>
+                  </div>
+                  <div class="column is-two-fifths">
+                    <input class="input" type="text" name="proposal[work_regime_general_stop]" placeholder="--/--/--">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-two-fifths">Inserir Procedimento Simplificado de aplicação?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label>
+                      <input type="radio" name="proposal[is_simplified_application_procedure]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="selected">
+                      <input type="radio" name="proposal[is_simplified_application_procedure]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-two-fifths">Trabalho em altura?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label>
+                      <input type="radio" name="proposal[is_work_at_height]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="selected">
+                      <input type="radio" name="proposal[is_work_at_height]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-two-fifths">
+                  <div>Prazo máximo para dias de serviço:</div>
+                </div>
+                <div class="column is-one-fifth">
+                  <input class="input" type="text" name="proposal[max_work_period]" placeholder="Prazo máximo">
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-two-fifths">
+                  <div>Quantidade estimada de dias de serviço</div>
+                </div>
+                <div class="column is-one-fifth">
+                  <input class="input" type="text" name="proposal[estimated_work_period]" placeholder="Prazo estimado">
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-two-fifths">Necessidade do termo de garantia</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label class="show-alternative-answer">
+                      <input type="radio" name="proposal[is_warranty_term_needed]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="hide-alternative-answer selected">
+                      <input type="radio" name="proposal[is_warranty_term_needed]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="alternative-answer">
+                <div class="columns is-vcentered">
+                  <div class="column is-two-fifths">
+                    <div>Tempo:</div>
+                  </div>
+                  <div class="column is-one-quarter">
+                    <input class="input" type="text" name="proposal[warranty_term_time]" placeholder="Tempo">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-quarter">
+                  <div>Necessidade de mobilização</div>
+                </div>
+                <div class="column is-two-fifths">
+                  <div class="select">
+                    <select class="select alternative-select-answer" name="proposal[mobilization_needed]" required>
+                      <option value="">-----</option>
+                      <option value="5 dias">5 dias</option>
+                      <option value="10 dias">10 dias</option>
+                      <option class="show-alternative" value="outro">Outro</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="alternative-answer">
+                <div class="columns is-vcentered">
+                  <div class="column is-one-quarter">
+                    <div>Descreva:</div>
+                  </div>
+                  <div class="column is-two-fifths">
+                    <input class="input" type="text" name="proposal[mobilization_description]" placeholder="Descreva">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-two-fifths">Anexar foto/desenho ou outros arquivos?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label class="show-alternative-answer">
+                      <input type="radio" name="proposal[file_attachment]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="hide-alternative-answer selected">
+                      <input type="radio" name="proposal[file_attachment]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="alternative-answer">
+                <div class="columns is-vcentered">
+                  <div class="column is-two-fifths">
+                    <div>Anexar:</div>
+                  </div>
+                  <div class="column is-one-quarter">
+                    <button class="button is-secondary">Anexar Aquivos</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-quarter">
+                  <div>Dados Dimensionais:</div>
+                </div>
+                <div class="column is-two-fifths">
+                  <input class="input" type="text" name="proposal[dimensional_data]" placeholder="Dados Dimensionais:">
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-quarter">
+                  <div>Produtos belzona sugeridos:</div>
+                </div>
+                <div class="column is-two-fifths">
+                  <input class="input" type="text" name="proposal[suggested_belzona_products]" placeholder="Produtos sugeridos">
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-third">
+                  <div>Observações complementares:</div>
+                </div>
+                <div class="column is-two-fifths">
+                  <input class="input" type="text" name="proposal[suggested_belzona_products]" placeholder="Descreva">
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <div class="proposal-section proposal-conditions">
+            <div class="default-box align-center">
+              <div class="section-title">
+                Descontaminação de superfície
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-two-fifths">Necessário descontaminar superfície?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label class="show-alternative-answer">
+                      <input type="radio" name="proposal[is_surface_decontamination_needed]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="hide-alternative-answer selected">
+                      <input type="radio" name="proposal[is_surface_decontamination_needed]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="alternative-answer">
+                <div class="default-box">
+                  <div class="columns is-vcentered">
+                    <div class="column is-one-quarter">
+                      <div>Escopo</div>
+                    </div>
+                    <div class="column is-two-fifths">
+                      <div class="select">
+                        <select class="select alternative-select-answer" name="proposal[surface_decontamination_by]" required>
+                          <option value="">-----</option>
+                          <option value="Cliente">Cliente</option>
+                          <option value="Hita">Hita</option>
+                          <option class="show-alternative" value="outro">Outro</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="alternative-answer">
+                    <div class="columns is-vcentered">
+                      <div class="column is-one-quarter">
+                        <div>Descreva:</div>
+                      </div>
+                      <div class="column is-two-fifths">
+                        <input class="input" type="text" name="proposal[surface_decontamination_by_other]" placeholder="Descreva">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="default-box">
+                  <div class="columns is-vcentered">
+                    <div class="column is-one-quarter">
+                      <div>Tipo de descontaminação</div>
+                    </div>
+                    <div class="column is-two-fifths">
+                      <div class="select">
+                        <select class="select alternative-select-answer" name="proposal[surface_decontamination_type]" required>
+                          <option value="">-----</option>
+                          <option value="Química">Química</option>
+                          <option value="Vapor">Vapor</option>
+                          <option value="Hidrojato">Hidrojato</option>
+                          <option class="show-alternative" value="outro">Outro</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="alternative-answer">
+                    <div class="columns is-vcentered">
+                      <div class="column is-one-quarter">
+                        <div>Descreva:</div>
+                      </div>
+                      <div class="column is-two-fifths">
+                        <input class="input" type="text" name="proposal[mobilization_description]" placeholder="Descreva">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="proposal-section proposal-conditions">
+            <div class="default-box align-center">
+              <div class="section-title">
+                Preparação de superfície
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-quarter">
+                  <div>Escopo</div>
+                </div>
+                <div class="column is-two-fifths">
+                  <div class="select">
+                    <select class="select alternative-select-answer" name="proposal[surface_preparation_by]" required>
+                      <option value="">-----</option>
+                      <option value="Cliente">Cliente</option>
+                      <option value="Hita">Hita</option>
+                      <option class="show-alternative" value="outro">Outro</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="alternative-answer">
+                <div class="columns is-vcentered">
+                  <div class="column is-one-quarter">
+                    <div>Descreva:</div>
+                  </div>
+                  <div class="column is-two-fifths">
+                    <input class="input" type="text" name="proposal[surface_preparation_description]" placeholder="Descreva">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-two-fifths">Remoção de produto existente?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label class="show-alternative-answer">
+                      <input type="radio" name="proposal[is_product_remotion_needed]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="hide-alternative-answer selected">
+                      <input type="radio" name="proposal[is_product_remotion_needed]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="alternative-answer">
+                <div class="columns is-vcentered">
+                  <div class="column is-two-fifths">
+                    <div>Descreva:</div>
+                  </div>
+                  <div class="column is-two-quarters">
+                    <input class="input" type="text" name="proposal[product_remotion_description]" placeholder="Descreva sobre a remoção do produto">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-two-fifths">
+                  <div>Preparação de superfície autorizada pelo cliente:</div>
+                </div>
+                <div class="column is-two-fifths">
+                  <div class="select">
+                    <select class="select alternative-select-answer" name="proposal[is_surface_decontamination_authorized]" required>
+                      <option value="">-------</option>
+                      <option class="show-alternative" >Jateamento padrão ISO 8501-1 Sa 2 ½</option>
+                      <option>MBX padrão SSPC SP11</option>
+                      <option>Mecânica padrão St2/St3</option>
+                      <option>Manual padrão St2/St3</option>
+                      <option>Escova desgarradora (borracha) ou Politriz (piso)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="alternative-answer">
+                <div class="columns is-vcentered">
+                  <div class="column is-two-fifths">
+                    <div>Escolha o tipo de abrasivo:</div>
+                  </div>
+                  <div class="column is-two-fifths">
+                    <div class="select">
+                      <select class="select" name="proposal[abrasive_type]" required>
+                        <option value="">-------</option>
+                        <option>Silver 30</option>
+                        <option>Granalha óxido de alumínio</option>
+                        <option>Granalha angular de aço ou Escória de cobre</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-two-fifths">Reparo normatizado?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label>
+                      <input type="radio" name="proposal[is_repair_standardized]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="selected">
+                      <input type="radio" name="proposal[is_repair_standardized]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-two-fifths">
+                  <div>Tempo máximo de execução de serviço:</div>
+                </div>
+                <div class="column is-two-fifths">
+                  <input class="input" type="text" name="proposal[max_service_execution_time]" placeholder="Tempo máximo">
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-two-fifths">
+                  <div>Documentações específicas para acesso:</div>
+                </div>
+                <div class="column is-two-fifths">
+                  <input class="input" type="text" name="proposal[access_specified_documentation]" placeholder="Documentações">
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-two-fifths">
+                  <div>Necessidade/tempo de integração:</div>
+                </div>
+                <div class="column is-two-fifths">
+                  <input class="input" type="text" name="proposal[integration_time]" placeholder="Tempo">
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="proposal-section proposal-conditions">
+            <div class="default-box align-center">
+              <div class="section-title">
+                Condições Específicas da Proposta
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-fifth">
+                  <div>Profundidade do Furo</div>
+                </div>
+                <div class="column is-one-fifth">
+                  <input class="input" type="text" name="proposal[hole_depth]" placeholder="em cm">
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-fifth">
+                  <div>Diâmetro do Furo</div>
+                </div>
+                <div class="column is-one-fifth">
+                  <input class="input" type="text" name="proposal[hole_diameter]" placeholder="polegadas">
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-fifth">
+                  <div>Quantidade de Furos</div>
+                </div>
+                <div class="column is-one-fifth">
+                  <input class="input" type="text" name="proposal[hole_quantity]" placeholder="Furos">
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-fifth">
+                  <div>Diâmetro da ferragem (malha)</div>
+                </div>
+                <div class="column is-one-fifth">
+                  <input class="input" type="text" name="proposal[hardware_diameter]" placeholder="cm">
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-fifth">
+                  <div>Profundidade do desgaste</div>
+                </div>
+                <div class="column is-one-fifth">
+                  <input class="input" type="text" name="proposal[wear_depth]" placeholder="cm">
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-fifth">
+                  <div>Largura do desgaste</div>
+                </div>
+                <div class="column is-one-fifth">
+                  <input class="input" type="text" name="proposal[wear_width]" placeholder="cm">
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-fifth">
+                  <div>Comprimento do desgaste</div>
+                </div>
+                <div class="column is-one-fifth">
+                  <input class="input" type="text" name="proposal[wear_length]" placeholder="cm">
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-fifth">
+                  <div>Quantidade de bases</div>
+                </div>
+                <div class="column is-one-fifth">
+                  <input class="input" type="text" name="proposal[bases_quantity]" placeholder="bases">
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-fifth">
+                  <div>Condições das ferragens</div>
+                </div>
+                <div class="column is-three-fifths">
+                  <input class="input" type="text" name="proposal[hardware_conditions]" placeholder="">
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-two-fifths">Há algum reforço/obstáculo no perímetro do tanque?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label class="show-alternative-answer">
+                      <input type="radio" name="proposal[is_tank_obstructed]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="hide-alternative-answer selected">
+                      <input type="radio" name="proposal[is_tank_obstructed]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="alternative-answer">
+                <div class="columns is-vcentered">
+                  <div class="column is-two-fifths">
+                    <div>Descreva:</div>
+                  </div>
+                  <div class="column">
+                    <input class="input" type="text" name="proposal[obstruction_description]" placeholder="Descrição">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-two-fifths">
+                  <div>Condições do concreto:</div>
+                </div>
+                <div class="column is-two-fifths">
+                  <div class="select">
+                    <select class="select alternative-select-answer" name="proposal[concrete_conditions]" required>
+                      <option value="">-------</option>
+                      <option>Não desgastado</option>
+                      <option class="show-alternative">Desgastado</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="alternative-answer">
+                <div class="columns is-vcentered">
+                  <div class="column is-two-fifths">
+                    <div>Descreva:</div>
+                  </div>
+                  <div class="column is-two-fifths">
+                    <input class="input" type="text" name="proposal[concrete_conditions_description]" placeholder="Descrição">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-two-fifths">
+                  <div>Em caso de recuperação do rotor, o balanceamento será:</div>
+                </div>
+                <div class="column is-two-fifths">
+                  <div class="select">
+                    <select class="select" name="proposal[rotor_balancing]" required>
+                      <option value="">Nenhum</option>
+                      <option>Escopo Hita</option>
+                      <option>Escopo Cliente</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-two-fifths">É previsto limpeza a quente em paradas futuras?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label class="show-alternative-answer">
+                      <input type="radio" name="proposal[is_hot_cleaning_needed]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="hide-alternative-answer selected">
+                      <input type="radio" name="proposal[is_hot_cleaning_needed]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="alternative-answer">
+                <div class="columns is-vcentered">
+                  <div class="column">
+                    <div>Qual temperatura?</div>
+                  </div>
+                  <div class="column">
+                    <input class="input" type="text" name="proposal[hot_cleaning_temperature]" placeholder="Temperatura">
+                  </div>
+                  <div class="column">
+                    <div>Qual pressão?</div>
+                  </div>
+                  <div class="column">
+                    <input class="input" type="text" name="proposal[hot_cleaning_pressure]" placeholder="Pressão">
+                  </div>
+                </div>
+                <div class="columns is-vcentered">
+                  <div class="column">
+                    <div>Qual frequência?</div>
+                  </div>
+                  <div class="column">
+                    <input class="input" type="text" name="proposal[hot_cleaning_frequency]" placeholder="Frequência">
+                  </div>
+                  <div class="column">
+                    <div>Com que duração?</div>
+                  </div>
+                  <div class="column">
+                    <input class="input" type="text" name="proposal[hot_cleaning_duration]" placeholder="Duração">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-two-fifths">
+                  <div>Preparação de superfície da meia cana:</div>
+                </div>
+                <div class="column is-two-fifths">
+                  <div class="select">
+                    <select class="select alternative-select-answer" name="proposal[is_half_cane_surface]" required>
+                      <option value="">-------</option>
+                      <option>Jateamento padrão ISO 8501-1 Sa 2 ½</option>
+                      <option>MBX padrão SSPC SP11</option>
+                      <option>Mecânica padrão St2/St3</option>
+                      <option>Manual padrão St2/St3</option>
+                      <option>Escova desgarradora (borracha) ou Politriz (piso)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-fifth">
+                  <div>Diâmetro da tubulação:</div>
+                </div>
+                <div class="column is-one-fifth">
+                  <input class="input" type="text" name="proposal[pipe_diameter]" placeholder="polegadas">
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-fifth">
+                  <div>Schedule da tubulação:</div>
+                </div>
+                <div class="column is-one-fifth">
+                  <input class="input" type="text" name="proposal[pipe_schedule]">
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-half">
+                  <div>Espessura da calha de sacrifício (caso não possua este valor, será considerado o padrão HITA):</div>
+                </div>
+                <div class="column is-two-fifths">
+                  <input class="input" type="text" name="proposal[sacrificial_chute_thickness]" placeholder="mm">
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-half">
+                  <div>Ângulo da calha (caso não possua este valor, será considerado o padrão HITA):</div>
+                </div>
+                <div class="column is-one-fifth">
+                  <div class="select">
+                    <select class="select alternative-select-answer" name="proposal[gutter_angle]" required>
+                      <option value="">-------</option>
+                      <option>45º</option>
+                      <option>60º</option>
+                      <option>90º</option>
+                      <option>120º</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-two-fifths">Há umidade?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label>
+                      <input type="radio" name="proposal[is_there_moisture]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="selected">
+                      <input type="radio" name="proposal[is_there_moisture]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-two-fifths">Há arraste de sólidos?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label>
+                      <input type="radio" name="proposal[is_dragging_of_solids]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="selected">
+                      <input type="radio" name="proposal[is_dragging_of_solids]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-fifth">
+                  <div>Diâmetro do tambor:</div>
+                </div>
+                <div class="column is-one-fifth">
+                  <input class="input" type="text" name="proposal[barrel_diameter]" placeholder="mm">
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-two-fifths">Tem rasgo?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label class="show-alternative-answer">
+                      <input type="radio" name="proposal[is_there_tear]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="hide-alternative-answer selected">
+                      <input type="radio" name="proposal[is_there_tear]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="alternative-answer">
+                <div class="columns is-vcentered">
+                  <div class="column">
+                    <div>Comprimento?</div>
+                  </div>
+                  <div class="column">
+                    <input class="input" type="text" name="proposal[tear_length]" placeholder="Temperatura">
+                  </div>
+                  <div class="column">
+                    <div>Largura?</div>
+                  </div>
+                  <div class="column">
+                    <input class="input" type="text" name="proposal[tear_width]" placeholder="Pressão">
+                  </div>
+                </div>
+                <div class="columns is-vcentered">
+                  <div class="column is-one-quarter">
+                    <div>É passante?</div>
+                  </div>
+                  <div class="column is-one-quarter">
+                    <div class="select">
+                      <select class="select" name="proposal[is_passing]" required>
+                        <option value="">-------</option>
+                        <option>Sim</option>
+                        <option>Não</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-two-fifths">O reparo é emergencial (precisa de rápido tempo de cura)?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label>
+                      <input type="radio" name="proposal[is_fast_healing_process]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="selected">
+                      <input type="radio" name="proposal[is_fast_healing_process]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-two-fifths">
+                  <div>Tipo de reparo no eixo:</div>
+                </div>
+                <div class="column is-two-fifths">
+                  <div class="select">
+                    <select class="select alternative-select-answer" name="proposal[shaft_repair_type]" required>
+                      <option value="">-------</option>
+                      <option class="show-alternative">Modelagem</option>
+                      <option>Usinagem</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="alternative-answer">
+                <div class="columns is-vcentered">
+                  <div class="column is-two-fifths">
+                    <div>Escopo da confecção do molde:</div>
+                  </div>
+                  <div class="column is-two-fifths">
+                    <div class="select">
+                      <select class="select" name="proposal[shaft_repair_scope]" required>
+                        <option value="">-------</option>
+                        <option>Cliente</option>
+                        <option>Hita</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-two-fifths">
+                  <div>Escopo da confecção do molde:</div>
+                </div>
+                <div class="column is-one-fifth">
+                  <div class="select">
+                    <select class="select" name="proposal[molde_making_scope]" required>
+                      <option value="">-------</option>
+                      <option>Cliente</option>
+                      <option>Hita</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-two-fifths">
+                  <div>Fornecimento de Caps:</div>
+                </div>
+                <div class="column is-one-fifth">
+                  <div class="select">
+                    <select class="select" name="proposal[cape_supply]" required>
+                      <option value="">-------</option>
+                      <option>Cliente</option>
+                      <option>Hita</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-quarter">
+                  <div>Bitola da gaxeta:</div>
+                </div>
+                <div class="column is-one-fifth">
+                  <input class="input" type="text" name="proposal[gasket_gauge]" placeholder="polegadas">
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-quarter">
+                  <div>Comprimento da caixa de selagem:</div>
+                </div>
+                <div class="column is-one-fifth">
+                  <input class="input" type="text" name="proposal[sealing_box_length]" placeholder="mm">
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-one-quarter">
+                  <div>Diâmetro do eixo:</div>
+                </div>
+                <div class="column is-one-fifth">
+                  <input class="input" type="text" name="proposal[shaft_diameter]" placeholder="mm">
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-two-fifths">É necessário material inconel?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label>
+                      <input type="radio" name="proposal[is_inconel_necessary]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="selected">
+                      <input type="radio" name="proposal[is_inconel_necessary]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-two-fifths">
+                  <div>Escopo do balanceamento:</div>
+                </div>
+                <div class="column is-two-fifths">
+                  <div class="select">
+                    <select class="select alternative-select-answer" name="proposal[balancing_scope]" required>
+                      <option value="">-------</option>
+                      <option class="show-alternative">Cliente</option>
+                      <option>Hita</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="alternative-answer">
+                <div class="columns is-vcentered">
+                  <div class="column is-two-fifths">
+                    <div>Será fornecido o conjunto eixo e chaveta?</div>
+                  </div>
+                  <div class="column is-two-fifths">
+                    <div class="select">
+                      <select class="select" name="proposal[balancing_scope_shaft_and_key]" required>
+                        <option value="">-------</option>
+                        <option>Sim</option>
+                        <option>Não</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-two-fifths">Será necessário tarucel?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label class="show-alternative-answer">
+                      <input type="radio" name="proposal[is_tarucel_necessary]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="hide-alternative-answer selected">
+                      <input type="radio" name="proposal[is_tarucel_necessary]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="alternative-answer">
+                <div class="columns is-vcentered">
+                  <div class="column is-two-fifths">
+                    <div>Comprimento?</div>
+                  </div>
+                  <div class="column is-one-fifth">
+                    <input class="input" type="text" name="proposal[tarucel_length]" placeholder="mm">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-two-fifths">O concreto atual está curado há mais de 28 dias?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label>
+                      <input type="radio" name="proposal[is_concrete_healed]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="selected">
+                      <input type="radio" name="proposal[is_concrete_healed]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-two-fifths">O equipamento tem vibração?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label>
+                      <input type="radio" name="proposal[is_there_vibration]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="selected">
+                      <input type="radio" name="proposal[is_there_vibration]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-two-fifths">
+                  <div>Revestimento:</div>
+                </div>
+                <div class="column is-one-fifth">
+                  <div class="select">
+                    <select class="select" name="proposal[coating]" required>
+                      <option value="">-------</option>
+                      <option>Externo</option>
+                      <option>Interno</option>
+                      <option>Interno e Externo</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-two-fifths">É espaço confinado?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label>
+                      <input type="radio" name="proposal[is_confined_space]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="selected">
+                      <input type="radio" name="proposal[is_confined_space]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-two-fifths">
+                  <div>Escopo da iluminação:</div>
+                </div>
+                <div class="column is-one-fifth">
+                  <div class="select">
+                    <select class="select" name="proposal[lighting_scope]" required>
+                      <option value="">-------</option>
+                      <option>Cliente</option>
+                      <option>Hita</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-two-fifths">
+                  <div>Laje ou telhado:</div>
+                </div>
+                <div class="column is-one-fifth">
+                  <div class="select">
+                    <select class="select" name="proposal[slab_or_roof]" required>
+                      <option value="">-------</option>
+                      <option>Laje</option>
+                      <option>Telhado</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-two-fifths">Áreas lascadas ou fragmentadas?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label>
+                      <input type="radio" name="proposal[is_chipped_or_fragmented]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="selected">
+                      <input type="radio" name="proposal[is_chipped_or_fragmented]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-two-fifths">
+                  <div>Tipo de tampo</div>
+                </div>
+                <div class="column is-one-fifth">
+                  <div class="select">
+                    <select class="select" name="proposal[cover_type]" required>
+                      <option value="">-------</option>
+                      <option>Toriférico</option>
+                      <option>Esférico</option>
+                      <option>Hemisférico</option>
+                      <option>Reto</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-two-fifths">Há vazamento?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label>
+                      <input type="radio" name="proposal[is_there_leaking]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="selected">
+                      <input type="radio" name="proposal[is_there_leaking]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-two-fifths">
+                  <div>Qual o comprimento da borda de ataque?</div>
+                </div>
+                <div class="column is-one-fifth">
+                  <input class="input" type="text" name="proposal[attack_border_diameter]" placeholder="cm">
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-two-fifths">Será necessário chapa?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label>
+                      <input type="radio" name="proposal[is_plate_necessary]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="selected">
+                      <input type="radio" name="proposal[is_plate_necessary]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-two-fifths">O produto será injetado?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label>
+                      <input type="radio" name="proposal[is_injectable_product]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="selected">
+                      <input type="radio" name="proposal[is_injectable_product]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-two-fifths">O produto será vertido?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label>
+                      <input type="radio" name="proposal[is_poured_product]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="selected">
+                      <input type="radio" name="proposal[is_poured_product]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-two-fifths">Será necessário esmerilhar soldas?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label class="show-alternative-answer">
+                      <input type="radio" name="proposal[is_weld_grinding_necessary]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="hide-alternative-answer selected">
+                      <input type="radio" name="proposal[is_weld_grinding_necessary]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="alternative-answer">
+                <div class="columns is-vcentered">
+                  <div class="column is-two-fifths">
+                    <div>Escopo?</div>
+                  </div>
+                  <div class="column is-one-quarter">
+                    <div class="select">
+                      <select class="select" name="proposal[weld_grinding_scope]" required>
+                        <option value="">-------</option>
+                        <option>Cliente</option>
+                        <option>Hita</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns is-vcentered">
+                <div class="column is-three-fifths">
+                  <div>Qual o tempo de campanha do equipamento sem apresentar desgastes?</div>
+                </div>
+                <div class="column is-one-fifth">
+                  <input class="input" type="text" name="proposal[time_without_wear]">
+                </div>
+              </div>
+            </div>
+            <div class="default-box">
+              <div class="columns">
+                <div class="column is-two-fifths">O equipamento aceita desbaste/usinagem?</div>
+                <div class="column">
+                  <div class="radio-buttons">
+                    <label>
+                      <input type="radio" name="proposal[is_roughing_or_machining]" value="true">
+                      <span></span>
+                      Sim
+                    </label>
+                    <label class="selected">
+                      <input type="radio" name="proposal[is_roughing_or_machining]" value="false" checked>
+                      <span></span>
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="level">
+            <div class="level-left"></div>
+            <div class="level-right">
+              <button class="button is-secondary is-medium">Salvar Rascunho</button>
+              <button class="button is-secondary is-medium margin-left-15" disabled>Solicitar Proposta</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  $(".radio-buttons label").click(function() {
+    $(this).parent().find('.selected').removeClass('selected');
+    $(this).addClass('selected');
+  });
+
+  $(".show-alternative-answer").click(function() {
+    $(this).closest('.default-box').children('.alternative-answer').slideDown();
+  });
+
+  $(".hide-alternative-answer").click(function() {
+    $(this).closest('.default-box').children('.alternative-answer').slideUp();
+  });
+
+  $(".alternative-select-answer").change(function() {
+    var $selected = $(this).find(":selected");
+    var $alternativeContainer = $(this).closest('.default-box').find('.alternative-answer');
+
+    if($selected.hasClass('show-alternative')) {
+      $alternativeContainer.slideDown(200);
+    } else {
+      $alternativeContainer.slideUp(200);
+    }
+  });
+</script>

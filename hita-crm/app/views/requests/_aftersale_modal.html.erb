@@ -1,0 +1,53 @@
+<div class="flow-chart-modal">
+  <div id="aftersaleModal" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      <div class="text-center margin-bottom-20">Enviar <span class="has-text-weight-bold">QSC</span> e <span class="has-text-weight-bold">Rel. 3 fotos</span></div>
+      <div class="columns no-margin-bottom is-variable is-2">
+        <div class="column">
+          <div class="proposals-main-page">
+            <button id="attachQSCBt" class="button is-secondary is-medium is-fullwidth is-outlined"><span class="rounded-icon"><%= inline_svg 'check.svg' %></span><span class="button-text">QSC</span></button>
+          </div>
+        </div>
+        <div class="column">
+          <div class="proposals-main-page">
+            <button id="attachPhotosRelBt" class="button is-secondary is-medium is-fullwidth is-outlined"><span class="rounded-icon"><%= inline_svg 'check.svg' %></span><span class="button-text">Rel. 3 Fotos</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="columns no-margin-bottom">
+        <div class="column">
+          <button id="finishServiceRequest" class="button is-primary is-fullwidth">Finalizar</button>
+        </div>
+      </div>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $('#attachQSCBt').click(function() {
+    $('div[data-file-type="qsc"]').trigger('click');
+  });
+
+  $('#attachPhotosRelBt').click(function() {
+    $('div[data-file-type="photos_report"]').trigger('click');
+  });
+
+  $('#finishServiceRequest').click(function() {
+
+    if (!is_qsc_present || !is_photos_report_present) {
+      a = confirm('Tem certeza que deseja continuar sem enviar todos o anexos?');
+    } else {
+      a = confirm('Deseja finalizar este pedido?');
+    }
+
+    if (a) {
+      finished_by_aftersale_modal = true;
+      $(this).addClass('is-loading');
+      updateModalSteps('9');
+      $('tr[data-request-id="' + $('.request-modal').data('request-id') +'"]').remove();
+      $('#aftersaleModal').removeClass('is-active');
+    }
+  });
+</script>

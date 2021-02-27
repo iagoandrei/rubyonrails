@@ -1,0 +1,141 @@
+<%= render partial: 'shared/main_upper_section', locals: { current_main_section: 'hindrance' } %>
+
+<div class="hindrances-main-page">
+  <div class="hindrances-main-container container">
+    <%= render partial: 'shared/flash_message' %>
+    <div class="columns">
+      <div class="column is-2">
+        <%= render partial: 'shared/main_sidebar', locals: { main_page: 'hindrances', current_page: 'my_hindrances' } %>
+      </div>
+      <div class="column is-10">
+        <div class="requests-container">
+          <div class="request-table-container default-box">
+            <% if @unreaded %>
+              <div class="tip-description">Você tem <%= @unreaded.size %> novo(s) impedimento(s)!</div>
+              <div class="hindrance-table-container">
+                <table class="request-table ">
+                  <thead>
+                    <tr>
+                      <th>Oportunidade</th>
+                      <th width="15%">Step</th>
+                      <th width="30%">Empresa</th>
+                      <th>Prioridade</th>
+                      <th width="20%">Impedidor</th>
+                      <th width="15%">Tempo</th>
+                      <th>Prazo</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% @unreaded.each do |hindrance| %>
+                      <tr data-request-id='<%= hindrance.request.id %>' data-hindrance-id='<%= hindrance.id %>' class="request-row">
+                        <td title="<%= hindrance.request.get_request_code %>"><%= hindrance.request.get_request_code %></td>
+                        <td title="<%= hindrance.request.current_step %>"><%= hindrance.request.current_step %></td>
+                        <td title="<%= hindrance.request.enterprise.name %>"><%= hindrance.request.enterprise.name %></td>
+                        <td>
+                          <div class="urgency <%= hindrance.request.calculate_priority %>">
+                            <div class="is-flex">
+                              <div class="levels">
+                                <div class="level"></div>
+                                <div class="level"></div>
+                                <div class="level"></div>
+                                <div class="level"></div>
+                              </div>
+                              <div class="urgency-percentage modal-urgency-percentage"><%= "#{(hindrance.request.calculate_priority_percentage * 100).to_i}%" %></div>
+                            </div>
+                          </div>
+                        </td>
+                        <td title="<%= hindrance.deterrent&.name %>"><%= hindrance.deterrent&.name %></td>
+                        <td title="<%= hindrance.elapsed_time_since_updated %>"><%= hindrance.elapsed_time_since_updated %></td>
+                        <td title="<%= hindrance.due_time&.strftime("%d/%m/%y %H:%M") %>">
+                          <% if hindrance.due_time %>
+                            <button class="button hindrance-due-time is-fullwidth is-secondary"><%= hindrance.due_time&.strftime("%d/%m/%y") %></button>
+                          <% else %>
+                            <button class="button hindrance-due-time is-fullwidth is-secondary is-outlined">Inserir</button>
+                          <% end %>
+                        </td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+            <% end %>
+
+            <% if @readed %>
+              <div class="tip-description">Você tem <%= @readed.size %> impedimento(s)</div>
+              <div class="hindrance-table-container">
+                <table class="request-table ">
+                  <thead>
+                    <tr>
+                      <th>Oportunidade</th>
+                      <th width="15%">Step</th>
+                      <th width="30%">Empresa</th>
+                      <th>Prioridade</th>
+                      <th width="20%">Impedidor</th>
+                      <th>Prazo</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% @readed.each do |hindrance| %>
+                      <tr data-request-id='<%= hindrance.request.id %>' data-hindrance-id='<%= hindrance.id %>' class="request-row <%= 'delayed' if hindrance.due_time < Date.today %>">
+                        <td title="<%= hindrance.request.get_request_code %>"><%= hindrance.request.get_request_code %></td>
+                        <td title="<%= hindrance.request.current_step %>"><%= hindrance.request.current_step %></td>
+                        <td title="<%= hindrance.request.enterprise.name %>"><%= hindrance.request.enterprise.name %></td>
+                        <td>
+                          <div class="urgency <%= hindrance.request.calculate_priority %>">
+                            <div class="is-flex">
+                              <div class="levels">
+                                <div class="level"></div>
+                                <div class="level"></div>
+                                <div class="level"></div>
+                                <div class="level"></div>
+                              </div>
+                              <div class="urgency-percentage modal-urgency-percentage"><%= "#{(hindrance.request.calculate_priority_percentage * 100).to_i}%" %></div>
+                            </div>
+                          </div>
+                        </td>
+                        <td title="<%= hindrance.deterrent&.name %>"><%= hindrance.deterrent&.name %></td>
+                        <td title="<%= hindrance.due_time&.strftime("%d/%m/%y %H:%M") %>">
+                          <% if hindrance.due_time %>
+                            <button class="button hindrance-due-time is-fullwidth is-secondary"><%= hindrance.due_time&.strftime("%d/%m/%y") %></button>
+                          <% else %>
+                            <button class="button hindrance-due-time is-fullwidth is-secondary is-outlined">Inserir</button>
+                          <% end %>
+                        </td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+            <% end %>
+            <% if @unreaded.nil? and @readed.nil? %>
+              <div class="tip-description text-center margin-top-10">Você não tem impedimentos.</div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= render partial: 'requests/request_modal' %>
+<%= render partial: 'shared/change_hindrance_modal' %>
+<%= render partial: 'shared/new_hindrance_modal' %>
+<%= render partial: 'requests/add_technician_modal' %>
+<%= render partial: 'requests/specific_file_modal' %>
+<%= render partial: 'requests/request_proposals_modal' %>
+<%= render partial: 'shared/files_modal' %>
+<%= render partial: 'requests/installments_modal' %>
+<%= render partial: 'requests/refuse_proposal_modal' %>
+<%= render partial: 'requests/request_values_edition_modal' if can? :update_request_values, Request %>
+<%= render partial: 'requests/update_request_enterprise' %>
+<%= render partial: 'requests/proposal_file_modal' %>
+<%= render partial: 'hindrances/change_due_time' %>
+
+ <script type="text/javascript">
+  $('.hindrance-table-container').on('click', '.hindrance-due-time', function(e) {
+    e.stopPropagation();
+    $('#changeDueTime').addClass('is-active');
+    var hindrance_id = $(this).closest('tr').data('hindrance-id');
+    $('#changeHindranceDueTime #hindranceId').val(hindrance_id);
+  });
+</script>

@@ -1,0 +1,22 @@
+<% if @collaborators.present? %>
+  $('.collaborators-cards-columns').html('');
+  $(".collaborators-cards-columns").append('<%= escape_javascript(render(:partial => "collaborator", :collection => @collaborators)) %>');
+  $(".paging-links").remove();
+  $('.collaborators-cards').append(`
+    <div class="paging-links">
+      <%= will_paginate @collaborators %>
+    </div>
+  `);
+
+  $(".paging-links a").click(function(e) {
+    e.preventDefault();
+
+    var url = new URL($(this).prop('href'));
+
+    searchCollaborators(url.searchParams.get("page"));
+  });
+<% else %>
+  $('.collaborators-cards-columns').html(`
+    <div class="column text-center">Sem registros.</div>
+  `);
+<% end %>

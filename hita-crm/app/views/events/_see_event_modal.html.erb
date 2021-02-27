@@ -1,0 +1,108 @@
+<div class="see-event-modal">
+  <div id="seeEventModal" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      <div class="main-container">
+        <div class="event-item">
+          <div class="columns">
+
+            <% if event.users.size == 1 %>
+              <div style="background-color: <%= event.users.first.get_color %>" class="column is-1 hour text-center event-row" event-id="<%= event.id %>">
+                <% unless event.is_all_day %>
+                  <div><%= event.start_date.strftime("%H:%M") %></div>
+                <% end %>
+              </div>
+            <% else %>
+              <div class="column is-1 hour text-center event-row" event-id="<%= event.id %>">
+                <% unless event.is_all_day %>
+                  <div><%= event.start_date.strftime("%H:%M") %></div>
+                <% end %>
+              </div>
+            <% end %>
+
+            <div class="column no-padding-bottom">
+              <div class="columns no-margin-bottom event-row" event-id="<%= event.id %>">
+                <div class="column event-title">
+                  <%= event.title %>
+                  <% if event.is_all_day %>
+                    <span>(00:00 - 23:59)</span>
+                  <% end %>
+                </div>
+                <div class="column text-right">
+                  <div class="details-text">
+                    <span class="text no-select"><span class="text-toggle up">ver mais detalhes</span></span><%= inline_svg "dropdown_arrow.svg" %>
+                  </div>
+                </div>
+              </div>
+              <div id="eventBody<%= event.id %>" class="event-body">
+                <div class="event-info">
+                  <div class="columns">
+                    <div class="column is-one-third">
+                      <%= inline_svg 'enterprise.svg' %>
+                      <span id="eventEnterpriseName">Nome da empresa</span>
+                    </div>
+                    <div class="column is-one-third">
+                      <%= inline_svg 'action2.svg' %>
+                      <span id="currentEventType">Tipo do evento</span>
+                    </div>
+                    <div class="column is-one-third">
+                      <%= inline_svg 'gps.svg' %>
+                      <span id="currentEventStreet">Endereço do evento</span>
+                    </div>
+                  </div>
+                  <div class="columns">
+                    <div class="column is-one-third">
+                      <%= inline_svg 'calendar.svg' %>
+                      <%= l(event.start_date.to_date, format: :short) %>
+                    </div>
+                    <div class="column is-one-third">
+                      <%= inline_svg 'action1.svg' %>
+                      <% if event.users.size <= 2 %>
+                        <%= event.users.pluck(:name).to_sentence(two_words_connector: ', ', last_word_connector: ', ') %>
+                      <% else %>
+                        <%= event.users.take(2).pluck(:name).to_sentence(two_words_connector: ', ', last_word_connector: ', ') %>
+                        <%= "e mais #{event.users.size - 2}" %>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+                <% if event.owner_id == current_user.id || current_user.role.in?([User::ROLES[:admin], User::ROLES[:technical_manager]]) %>
+                  <div class="event-actions">
+                    <div class="columns">
+                      <div class="column is-offset-6 is-6">
+                        <div class="columns is-vcentered right">
+                          <div class="column is-narrow">
+                            <button class="button is-secondary edit-event-bt" event-id="<%= event.id %>"><%= inline_svg 'edit.svg' %> Editar</button>
+                          </div>
+                          <div class="column is-narrow">
+                            <a href="<%= destroy_event_path(event.id) %>" data-confirm="Você tem certeza que deseja excluir este evento ?" data-method="delete">
+                              <%= inline_svg 'remove.svg' %>
+                            </a>
+                          </div>
+                          <div class="column is-narrow">
+                            <div class="b-checkbox is-primary">
+                              <input id="checkboxFinishActivity<%= event.id %>" class="styled checkbox-event" type="checkbox" event-id="<%= event.id %>">
+                              <label for="checkboxFinishActivity<%= event.id %>">
+                                <span class="no-select">CONCLUIR ATIVIDADE</span>
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  function loadEventInfos() {
+
+  }
+</script>

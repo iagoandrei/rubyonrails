@@ -1,0 +1,94 @@
+<div class="change-hindrance-modal">
+  <div id="changeHindrance" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      <div>Indique para quem você está transferindo seu impedimento:</div>
+      <div class="hindrances-inputs">
+        <div class="input-title">Quem será impedido?</div>
+        <input id="changeHindranceId" type="hidden">
+        <input class="input change-hidrance-autocomplete" type="text" placeholder="Digite o nome da pessoa" autocomplete="off">
+        <div class="columns">
+          <div class="column">
+            <button id="changeHindranceButton" class="button is-primary is-pulled-right">Concluir</button>
+          </div>
+        </div>
+      </div>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $(".change-hidrance-autocomplete").on("keyup", function() {
+    $('#changeHindranceButton').prop('disabled', true);
+  });
+
+  $('.change-hidrance-autocomplete').autoComplete({
+    minChars: 2,
+    source: function(term, response) {
+      var xhr;
+      var matches = [];
+      term = term.toLowerCase();
+
+      try { xhr.abort(); } catch(e) {}
+      xhr = $.getJSON('/user_autocomplete', { q: term }, function(data) {
+
+        if (data.length > 0) {
+          for (i = 0; i < data.length; i++)
+            if (~data[i][0].toLowerCase().indexOf(term)) matches.push(data[i]);
+        }
+
+        response(matches);
+      });
+    },
+    renderItem: function (item, search) {
+      search = search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+      var re = new RegExp("(" + search.split(' ').join('|') + ")", "gi");
+      return '<div class="autocomplete-suggestion" data-user-id="' + item[1] +'" data-val="' + item[0] + '">'+ item[0].replace(re, "<b>$1</b>") + '</div>';
+    },
+    onSelect: function(event, term, item) {
+      $('#changeHindranceId').val(item.data('user-id'));
+      $('#changeHindranceButton').prop('disabled', false);
+    }
+  });
+
+  $('#changeHindranceButton').click(function() {
+    var $bt = $('#changeHindranceButton');
+    var hindrance_owner_name = $('.change-hidrance-autocomplete').val();
+    var request_id = $('.request-modal').data('request-id');
+
+    $.ajax({
+      url: '<%= change_hindrance_url %>',
+      method: 'POST',
+      data: {
+        request_id: request_id,
+        detainee_id: $('#changeHindranceId').val(),
+        authenticity_token: "<%= form_authenticity_token %>"
+      },
+      beforeSend: function() {
+        $bt.addClass('is-loading');
+      },
+      error: function() {
+        $bt.removeClass('is-loading');
+        alert("Ocorreu um erro tranferir o impedimento.");
+      },
+      success: function(data) {
+        $bt.removeClass('is-loading');
+
+        if(data.presence) {
+          alert("Este usuário já está impedido neste pedido. Seu impedimento foi removido.");
+          $('.hindrace-box span[class="you"]').closest('.person-tag').remove();
+        } else {
+          alert("O impedimento foi transferido.");
+          $('.hindrace-box span[class="you"]').closest('.person-tag').find('.initials').text(getInitialsFromName(hindrance_owner_name));
+          $('.hindrace-box span[class="you"]').closest('.person-tag').find('.consultant-name').text(hindrance_owner_name);
+          $('.hindrance-table-container').find("tr[data-request-id='" + request_id + "']").remove();
+        }
+
+        $('.change-hidrance-autocomplete').val('');
+        $('#changeHindrance').removeClass('is-active');
+        $('.change-hindrance-bt').hide();
+      }
+    })
+  });
+</script>

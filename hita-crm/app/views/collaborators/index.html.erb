@@ -1,0 +1,329 @@
+<%= render partial: 'shared/main_upper_section', locals: { current_main_section: 'enterprise' } %>
+
+<div class="collaborators-main-page">
+  <%= render partial: '/shared/flash_message' %>
+  <div class="collaborators-main-container container">
+    <div class="columns">
+      <div class="column is-2">
+        <%= render partial: 'shared/main_sidebar', locals: { main_page: 'enterprises', current_page: 'collaborators' } %>
+      </div>
+      <div class="column is-10">
+        <div class="filters-container">
+          <div class="filters">
+            <div class="filter-title">Filtros <span class="weight-300 text-11">(Tecle Enter p/ pesquisar)</span></div>
+            <div class="filter-inputs">
+              <div class="columns is-variable is-2">
+                <div class="column is-half">
+                  <div class="input-title">Nome do colaborador</div>
+                  <div class="input-enterprise">
+                    <input id="enterpriseNameFilter" class="input"></input>
+                  </div>
+                </div>
+                <div class="column">
+                  <div class="input-title">Grau de relacionamento</div>
+                  <div class="select">
+                    <%= select_tag "", options_for_select(@relationships), prompt: "Não Selecionado", id: "degreeOfRelationshipFilter", class: "select" %>
+                  </div>
+                </div>
+                <div class="column">
+                  <div class="input-title">Cargo</div>
+                  <div class="select">
+                    <%= select_tag "", options_for_select(@jobs), prompt: "Não Selecionado", id: "jobRoleFilter", class: "select" %>
+                  </div>
+                </div>
+                <div class="column">
+                  <div class="input-title">Área</div>
+                  <div class="select">
+                    <%= select_tag "", options_for_select(@areas), prompt: "Não Selecionado", id: "areaFilter", class: "select" %>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="filter-buttons">
+              <div class="field is-grouped">
+                <div class="control">
+                  <button id="addNewCollaborator" class="button is-primary"><%= inline_svg "plus.svg" %> Adicionar novo contato</button>
+                </div>
+                <div class="control">
+                  <button id="addNewEnterprise" class="button is-secondary"><%= inline_svg "plus.svg" %> Adicionar nova empresa</button>
+                </div>
+              </div>
+              <button id="clearFilters" class="button is-secondary">Limpar Filtros</button>
+            </div>
+          </div>
+        </div>
+        <div class="collaborators-cards">
+          <div class="columns is-multiline is-variable is-2 collaborators-cards-columns"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%= render 'collaborator_modal' %>
+  <%= render 'enterprises/new_enterprise_modal' %>
+  <%= render 'new_collaborator_modal' %>
+  <%= render 'edit_collaborator_modal' %>
+</div>
+
+<script type="text/javascript">
+  var mention_values = [];
+  var current_collaborators_modal = '';
+  var current_page = 'collaborator';
+
+  $(function() {
+    searchCollaborators(1);
+  });
+
+  $("#addNewEnterprise").click(function() {
+    $("#newEnterpiseModal").addClass('is-active');
+  });
+
+  $("#addNewCollaborator").click(function() {
+    $("#newCollaboratorsModal").addClass('is-active');
+    current_collaborators_modal = 'new_collaborator'
+  });
+
+  $(document).on("click", ".card", function() {
+    $.getJSON("<%= get_collaborator_infos_url('_id_') %>".replace("_id_", $(this).data('collaborator-id')), function(data) {
+      $("#collaboratorModal").addClass('is-active');
+      $("#collaboratorName").html(data.name);
+      $("#collaboratorJob").html(data.job_role);
+      $("#collaboratorEnterprise").html(data.enterprise_name);
+      $("#collaboratorRelation").html(data.degree_of_relationship);
+
+      if (data.phone && data.phone_area)
+        $("#collaboratorPhone").html(`(${data.phone_area}) ${data.phone}`);
+
+      $("#collaboratorEmail").html(data.email);
+      $("#collaboratorStatus").html(data.status_name);
+      $("#collaboratorTrained").val(data.trained);
+      $("#collaboratorSalvadorTraining").html(data.trained);
+      $("#collaboratorArea").html(data.area);
+
+      $("#editCollaboratorModalBt").attr('collaborator-id', data.id);
+      $(".hidden-interaction-collaborator-id").val(data.id);
+      $(".interaction-bt").attr('collaborator-id', data.id);
+      $(".interaction-message-bt").attr('collaborator-id', data.id);
+
+      if (data['interactions']) {
+        $(".interactions").html('');
+
+        if(data.interactions.length > 0) {
+          $.each(data.interactions, function(k, v) {
+            $(".interactions").prepend(v['content']);
+          });
+        } else {
+          $(".interactions").html('Não há interações para exibir.');
+        }
+      }
+
+      $(".hidden-collaborator-id").val(data.id);
+    });
+  });
+
+  $(document).on("click", ".edit-icon", function(e) {
+    e.stopPropagation();
+    current_collaborators_modal = 'edit_collaborator'
+    enterprise_selected_flag = false
+    enterprise_changed_flag = false
+
+    showEditCollaboratorForm($(this).data('collaborator-id'));
+  });
+
+  $("#editCollaboratorModalBt").click(function() {
+    $("#editCollaboratorsModal").addClass('is-active');
+    enterprise_selected_flag = false
+    enterprise_changed_flag = false
+
+    showEditCollaboratorForm($(this).attr('collaborator-id'));
+  });
+
+  var showEditCollaboratorForm = function(collaborator_id) {
+    $.getJSON("<%= get_collaborator_infos_url('_id_') %>".replace("_id_", collaborator_id), function(data) {
+      $editForm = $("#editCollaboratorsModal");
+
+      $editForm.addClass('is-active');
+      $editForm.find('input[name="collaborator[id]"]').val(data.id);
+      $editForm.find('input[name="collaborator[name]"]').val(data.name);
+      $editForm.find('select[name="collaborator[job_role]"]').val(data.job_role);
+
+      if (data.phone_area && data.phone)
+        $editForm.find('input[name="collaborator[phone]"]').val(`(${data.phone_area}) ${data.phone}`);
+
+      $editForm.find('input[name="collaborator[email]"]').val(data.email);
+      $editForm.find('select[name="collaborator[degree_of_relationship]"]').val(data.degree_of_relationship);
+      $editForm.find('select[name="collaborator[status]"').val(data.status);
+      $editForm.find('select[name="collaborator[area]"').val(data.area);
+      $editForm.find('input[name="enterprise_autocomplete"]').val(data.enterprise_name);
+
+      $('#enterpriseIdEdit').val(data.enterprise_id);
+    });
+  }
+
+  $("#degreeOfRelationshipFilter, #jobRoleFilter, #areaFilter").change(function() {
+    searchCollaborators(1);
+  });
+
+  $("#enterpriseNameFilter").on('keypress', function(e) {
+    if(e.which == 13) {
+      searchCollaborators(1);
+    }
+  });
+
+  $("#clearFilters").click(function() {
+    $('#degreeOfRelationshipFilter').val('')
+    $('#jobRoleFilter').val('');
+    $('#enterpriseNameFilter').val('');
+    $('#areaFilter').val('');
+
+    searchCollaborators(1);
+  });
+
+  function searchCollaborators(page) {
+    var table_container = $('.collaborators-cards-columns');
+
+    var filters = {}
+    filters['degree_of_relationship'] = $('#degreeOfRelationshipFilter').val()
+    filters['job_role']               = $('#jobRoleFilter').val();
+    filters['area']                   = $('#areaFilter').val();
+    filters['name']                   = $('#enterpriseNameFilter').val();
+    filters['page']                   = page
+
+    $.ajax({
+      url: '<%= render_current_collaborators_path %>',
+      data: filters,
+      dataType: 'script',
+      beforeSend: function() {
+        table_container.html(`
+          <div class="default-box margin-top-10 column">          
+            <div class="text-center">Carregando tabela de contatos</div>
+            <div class="columns is-centered">
+              <div class="column is-narrow"><div class="loader is-loading"></div></div>
+            </div>
+          </div>
+        `);
+      },
+      success: function() {
+        <% if @collaborator_id %>
+          $("#collaboratorCard<%= @collaborator_id %>").trigger('click');
+        <% end %>
+      },
+      error: function() {
+        table_container.html(`
+          <div class="default-box margin-top-10 column">
+            <div class="text-center">Ocorreu um erro ao mostrar a tabela de contatos</div>
+          </div>
+        `);
+      }
+    });
+  };
+
+  var enterprise_selected_flag = false;
+  var enterprise_changed_flag = false;
+
+  $('.enterprise-auto-complete').autoComplete({
+    minChars: 2,
+    source: function(term, response) {
+      var xhr;
+      var matches = [];
+      term = term.toLowerCase();
+
+      try { xhr.abort(); } catch(e) {}
+      xhr = $.getJSON('/enterprise_autocomplete', { q: term }, function(data) {
+
+        if (data.length > 0) {
+          for (i = 0; i < data.length; i++)
+            if (~data[i][0].toLowerCase().indexOf(term)) matches.push(data[i]);
+        }// else {
+        //  matches.push("Nenhuma empresa encontrada");
+        //}
+
+        response(matches);
+      });
+    },
+    renderItem: function (item, search) {
+      search = search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+      var re = new RegExp("(" + search.split(' ').join('|') + ")", "gi");
+      return '<div class="autocomplete-suggestion" data-enterprise-id="' + item[1] +'" data-val="' + item[0] + '">'+ item[0].replace(re, "<b>$1</b>") + '</div>';
+    },
+    onSelect: function(event, term, item) {
+      if(current_collaborators_modal == 'new_collaborator')
+        $('#enterpriseIdNew').val(item.data('enterprise-id'));
+      else
+        $('#enterpriseIdEdit').val(item.data('enterprise-id'));
+
+      enterprise_selected_flag = true;
+    }
+  });
+
+  $("#newInteractionForm").submit(function(e) {
+    e.preventDefault();
+
+    $.ajax({
+      url: '<%= create_collaborator_interaction_path %>',
+      type: 'POST',
+      data: new FormData(this),
+      processData: false,
+      contentType: false,
+      beforeSend: function() {
+        $(".interaction-bt, .interaction-message-bt").addClass('is-loading');
+      },
+      complete: function() {
+        $(".interaction-bt, .interaction-message-bt").removeClass('is-loading');
+      },
+      success: function() {
+        resetInteractionForm();
+
+        $.getJSON("<%= get_collaborator_interactions_url('_id_') %>".replace("_id_", $(".interaction-bt").attr('collaborator-id')), function(data) {
+          if (data['interactions']) {
+            $(".interactions").html('');
+
+            $.each(data.interactions, function(k, v) {
+              $(".interactions").prepend(v['content']);
+            });
+          }
+        });
+      }
+    });
+  });
+
+  $("#newInteractionMessageForm").submit(function(e) {
+    e.preventDefault();
+
+    $.ajax({
+      url: '<%= create_collaborator_interaction_path %>',
+      type: 'POST',
+      data: new FormData(this),
+      processData: false,
+      contentType: false,
+      beforeSend: function() {
+        $(".interaction-bt, .interaction-message-bt").addClass('is-loading');
+      },
+      complete: function() {
+        $(".interaction-bt, .interaction-message-bt").removeClass('is-loading');
+      },
+      success: function() {
+        resetInteractionForm();
+
+        $.getJSON("<%= get_collaborator_interactions_url('_id_') %>".replace("_id_", $(".interaction-message-bt").attr('collaborator-id')), function(data) {
+          if (data['interactions']) {
+            $(".interactions").html('');
+
+            $.each(data.interactions, function(k, v) {
+              $(".interactions").prepend(v['content']);
+            });
+          }
+        });
+      }
+    });
+  });
+
+  var resetInteractionForm = function() {
+    $(".textarea-interaction").val('');
+    $("#interactionTypeSelect").val('');
+    $("#interactionCollaboratorSelect").val('');
+    $(".file-name-content").html('Adicionar anexo');
+    $(".interaction-file-input").val('');
+    mention_values = [];
+  }
+</script>

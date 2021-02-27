@@ -1,0 +1,297 @@
+<%= render partial: 'shared/main_upper_section', locals: { current_main_section: 'schedule' } %>
+
+<div class="events-main-page">
+  <div class="container">
+    <%= render partial: 'shared/flash_message' %>
+    <div class="columns">
+      <div class="column is-2">
+        <%= render partial: 'shared/main_sidebar', locals: { main_page: 'event', current_page: 'my_schedule' } %>
+      </div>
+      <div class="column">
+        <div class="tabs is-boxed">
+          <ul>
+            <li id="eventCalendarTab" class="is-active">
+              <a href="<%= events_index_path %>">
+                <span>Calendário</span>
+              </a>
+            </li>
+            <li id="eventListTab">
+              <a>
+                <span>Lista</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div class="events-container">
+          <div class="columns is-vcentered">
+            <div class="column">
+              <label class="period-label hide">Selecione o período</label>
+              <div class="columns is-variable is-1">
+                <div class="column is-one-third">
+                  <input type="text" class="input start-date hide">
+                </div>
+                <div class="column is-1 text-center">
+                  <%= inline_svg "dropdown_arrow.svg", class: 'icon-period-range hide' %>
+                </div>
+                <div class="column is-one-third">
+                  <input type="text" class="input end-date hide">
+                </div>
+                <div class="column is-one-third">
+                  <button class="button is-secondary clear-period-bt hide">Limpar</button>
+                </div>
+              </div>
+            </div>
+            <div class="column no-padding-bottom margin-top-20">
+              <button id="newEventBt" class="button is-primary is-pulled-right"><%= inline_svg "plus.svg" %> Criar atividade</button>
+            </div>
+          </div>
+          <div class="columns">
+            <div class="column">
+              <div id="eventCalendarContent" class="event-calendar-container"></div>
+              <div id="eventListContent" class="event-list-container hide"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%= render 'new_event_modal' %>
+  <%= render 'edit_event_modal' %>
+</div>
+
+<% content_for :tail_script do %>
+  <script>
+    var usersSelectIdEdit = []
+
+    $(function() {
+      filterEventsCalendar();
+      filterEvents(1);
+    });
+
+    $("#eventListTab").click(function() {
+      $("#eventListContent").removeClass('hide');
+      $("#eventCalendarContent").addClass('hide');
+      $(".text-period").removeClass('hide');
+      $(".start-date, .end-date").removeClass('hide');
+      $(".period-label").removeClass('hide');
+      $(".icon-period-range").removeClass('hide');
+      $(".clear-period-bt").removeClass('hide');
+    });
+
+    $("#eventCalendarTab").click(function() {
+      $("#eventListContent").addClass('hide');
+      $("#eventCalendarContent").removeClass('hide');
+      $(".text-period").addClass('hide');
+      $(".start-date, .end-date").addClass('hide');
+      $(".period-label").addClass('hide');
+      $(".icon-period-range").addClass('hide');
+      $(".clear-period-bt").addClass('hide');
+    });
+
+    $(".clear-period-bt").click(function() {
+      $(".start-date, .end-date").val('');
+      filterEvents(1);
+    });
+
+    $(".tabs li").click(function() {
+      $('.is-active').removeClass('is-active');
+      $(this).addClass('is-active')
+    });
+
+    $("#newEventBt").click(function() {
+      $("#newEventModal").addClass('is-active');
+    });
+
+    var showEditEventForm = function(event_id) {
+      $.getJSON("<%= get_event_infos_url('_id_') %>".replace("_id_", event_id), function(data) {
+        $editForm = $("#editEventModal");
+
+        var usersSize = 0;
+
+        $editForm.addClass('is-active');
+        $editForm.find('input[name="event[id]"]').val(data.id);
+        $editForm.find('input[name="event[title]"]').val(data.title);
+        $editForm.find('select[name="event[event_type]"]').val(data.event_type);
+        $editForm.find('input[name="event[enterprise_id]"').val(data.enterprise_id);
+        $editForm.find('input[name="event_autocomplete"]').val(data.enterprise_name);
+        $editForm.find('input[name="event[date]"]').val(data.date);
+        $editForm.find('input[name="event[street]"]').val(data.street);
+
+        if (data.is_all_day == true) {
+          $editForm.find('input[name="event[start_hour]"]').val('');
+        } else {
+          $editForm.find('input[name="event[start_hour]"]').val(data.start_hour);
+          $editForm.find('input[name="event[end_hour]"]').val(data.end_hour);
+        }
+
+        if (data.has_consultant && data.has_technical_manager && data.has_technician) {
+          $(".invite-checkbox").prop('checked', true);
+          $(".edit-all-users-bt label").html(`3 selecionado(s)`);
+        } else {
+          if (data.has_consultant) {
+            usersSize += 1;
+            $(".edit-consultant-checkbox").prop('checked', true);
+            $(".edit-all-users-bt label").html(`${usersSize} selecionado(s)`);
+          }
+
+          if (data.has_technical_manager) {
+            usersSize += 1;
+            $(".edit-technical-manager-checkbox").prop('checked', true);
+            $(".edit-all-users-bt label").html(`${usersSize} selecionado(s)`);
+          }
+
+          if (data.has_technician) {
+            usersSize += 1;
+            $(".edit-technician-checkbox").prop('checked', true);
+            $(".edit-all-users-bt label").html(`${usersSize} selecionado(s)`);
+          }
+        }
+
+        $(".persons-edit").html('');
+
+        $.each(data.user_ids, function(i, e) {
+          $.getJSON("<%= get_user_infos_url('_id_') %>".replace("_id_", e), function(data) {
+            var currentUserId = <%= current_user.id %>;
+
+            if (data.id == currentUserId) {
+              data.name = data.name + " (você)";
+            }
+
+            $(".persons-edit").append(`
+              <div class="column is-narrow person-edit">
+                <input type="hidden" name="user_ids[]" value="${data.id}">
+                <div class="person-tag">
+                  <div class="sphere">
+                    <div class="initials">${data.initials}</div>
+                  </div>
+                  <div class="name consultant-name">${data.name}</div>
+                  <span class="remove-person-edit" user-id="${data.id}">x</span>
+                </div>
+              </div>
+            `);
+
+            usersSelectIdEdit.push(data.id);
+          });
+        });
+      });
+    }
+
+    var $startDate = $('.start-date');
+    var $endDate = $('.end-date');
+
+    $startDate.datepicker({
+      autoHide: true,
+      language: 'pt-BR'
+    });
+
+    $endDate.datepicker({
+      autoHide: true,
+      language: 'pt-BR',
+      startDate: $startDate.datepicker('getDate'),
+    });
+
+    $startDate.on('change', function () {
+      $endDate.datepicker('setStartDate', $startDate.datepicker('getDate'));
+    });
+
+    $(".start-date, .end-date").on('change', function() {
+      filterEvents(1);
+    });
+
+    var filterEvents = function(page, id) {
+      var params = {}
+
+      params['startDate'] = $startDate.val();
+      params['endDate']   = $endDate.val();
+      params['page']      = page
+      params['id']        = [<%= current_user.id %>]
+      params['event_id']  = id
+
+      <% if @event_id %>
+        params['event_id'] = <%= @event_id %>;
+      <% end %>
+
+      $.ajax({
+        url: '<%= render_events_path %>',
+        beforeSend: function() {
+          $('.event-list-container').html('<div class="loader"></div>');
+        },
+        success: function() {
+          $(`#eventBody${id}`).slideToggle();
+          $(`.event-row[event-id=${id}]`).closest('.event-item').find('.details-text').toggleClass('rotate');
+
+          <% if @event_id %>
+            $("#eventListTab").trigger('click');
+            $(`#eventBody${<%= @event_id %>}`).slideToggle();
+          <% end %>
+        },
+        data: params,
+        dataType: 'script'
+      });
+    }
+
+    var filterEventsCalendar = function() {
+      var params = {}
+
+      params['id'] = [<%= current_user.id %>]
+
+      $.ajax({
+        url: '<%= render_events_calendar_path %>',
+        beforeSend: function() {
+          $('.event-calendar-container').html('<div class="loader"></div>');
+        },
+        data: params,
+        dataType: 'script'
+      });
+    }
+
+    $(".add-user-bt-edit").click(function() {
+      $.getJSON("<%= get_user_infos_url('_id_') %>".replace("_id_", $(this).attr('data-user-id')), function(data) {
+        if (usersSelectIdEdit.find(id => id == data.id) == undefined) {
+          var currentUserId = <%= current_user.id %>;
+
+          if (data.id == currentUserId) {
+            data.name = data.name + " (você)";
+          }
+
+          $(".persons-edit").append(`
+            <div class="column is-narrow person-edit no-padding-bottom">
+              <input type="hidden" name="user_ids[]" value="${data.id}">
+              <div class="person-tag no-margin-bottom">
+                <div class="sphere">
+                  <div class="initials">${data.initials}</div>
+                </div>
+                <div class="name consultant-name">${data.name}</div>
+                <span class="remove-person-edit" user-id="${data.id}">x</span>
+              </div>
+            </div>
+          `);
+        } else {
+          alert('Esta pessoa já está na atividade.');
+        }
+      });
+
+      $(".user-auto-complete-edit").val('');
+      $(".add-user-bt-edit").prop('disabled', true);
+      $(".add-user-bt-edit").removeAttr('data-user-id');
+      $(".user-auto-complete-edit").removeAttr('required');
+    });
+
+    $(document).on("click", ".remove-person-edit", function() {
+      $(this).parent().parent().remove();
+
+      if (!$(".person-edit").length) {
+        $(".user-auto-complete-edit").attr('required', true);
+      }
+
+      usersSelectIdEdit = arrayRemove(usersSelectIdEdit, $(this).attr('user-id'));
+    });
+
+    function arrayRemove(arr, value) {
+      return arr.filter(function(ele){
+        return ele != value;
+      });
+    }
+  </script>
+<% end %>

@@ -1,0 +1,11 @@
+<%= render partial: 'shared/main_upper_section', locals: { current_main_section: nil } %>
+
+<div class="notification-error-page">
+  <div class="columns is-vcentered is-centered has-text-centered">
+    <div class="column is-narrow default-box">
+      <div class="error-title"><%= @error_title %></div>
+      <div><%= @text %></div>
+      <div class="home-link"><a href="<%= root_path %>">Voltar para a página principal</a></div>
+    </div>
+  </div>
+</div>

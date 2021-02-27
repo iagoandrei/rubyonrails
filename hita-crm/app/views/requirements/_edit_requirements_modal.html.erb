@@ -1,0 +1,59 @@
+<div class="hita-modal requirement-modal">
+  <div id="requirementModalEdit" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      <div class="columns">
+        <div class="column is-9">
+          <div class="title">Edite pontos em <span id="requirementModalTitleEdit" class="highlight-color"></span></div>
+        </div>
+      </div>
+      <div id="addUserScoreContent">
+        <%= form_tag user_scores_create_path, method: :post, multipart: true, id: "newUserScoreForm" do %>
+          <input id="hiddenRequirementInputIdEdit" type="hidden" name="requirement_id">
+          <input id="hiddenRequirementInputUserIdEdit" type="hidden" name="user_id">
+          <div class="columns">
+            <div class="column is-one-third">
+              <label class="input-label">Selecione o período para inclusão</label>
+              <div class="select">
+                <select id="requirementModalPeriodSelectEdit" class="select" name="period">
+                  <option>Selecione</option>
+                </select>
+              </div>
+            </div>
+            <div class="column is-one-third">
+              <label class="input-label">Bônus/Penalidade</label>
+              <div class="select">
+                <select class="select" name="score_type" required>
+                  <option value="">Selecione</option>
+                  <option value="Bônus">Bônus</option>
+                  <option value="Penalidade">Penalidade</option>
+                </select>
+              </div>
+            </div>
+            <div class="column">
+              <label class="input-label">Valor do ponto</label>
+              <input class="input" type="number" name="score" step='any' min='0'>
+            </div>
+          </div>
+          <div class="columns">
+            <div class="column">
+              <label class="input-label">Escreva um comentário</label>
+              <textarea class="textarea" placeholder="Descrição" name="comment"></textarea>
+            </div>
+          </div>
+          <div class="columns">
+            <div class="column">
+              <div class="score-history-content-edit"></div>
+            </div>
+          </div>
+          <div class="columns">
+            <div class="column">
+              <button id="addUserScoreBt" class="button is-primary is-pulled-right">Editar pontos</button>
+            </div>
+          </div>
+        <% end %>
+        <button class="modal-close is-large" aria-label="close"></button>
+      </div>
+    </div>
+  </div>
+</div>

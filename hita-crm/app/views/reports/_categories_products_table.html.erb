@@ -1,0 +1,102 @@
+<% if @products.present? %>
+  <div class="consultants-container">
+    <table class="table fixed-table product-table">
+      <tr>
+        <th></th>
+        <th colspan="1">NOV</th>
+        <th colspan="1">DEZ</th>
+        <th colspan="1">JAN</th>
+        <th colspan="1">FEV</th>
+        <th colspan="1">MAR</th>
+        <th colspan="1">ABR</th>
+        <th colspan="1">MAI</th>
+        <th colspan="1">JUN</th>
+        <th colspan="1">JUL</th>
+        <th colspan="1">AGO</th>
+        <th colspan="1">SET</th>
+        <th colspan="1">OUT</th>
+      </tr>
+      <tr>
+        <td></td>
+        <% 12.times do |i| %>
+          <td class="text-center">Realizado</td>
+        <% end %>
+      </tr>
+    </table>
+
+    <table class="table fixed-table margin-bottom-20 product-table">
+      <tr>
+        <th></th>
+        <% 12.times do |i| %>
+          <th colspan="1"></th>
+        <% end %>
+      </tr>
+      <tr class="blue-bg white-color">
+        <td>Total</td>
+        <% 12.times do |i| %>
+          <% if i == 0 %>
+            <td><%= print_money_alignment ReportsHelper.show_product_accomplished_month_total(@current_year, 11, @product_ids) %></td>
+          <% elsif i == 1 %>
+            <td><%= print_money_alignment ReportsHelper.show_product_accomplished_month_total(@current_year, 12, @product_ids) %></td>
+          <% else %>
+            <td><%= print_money_alignment ReportsHelper.show_product_accomplished_month_total(@current_year, i - 1, @product_ids) %></td>
+          <% end %>
+        <% end %>
+      </tr>
+    </table>
+
+    <% @products.each do |category, products| %>
+      <table class="table consultant-table product-table">
+        <tr class="is-invisible">
+          <th></th>
+          <% 12.times do |i| %>
+            <th colspan="1"></th>
+          <% end %>
+        </tr>
+        <tr class="consultant-item bold" category="<%= category %>">
+          <td>
+            <%= category %>
+          </td>
+          <% 12.times do |i| %>
+            <% if i == 0 %>
+              <td><%= print_money_alignment ReportsHelper.show_product_accomplished_month_total(@current_year, 11, products.pluck(:id)) %></td>
+            <% elsif i == 1 %>
+              <td><%= print_money_alignment ReportsHelper.show_product_accomplished_month_total(@current_year, 12, products.pluck(:id)) %></td>
+            <% else %>
+              <td><%= print_money_alignment ReportsHelper.show_product_accomplished_month_total(@current_year, i - 1, products.pluck(:id)) %></td>
+            <% end %>
+          <% end %>
+        </tr>
+
+        <% products.each do |product| %>
+          <tr class="consultant-content" category="<%= category %>">
+            <td><%= product.name %></td>
+            <% 12.times do |i| %>
+              <% if i == 0 %>
+                <td><%= print_money_alignment product.get_accomplished_month(11, @current_year) %></td>
+              <% elsif i == 1 %>
+                <td><%= print_money_alignment product.get_accomplished_month(12, @current_year) %></td>
+              <% else %>
+                <td><%= print_money_alignment product.get_accomplished_month(i - 1, @current_year) %></td>
+              <% end %>
+            <% end %>
+          </tr>
+        <% end %>
+      </table>
+    <% end %>
+  </div>
+<% else %>
+  <div class="columns">
+    <div class="column text-center">Sem registros.</div>
+  </div>
+<% end %>
+
+<script>
+  var current_year = <%= @current_year %>;
+
+  $(".consultant-item").click(function() {
+    var category = $(this).attr('category');
+
+    $(`.consultant-content[category="${category}"]`).toggle();
+  });
+</script>

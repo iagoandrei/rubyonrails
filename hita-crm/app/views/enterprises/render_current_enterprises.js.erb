@@ -1,0 +1,15 @@
+$('.hita-enterprises-table').html('');
+$(".hita-enterprises-table").append('<%= escape_javascript(render(:partial => "enterprises/enterprises_table", :locals => { :enterprises => @enterprises })) %>');
+$('.hita-enterprises-table').append(`
+  <div class="paging-links">
+    <%= will_paginate @enterprises %>
+  </div>
+`);
+
+$(".paging-links a").click(function(e) {
+  e.preventDefault();
+
+  var urlParams = new URLSearchParams($(this).attr('href'));
+
+  searchEnterprises(urlParams.get('page'));
+});

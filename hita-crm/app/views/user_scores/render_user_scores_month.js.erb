@@ -1,0 +1,12 @@
+var months = <%= raw @months %>;
+
+$.each(months, function(k, v) {
+  $(`#monthSlot${k + 1}`).html(v);
+});
+
+$('.user-scores').html('<%= escape_javascript(render(:partial => "user_scores/user_scores_list", :locals => { :users => @users })) %>');
+
+$(".person-tag-user-score-filter").click(function() {
+  $("#consultantSearchBt").attr('user-id', $(this).attr('user-id'));
+  $("#consultantSearchBt").trigger('click');
+});

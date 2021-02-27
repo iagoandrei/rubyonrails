@@ -1,0 +1,149 @@
+<div class="flow-chart-modal">
+  <div id="updateEnterpriseModal" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      <div class="margin-top-15">Alterar a <span class="has-text-weight-bold">empresa</span> <span class="has-text-weight-bold">NÃO</span> irá atualizar os preços dos produtos de acordo com a tabela de preços. Se precisar atualizar os valores vá para a página de edição do pedido. </div>
+      <%= form_tag update_request_enterprise_url, method: :post, id: 'updateEnterpriseForm' do %>
+        <div class="columns margin-top-10 files-content">
+          <div class="column">
+            <input id="updateEnterpriseRequestId" type="hidden" name="update_enterprise[request_id]">
+            <input id="updateEnterpriseId" type="hidden" name="update_enterprise[enterprise_id]">
+            <div>Escolha a nova empresa</div>
+            <div>
+              <input class="input update-enterprise-auto-complete" type="" name="update_enterprise[enterprise_name]" required>
+            </div>
+            <div class="request-input margin-top-10">
+              <div>Selecione o contato</div>
+              <div class="select">
+                <select id="collaboratorSelect" class="select request-select" name="update_enterprise[collaborator_id]" required disabled>
+                  <option value="">Primeiramente, selecione a empresa</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column">
+            <button id="updateEnterpriseBt" class="button is-primary is-fullwidth">Atualizar empresa</button>
+          </div>
+        </div>
+      <% end %>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+  </div>
+</div>
+
+<% content_for :tail_script do %>
+  <script type="text/javascript">
+
+    $('#updateEnterpriseForm').submit(function(e) {
+      e.preventDefault();
+
+      if (!validateInputs()) {
+        $.ajax({
+          method: 'POST',
+          url: '<%= update_request_enterprise_url %>',
+          data: new FormData(this),
+          processData: false,
+          contentType: false,
+          beforeSend: function() {
+            $('#updateEnterpriseBt').addClass('is-loading');
+          },
+          success: function() {
+            alert('A empresa foi alterada com sucesso.');
+            $('#updateEnterpriseBt').removeClass('is-loading');
+            $('#updateEnterpriseModal').removeClass('is-active');
+          },
+          error: function() {
+            alert('Ocorreu um erro ao alterar a empresa. Recarregue a página e tente novamente.');
+            $('#updateEnterpriseBt').removeClass('is-loading');
+            $('#updateEnterpriseModal').removeClass('is-active');
+          }
+        });
+      }
+    });
+
+    function validateInputs() {
+      var error_flag = false;
+
+      if($('#updateEnterpriseId').val() == '') {
+        $('.update-enterprise-auto-complete').addClass('error-border');
+        error_flag = true;
+      } else {
+        $('.update-enterprise-auto-complete').removeClass('error-border');
+      }
+
+      if($('#collaboratorSelect').val() == '') {
+        $('#collaboratorSelect').addClass('error-border');
+        error_flag = true;
+      } else {
+        $('#collaboratorSelect').removeClass('error-border');
+      }
+
+      return error_flag;
+    }
+
+    $(".update-enterprise-auto-complete").keyup(function() {
+      $('#collaboratorSelect').html('<option val="">Escolha uma empresa</option>');
+    });
+
+    $('.update-enterprise-auto-complete').autoComplete({
+      minChars: 1,
+      source: function(term, response) {
+        var xhr;
+        var matches = [];
+        term = term.toLowerCase();
+
+        try { xhr.abort(); } catch(e) {}
+        xhr = $.getJSON('/enterprise_autocomplete', { q: term }, function(data) {
+
+          if (data.length > 0) {
+            for (i = 0; i < data.length; i++)
+              if (~data[i][0].toLowerCase().indexOf(term)) matches.push(data[i]);
+          }// else {
+          //  matches.push("Nenhuma empresa encontrada");
+          //}
+
+          response(matches);
+        });
+      },
+      renderItem: function (item, search) {
+        search = search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        var re = new RegExp("(" + search.split(' ').join('|') + ")", "gi");
+        return '<div class="autocomplete-suggestion" data-enterprise-id="' + item[1] +'" data-val="' + item[0] + '">'+ item[0].replace(re, "<b>$1</b>") + '</div>';
+      },
+      onSelect: function(event, term, item) {
+        $('#updateEnterpriseId').val(item.data('enterprise-id'));
+        $('#collaboratorSelect').prop('disabled', false);
+        updateCollaboratorsSelect(item.data('enterprise-id'));
+      }
+    });
+
+    function updateCollaboratorsSelect(enterprise_id) {
+      $.ajax({
+        method: 'GET',
+        url: '<%= get_collaborator_by_enterprise_url %>',
+        data: {
+          enterprise_id: enterprise_id
+        },
+        beforeSend: function() {
+          $('#collaboratorSelect').parent().addClass('is-loading');
+        },
+        success: function(data) {
+          var options_str = `<option val="">Selecione um contato</option>`
+
+          for (var i = 0; i < data.length; i++) {
+            options_str += `<option value="${data[i][0]}">${data[i][1]}</option>`
+          }
+
+          $('#collaboratorSelect').parent().removeClass('is-loading');
+          $('#collaboratorSelect').html(options_str);
+        },
+        error: function() {
+          $('#collaboratorSelect').parent().removeClass('is-loading');
+          $('#collaboratorSelect').html('<option val="">Erro ao carregar contatos</option>');
+        }
+      });
+    }
+  </script>
+<% end %>

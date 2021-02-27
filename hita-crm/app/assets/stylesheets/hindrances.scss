@@ -1,0 +1,62 @@
+@import 'base';
+
+.hindrances-main-page {
+  .hindrances-main-container {
+    .requests-container {
+      .request-table-container {
+        .tip-description {
+          padding-bottom: 15px;
+
+          svg {
+            margin: 0 4px;
+            height: 12px;
+            fill: $gray_title;
+          }
+        }
+        
+        .hindrance-table-container {
+          margin-bottom: 30px;
+        }
+
+        .tip-description {
+          color: $gray_title;
+          font-weight: 400;
+          font-size: 20px;
+          margin-bottom: 12px;
+        }
+
+        .request-table {
+          width: 100%;
+
+          tr {
+            cursor: pointer;
+          }
+
+          tbody tr td {
+            line-height: 26px;
+            padding: 15px 10px;
+            max-width: 144px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+
+            .see-request {
+              padding: 7px 4px;
+            }
+
+            .urgency {
+              margin-top: 6px;
+              .is-flex {
+                align-items: center;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .hindrance-due-time {
+      width: 100px;
+    }
+  }
+}

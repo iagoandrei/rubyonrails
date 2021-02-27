@@ -1,0 +1,81 @@
+<% if @products.present? %>
+  <div class="consultants-container">
+    <table class="table fixed-table">
+      <tr>
+        <th></th>
+        <% @years.each do |year| %>
+          <th colspan="3" class="<%= 'blue-lighter-bg blue-color' if year == Date.today.year %>"><%= year %></th>
+        <% end %>
+      </tr>
+      <tr>
+        <td></td>
+        <% @years.each do %>
+          <td class="text-center">Realizado</td>
+          <td class="text-right">Contribuição</td>
+          <td></td>
+        <% end %>
+      </tr>
+    </table>
+
+    <table class="table fixed-table margin-bottom-20">
+      <tr>
+        <th></th>
+        <% @years.each do |year| %>
+          <th colspan="3"></th>
+        <% end %>
+      </tr>
+      <tr class="blue-bg white-color">
+        <td>Total</td>
+        <% @years.each do |year| %>
+          <td><%= print_money_alignment ReportsHelper.show_product_accomplished_year_total(year, product_ids) %></td>
+          <td class="text-right"><%= ReportsHelper.show_product_contribuition_year_total(year, product_ids) %> %</td>
+          <td></td>
+        <% end %>
+      </tr>
+    </table>
+
+    <% @products.each do |category, products| %>
+      <table class="table consultant-table">
+        <tr class="is-invisible">
+          <th></th>
+          <% @years.each do %>
+            <th colspan="3"></th>
+          <% end %>
+        </tr>
+        <tr class="consultant-item bold" category="<%= category %>">
+          <td>
+            <%= category %>
+          </td>
+          <% @years.each do |year| %>
+            <td><%= print_money_alignment ReportsHelper.show_product_accomplished_year_total(year, products.pluck(:id)) %></td>
+            <td class="text-right"><%= ReportsHelper.show_product_contribuition_year_total(year, products.pluck(:id)) %> %</td>
+            <td></td>
+          <% end %>
+        </tr>
+
+        <% products.each do |product| %>
+          <tr class="consultant-content" category="<%= category %>">
+            <td><%= product.name %></td>
+            <% @years.each do |year| %>
+              <td><%= print_money_alignment product.get_accomplished_year(year) %></td>
+              <td class="text-right"><%= product.get_contribution(year, product_filter) %> %</td>
+              <td></td>
+            <% end %>
+          </tr>
+        <% end%>
+      </table>
+    <% end %>
+  </div>
+<% else %>
+  <div class="columns">
+    <div class="column text-center">Sem registros.</div>
+  </div>
+<% end %>
+
+<script>
+  $(".consultant-item").click(function() {
+    var category = $(this).attr('category');
+
+    $(`.consultant-content[category="${category}"]`).toggle();
+  });
+</script>

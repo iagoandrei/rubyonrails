@@ -1,0 +1,55 @@
+<%= render partial: 'shared/main_upper_section', locals: { current_main_section: nil } %>
+
+<div class="forms-main-page container">
+  <%= render partial: '/shared/flash_message' %>
+
+  <div class="default-box <%= 'margin-top-10' if flash[:notice].present? or flash[:alert].present? %>">
+    <div class="columns">
+      <div class="column">
+        <div>Gerencie todos os equipamentos. Se deseja criar um novo equipamento, clique no botão abaixo:</div>
+      </div>
+    </div>
+    <div class="columns">
+      <div class="column is-3 no-padding-top">
+        <a href="<%= equipments_new_path %>">
+          <button id="" class="button is-primary"><%= inline_svg "plus.svg" %> Criar novo equipamento</button>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="columns margin-top-10">
+    <div class="column">
+      <table class="available-forms-list request-table fluid">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Número de inputs</th>
+            <th>Atualizado em</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @equipments.each do |equipment| %>
+            <tr>
+              <td><div class="name"><%= equipment.name %></div></td>
+              <td><div class="name"><%= equipment.number_of_inputs %></div></td>
+              <td><div class="name"><%= equipment.created_at.strftime("%d/%m/%y %H:%M") %></div></td>
+              <td>
+                <div class="actions" data-current-form="<%= equipment.id %>">
+                  <div class="icon update-modal">
+                    <%= link_to inline_svg("edit.svg"), edit_equipment_url(equipment.id) %>
+                  </div>
+                  <div class="icon">
+                    <%= link_to inline_svg("remove.svg"),
+                    destroy_equipment_url(equipment.id),
+                    method: :delete,
+                    data: { confirm: 'Tem certeza que deseja remover esta image? Esta ação não poderá ser desfeita.' } %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

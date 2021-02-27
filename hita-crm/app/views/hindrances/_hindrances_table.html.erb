@@ -1,0 +1,48 @@
+<table class="request-table ">
+  <thead>
+    <tr>
+      <th>Oportunidade</th>
+      <th>Step</th>
+      <th width="30%">Empresa</th>
+      <th>Prioridade</th>
+      <th>Impedidor</th>
+      <th>Tempo</th>
+      <th>Prazo</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% hindrances.each do |hindrance| %>
+      <% if hindrance.due_time and hindrance.due_time < Date.today %>
+        <tr data-request-id='<%= hindrance.request.id %>' data-hindrance-id='<%= hindrance.id %>' class="request-row delayed">
+      <% else %>
+        <tr data-request-id='<%= hindrance.request.id %>' data-hindrance-id='<%= hindrance.id %>' class="request-row">
+      <% end %>
+        <td title="<%= hindrance.request.get_request_code %>"><%= hindrance.request.get_request_code %></td>
+        <td title="<%= hindrance.request.current_step %>"><%= hindrance.request.current_step %></td>
+        <td title="<%= hindrance.request.enterprise.name %>"><%= hindrance.request.enterprise.name %></td>
+        <td>
+          <div class="urgency <%= hindrance.request.calculate_priority %>">
+            <div class="is-flex">
+              <div class="levels">
+                <div class="level"></div>
+                <div class="level"></div>
+                <div class="level"></div>
+                <div class="level"></div>
+              </div>
+              <div class="urgency-percentage modal-urgency-percentage"><%= "#{(hindrance.request.calculate_priority_percentage * 100).to_i}%" %></div>
+            </div>
+          </div>
+        </td>
+        <td title="<%= hindrance.deterrent&.name %>"><%= hindrance.deterrent&.name %></td>
+        <td title="<%= hindrance.elapsed_time_since_updated %>"><%= hindrance.elapsed_time_since_updated %></td>
+        <td title="<%= hindrance.due_time&.strftime("%d/%m/%y %H:%M") %>">
+          <% if hindrance.due_time %>
+            <%= hindrance.due_time&.strftime("%d/%m/%y") %>
+          <% else %>
+            Sem prazo
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

@@ -1,0 +1,139 @@
+<%= render partial: 'shared/main_upper_section', locals: { current_main_section: nil } %>
+
+<div class="users-management-container container">
+  <%= render partial: '/shared/flash_message' %>
+  <div class="columns no-margin-bottom">
+    <div class="column">
+      <a href="<%= root_url %>">
+        <button class="button is-secondary">
+          <- Voltar
+        </button>
+      </a>
+    </div>
+  </div>
+  <div class="columns">
+    <div class="column">
+      <div class="new-user-container default-box">
+        <%= form_tag create_user_path, method: :post do %>
+          <div class="columns">
+            <div class="column">
+              <div>Novo Usuário</div>
+              <div class="inputs">
+                <div class="columns is-variable is-1">
+                  <div class="column is-one-fifth">
+                    <span>Nome</span>
+                    <input class="input" type="text" name="user[name]" required autocomplete="off"></input>
+                  </div>
+                  <div class="column is-one-fifth">
+                    <span>E-mail</span>
+                    <input class="input" type="text" name="user[email]" required autocomplete="off"></input>
+                  </div>
+                  <div class="column is-one-fifth">
+                    <span>Senha</span>
+                    <input class="input" type="password" name="user[password]" required autocomplete="off"></input>
+                  </div>
+                </div>
+                <div class="columns is-variable is-1">
+                  <div class="column is-one-fifth">
+                    <span>Equipe</span>
+                    <div class="select">
+                      <%= select_tag "user[team]", options_for_select(('A'..'Z').to_a), prompt: 'Selecione', class: "fluid" %>
+                    </div>
+                  </div>
+                  <div class="column is-one-fifth">
+                    <span>Grupo</span>
+                    <div class="select">
+                      <%= select_tag 'user[role]', options_for_select(@roles), class: 'fluid' %>
+                    </div>
+                  </div>
+                  <div class="column is-one-fifth">
+                    <span>Data de Ingresso</span>
+                    <input id="admission" class="input" type="text" name="user[admission]" autocomplete="off"></input>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="columns is-variable is-1 button-container">
+            <div class="column is-one-fifth">
+              <button class="button is-secondary fluid">Salvar novo usuário</button>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  <div class="user-table default-box margin-bottom-10">
+    <div class="columns">
+      <div class="column">
+        <table class="request-table table-users fluid">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>E-mail</th>
+              <th>Grupo</th>
+              <th>Equipe</th>
+              <th>Data de Ingresso</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @users.each do |user| %>
+              <tr>
+                <td><%= user.name %></td>
+                <td><%= user.email %></td>
+                <td><%= user.get_role_name %></td>
+                <td><%= user.team %></td>
+                <td><%= user.admission&.strftime('%d/%m/%Y') %></td>
+                <td><a href="<%= edit_user_path(user.id) %>"><%= inline_svg "edit.svg" %></a></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="default-box margin-top-20 margin-bottom-20">
+    <div><a class="show-unable-users">Clique aqui</a> para ver os usuários desabilitados</div>
+    <div class="users-table">
+      <table class="request-table table-users unable-users-table fluid hide margin-top-10">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>E-mail</th>
+            <th>Grupo</th>
+            <th>Equipe</th>
+            <th>Data de Ingresso</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @unable_users.each do |user| %>
+            <tr>
+              <td><%= user.name %></td>
+              <td><%= user.email %></td>
+              <td><%= user.get_role_name %></td>
+              <td><%= user.team %></td>
+              <td><%= user.admission&.strftime('%d/%m/%Y') %></td>
+              <td><a href="<%= edit_user_path(user.id) %>"><%= inline_svg "edit.svg" %></a></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<% content_for :tail_script do %>
+  <script>
+    $('.show-unable-users').click(function() {
+      $('.unable-users-table').toggleClass('hide');
+    });
+
+    $('#admission').datepicker({
+      language: 'pt-BR',
+      autoHide: true
+    });
+  </script>
+<% end %>

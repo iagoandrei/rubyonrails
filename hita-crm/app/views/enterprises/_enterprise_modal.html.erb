@@ -1,0 +1,482 @@
+<div class="enterprise-modal" data-enterprise-id="">
+  <div id="enterpriseModal" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      <div class="columns">
+        <div class="column is-2 side-bar escape-modal">
+          <div class="left-tabs">
+            <div class="tab details-tab selected" data-container=".details-container">Detalhes da empresa</div>
+            <div class="tab requests-tab" data-container=".requests-container">Oportunidades</div>
+            <div class="tab history-tab" data-container=".history-container">Interações e Histórico</div>
+          </div>
+        </div>
+        <div class="column content is-10">
+          <div id="enterpriseTitle" class="title"></div>
+          <div class="location">
+            <div class="location-icon"><%= inline_svg "gps.svg" %></div>
+            <div class="text"><span id="enterpriseAddress"></span> <a id="addressLink" href="" target="_blank">Ver no mapa</a></div>
+          </div>
+          <div class="details-container tab-container columns is-variable is-2">
+            <div class="column is-10">
+              <div class="columns">
+                <div class="column is-8">
+                  <div class="enterprise-revenues">
+                    <div class="columns is-variable is-2">
+                      <div class="column">
+                        <div class="enterprise-box">
+                          <div class="title">Oportunidades</div>
+                          <div id="enterpriseRequestsSize" class="box-number"></div>
+                        </div>
+                      </div>
+                      <% if can? :read, Enterprise, :revenue %>
+                        <div class="column">
+                          <div class="enterprise-box">
+                            <div class="title">Faturamento</div>
+                            <div id="enterpriseRequestsRevenue" class="box-number">58.650 <span class="decimal">, 90</span></div>
+                          </div>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                  <div class="outter-box-title">Descrição</div>
+                  <div class="enterprise-description">
+                    <div class="description-box">
+                      <div class="columns is-multiline is-variable is-2">
+                        <div class="column is-4">
+                          <div class="title">Setor:</div>
+                          <div id="enterpriseSector" class="text"></div>
+                        </div>
+                        <div class="column is-4">
+                          <div class="title">Tipo de empresa:</div>
+                          <div id="enterpriseType" class="text"></div>
+                        </div>
+                        <div class="column is-4">
+                          <div class="title">Razão Social:</div>
+                          <div id="enterpriseBusinessName" class="text"></div>
+                        </div>
+                        <div class="column is-4">
+                          <div class="title">CNPJ:</div>
+                          <div id="enterpriseCNPJ" class="text"></div>
+                        </div>
+                        <div class="column is-4">
+                          <div class="title">CEP:</div>
+                          <div id="enterpriseCEP" class="text"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="columns">
+                <div class="column is-10">
+                  <div class="columns">
+                    <div class="column is-two-thirds">
+                      <div class="outter-box-title">Consultor</div>
+                      <div class="consultant-box">
+                        <div class="person-tag"></div>
+                      </div>
+                    </div>
+                    <div class="column">
+                      <div class="outter-box-title">Contatos</div>
+                      <div class="contacts-box"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="columns">
+                <div class="column is-9">
+                  <div class="outter-box-title">Anexos</div>
+                  <div class="columns is-variable is-1">
+                    <div class="column">
+                      <div id="organizationChartLink" class="file-button" data-chart-type='organization'>Organogramas</div>
+                    </div>
+                    <div class="column">
+                      <div id="flowChartLink" class="file-button" data-chart-type='flow'>Fluxogramas</div>
+                    </div>
+                    <div class="column">
+                      <div id="seeEnterpriseFiles" class="file-button">Outros</div>
+                    </div>
+                    <div class="column">
+                      <div class="dropdown is-up is-hoverable fluid">
+                        <div class="dropdown-trigger fluid">
+                          <div class="file-button fluid" aria-haspopup="true" aria-controls="dropdown-menu4">
+                            <%= inline_svg "attachment.svg" %> Adicionar
+                          </div>
+                        </div>
+                        <div class="dropdown-menu" id="dropdown-menu4" role="menu">
+                          <div class="dropdown-content">
+                            <div id="addOganizationChart" class="dropdown-item">Organograma</div>
+                            <div id="addFlowChart" class="dropdown-item">Fluxograma</div>
+                            <div id="UppyButton" class="dropdown-item">Outros arquivos</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <% if can? :manage, Enterprise %>
+              <div class="column is-2">
+                <div class="enterprise-sidebar">
+                  <div class="outter-box-title">Adicionar</div>
+                  <div class="add-list">
+                    <button id="addNewCollaboratorModalBt" class="button add-new-collaborator is-secondary is-fullwidth">Contato</button>
+                    <a href="#" class="button is-secondary is-fullwidth request-redirect-link">Oportunidade</a>
+                    <button class="button is-secondary is-fullwidth actions-bt">Interações</button>
+                  </div>
+                  <div class="outter-box-title">Outro</div>
+                  <div class="add-list">
+                    <a href="#" class="button is-secondary is-fullwidth database-redirect-link">Biblioteca</a>
+                    <a href="#" class="button is-secondary is-fullwidth actions-bt report-redirect-link">Relatório</a>
+                  </div>
+                  <div class="outter-box-title">Configurações</div>
+                  <div class="add-list">
+                    <button class="edit-enterprise-modal-bt button is-secondary is-fullwidth">Editar</button>
+                    <div class="popup">
+                      <!-- <button class="button is-secondary is-fullwidth enterprise-share-bt">Compartilhar</button> -->
+                      <span class="popuptext" id="myPopup">Copiado!</span>
+                    </div>
+                    <input class="input-clipboard" type="hidden">
+                    <% if can? :destroy, Enterprise %>
+                      <a href="#" class="button is-fullwidth remove-enterprise-bt" data-confirm="Deseja realmente excluir a empresa?" data-method="delete">Excluir</a>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+          <div class="requests-container tab-container">
+            <div class="columns is-variable is-2">
+              <div class="column is-10">
+                <div class="outter-box-title">Oportunidades mais recentes</div>
+                <div class="request-table-container">
+                  <table id="enterpriseRequestTable" class="request-table">
+                    <thead>
+                      <tr>
+                        <th>Nome</th>
+                        <th>Número</th>
+                        <th>Código</th>
+                        <th>Prioridade</th>
+                        <th>Impedido Com</th>
+                        <th class="text-right">Valor</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                  </table>
+                  <div id="loadingMessageRequestTable" class="columns is-vcentered is-centered">
+                    <div class="column is-narrow">
+                      <div>Carregando tabela de oportunidades</div>
+                      <div class="columns is-centered">
+                        <div class="column is-narrow"><div class="loader is-loading"></div></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div id="errorMessageRequestTable" class="default-box">
+                    <div class="columns is-vcentered is-centered">
+                      <div class="column is-narrow">
+                        <div id="errorMessage">Algum erro ocorreu e a tabela não pode ser exibida.</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div id="emptyTableRequestTable" class="default-box">
+                    <div class="columns is-vcentered is-centered">
+                      <div class="column is-narrow">
+                        <div>Nenhuma oportunidade para ser exibido.</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="see-all hide"><a>Ver todas as oportunidades</a></div>
+                </div>
+              </div>
+              <% if can? :manage, Enterprise %>
+                <div class="column is-2">
+                  <div class="enterprise-sidebar">
+                    <div class="outter-box-title">Adicionar</div>
+                    <div class="add-list">
+                      <button class="button add-new-collaborator is-secondary is-fullwidth">Contato</button>
+                      <a href="#" class="button is-secondary is-fullwidth request-redirect-link">Oportunidade</a>
+                      <button class="button is-secondary is-fullwidth actions-bt">Interações</button>
+                    </div>
+                    <div class="outter-box-title">Outro</div>
+                    <div class="add-list">
+                      <a href="#" class="button is-secondary is-fullwidth database-redirect-link">Biblioteca</a>
+                      <a href="#" class="button is-secondary is-fullwidth actions-bt report-redirect-link">Relatório</a>
+                    </div>
+                    <div class="outter-box-title">Configurações</div>
+                    <div class="add-list">
+                      <button class="edit-enterprise-modal-bt button is-secondary is-fullwidth">Editar</button>
+                      <!-- <button class="button is-secondary is-fullwidth enterprise-share-bt">Compartilhar</button> -->
+                      <input class="input-clipboard" type="hidden">
+                      <% if can? :destroy, Enterprise %>
+                        <a href="#" class="button is-danger is-fullwidth remove-enterprise-bt" data-confirm="Você tem certeza que deseja excluir esta empresa?" data-method="delete">Excluir</a>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+          <div class="history-container tab-container">
+            <div class="columns">
+              <div class="column is-12">
+                <div class="outter-box-title">Histórico</div>
+                <div class="history">
+                  <div class="actions">
+                    <div id="actionDescription" class="action-icon active action1"><%= inline_svg "action2.svg" %></div>
+                    <div id="messageDescription" class="action-icon chat is-hidden"><%= inline_svg "chat.svg" %></div>
+                  </div>
+                  <div id="actionDescriptionContent" class="interaction-description">
+                    <%= form_tag create_enterprise_interaction_path, method: :post, multipart: true, id: 'newInteractionForm' do %>
+                      <input class="hidden-interaction-enterprise-id" type="hidden" name="enterprise[id]">
+                      <input class="enterprise-mentions" type="hidden" name="mentions">
+                      <div class="columns">
+                        <div class="column forms is-10">
+                          <div class="columns is-vcentered no-margin-bottom">
+                            <div class="column is-one-fifth">
+                              <div class="select">
+                                <select id="interactionTypeSelect" class="select" name="interaction_type" required>
+                                  <option value="">Tipo da ação</option>
+                                  <option value="training">Treinamento</option>
+                                  <option value="seminar">Seminário e Treinamentos</option>
+                                  <option value="meeting">Reunião</option>
+                                  <option value="visit">Visita</option>
+                                  <option value="other">Outro</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="column is-one-fifth">
+                              <div class="select">
+                                <select id="interactionCollaboratorSelect" class="select" name="collaborator[id]">
+                                  <option class="default">Contato</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="column is-2">
+                              <input id="interactionDate" class="input" type="text" name="interaction_date" placeholder="Data" autocomplete="off" required>
+                            </div>
+                            <div class="column">
+                              <div class="attachment-link padding-top-5">
+                                <input id="interactionFileInput" class="file-input interaction-file-input" type="file" name="interaction_attachment[]" multiple>
+                                <div><%= inline_svg "attachment.svg" %></div>
+                                <div id="fileName" class="text-underline file-name-content">Adicionar anexo</div>
+                              </div>
+                            </div>
+                          </div>
+                          <div>
+                            <textarea id="interactionContent" class="textarea textarea-interaction textarea-interaction-enterprise" placeholder="Descrição" name="content" required></textarea>
+                          </div>
+                        </div>
+                        <div class="column cta-button is-2 is-bottom-aligned">
+                          <button class="button is-primary is-fullwidth interaction-bt">Criar Ação</button>
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
+                  <div id="messageDescriptionContent" class="interaction-description is-hidden">
+                    <%= form_tag create_collaborator_interaction_path, method: :post, multipart: true, id: 'newInteractionMessageForm' do %>
+                      <input type="hidden" name="interaction_type" value="comment">
+                      <input class="enterprise-mentions" type="hidden" name="mentions">
+                      <input class="hidden-interaction-enterprise-id" type="hidden" name="enterprise[id]">
+                      <div class="columns">
+                        <div class="column forms is-10">
+                          <div class="columns is-vcentered no-margin-bottom">
+                            <div class="column">
+                              <div class="attachment-link margin-left-5">
+                                <input class="file-input interaction-file-input" type="file" name="interaction_attachment[]" multiple>
+                                <div><%= inline_svg "attachment.svg" %></div>
+                                <div class="text-underline file-name-content">Adicionar anexo</div>
+                              </div>
+                            </div>
+                          </div>
+                          <div>
+                            <textarea class="textarea textarea-interaction textarea-interaction-enterprise" placeholder="Descrição" name="content" required></textarea>
+                          </div>
+                        </div>
+                        <div class="column cta-button is-2 is-bottom-aligned">
+                          <button class="button is-primary is-fullwidth interaction-message-bt">Criar Ação</button>
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+                <div class="interactions"></div>
+              </div>
+            </div>
+          </div>
+          <button class="modal-close is-large" aria-label="close"></button>
+        </div>
+      </div>
+    </div>
+    <div class="uppy-container"></div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $('#interactionDate').datepicker({
+    autoHide: true,
+    language: 'pt-BR',
+    endDate: '<%= Date.today.strftime("%d/%m/%Y") %>'
+  });
+
+  $(".tab").click(function(e) {
+    e.stopPropagation();
+
+    if($(this).data('container') == '.requests-container') {
+      getEnterpriseRequests();
+    }
+
+    $("#enterpriseModal .tab").removeClass("selected");
+    $(this).addClass("selected");
+
+    $(".tab-container").hide();
+    $($(this).data('container')).show();
+  });
+
+  $(".interaction-file-input").change(function(e) {
+    $(this).closest('.attachment-link').find('.file-name-content').text(`${e.target.files.length} arquivo(s) selecionados`);
+  });
+
+  $(".action-icon").click(function() {
+    var idName = $(this).attr('id');
+
+    $(".action-icon").removeClass('active');
+    $(this).addClass('active');
+
+    $(".interaction-description").addClass('is-hidden');
+    $(`#${idName}Content`).removeClass('is-hidden');
+  });
+
+  $("#addFlowChart").click(function() {
+    $("#flowChartModal").addClass('is-active');
+  });
+
+  $("#addOganizationChart").click(function() {
+    $("#organizationChartModal").addClass('is-active');
+  });
+
+  $("#seeEnterpriseFiles").click(function() {
+    $("#filesModal").addClass('is-active');
+    path = '<%= get_enterprise_files_url('_id_') %>'.replace("_id_", $('.enterprise-modal').data('enterprise-id'));
+
+    $.ajax({
+      url: path,
+      dataType: 'script',
+      beforeSend: function() {
+        $("#seeEnterpriseFiles").html('<div class="loader"><div>');
+      },
+      success: function() {
+        $("#filesModal").addClass('is-active');
+        $("#seeEnterpriseFiles").html('Outros');
+      }
+    });
+  });
+
+  $(".actions-bt").click(function() {
+    $(".history-tab").trigger('click');
+  });
+
+  $(".enterprise-share-bt").click(function() {
+    $.getJSON("<%= get_enterprise_infos_url('_id_') %>".replace("_id_", $(this).attr('enterprise-id')), function(data) {
+      var enterprise_get_params = {}
+      var url;
+
+      enterprise_get_params['consultant']      = data['consultant']['name'];
+      enterprise_get_params['enterprise']      = data['name'];
+      enterprise_get_params['enterprise_type'] = data['enterprise_type'];
+      enterprise_get_params['industry_sector'] = data['industry_sector'];
+      enterprise_get_params['state']           = data['state'];
+      enterprise_get_params['city']            = data['city'];
+
+      var copyText   = document.querySelector(".input-clipboard");
+
+      copyText.value = "<%= enterprises_index_url %>" + `?${$.param(enterprise_get_params)}`;
+      copyText.type  = 'text';
+      copyText.select();
+      document.execCommand("copy");
+      copyText.type = 'hidden';
+    });
+  });
+
+  $(".enterprise-share-bt").click(function() {
+    $("#myPopup").show();
+
+    setTimeout(function() {
+      $("#myPopup").hide();
+    }, 1500);
+  });
+
+  var enterpriseTribute = new Tribute({
+    values: <%= raw @users.to_json %>,
+    selectTemplate: function (item) {
+      mention_values.push(item.original.value)
+      $(".enterprise-mentions").val(JSON.stringify(mention_values));
+
+      return '@' + item.original.value;
+    },
+  });
+
+  enterpriseTribute.attach($(".textarea-interaction-enterprise"));
+
+  function getEnterpriseRequests() {
+    $.ajax({
+      method: 'GET',
+      url: '<%= get_enteprise_requests_url %>',
+      data: {
+        enterprise_id: $('.enterprise-modal').data('enterprise-id')
+      },
+      beforeSend: function() {
+        $('#errorMessageRequestTable').hide();
+        $('#emptyTableRequestTable').hide();
+        $('#loadingMessageRequestTable').show();
+        $('#enterpriseRequestTable').hide();
+        $('.see-all').hide();
+      },
+      success: function(data) {
+        $('#loadingMessageRequestTable').hide();
+        var table ='';
+
+        if(data.length == 0) {
+          $('#emptyTableRequestTable').show();
+          $('#loadingMessageRequestTable').hide();
+          $('#errorMessageRequestTable').hide();
+
+          return 0;
+        }
+
+        for (var i = 0; i < data.length; i++) {
+          table += `
+            <tr data-request-id='${data[i].raw_id}' class="request-row pointer-cursor">
+              <td>${data[i].title}</td>
+              <td><div>${data[i].id}<div></td>
+              <td><div>${data[i].proposal_code}</div>
+              <td>
+                <div class="urgency ${data[i].calculate_priority}">
+                  <div class="is-flex">
+                    <div class="levels">
+                      <div class="level"></div>
+                      <div class="level"></div>
+                      <div class="level"></div>
+                      <div class="level"></div>
+                    </div>
+                    <div class="urgency-percentage">${data[i].calculate_priority_percentage}</div>
+                  </div>
+                </div>
+              </td>
+              <td><div>${data[i].datainees}<div></td>
+              <td class="text-right"><div>${data[i].calculated_revenue}<div></td>
+            </tr>
+          `
+        }
+        $('.see-all').show();
+        $('#enterpriseRequestTable tbody').html(table);
+        $('#enterpriseRequestTable').show();
+      },
+      error: function() {
+        $('#errorMessageRequestTable').show();
+        $('#loadingMessageRequestTable').hide();
+      }
+    });
+  }
+</script>

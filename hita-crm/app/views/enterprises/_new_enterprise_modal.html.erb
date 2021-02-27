@@ -1,0 +1,217 @@
+<div class="hita-modal">
+  <div id="newEnterpiseModal" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      <div class="columns">
+        <div class="column is-full">
+          <p id="newEnterpriseAlert" class="modal-alert alert danger">Já existe uma empresa com este Nome e CNPJ cadastrados.</p>
+        </div>
+      </div>
+      <%= form_for @enterprise, url: create_new_enterprise_url, html: { autocomplete: 'off' }, method: :post do %>
+        <div class="columns">
+          <div class="column is-9">
+            <div class="title">Adicione uma <span class="highlight-color">nova empresa</span></div>
+            <div class="subtitle">Preencha corretamente o formulário abaixo para adicionar uma nova empresa ao sistema</div>
+            <div class="columns is-variable is-1">
+              <% unless current_user.role?(User::ROLES[:consultant]) %>
+                <div class="column">
+                  <div class="input-title">Consultor</div>
+                  <div class="field">
+                    <div class="control">                  
+                      <div class="select">
+                        <%= select_tag "enterprise[consultant_id]", options_for_select(@consultants_or_commercials), prompt: "Selecione o consultor", class: "select", required: true %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+              <div class="column">
+                <div class="input-title">Nome da empresa</div>
+                <input type="text" name="enterprise[name]" class="input" placeholder="Digite o número da empresa" required>
+              </div>
+              <div class="column">
+                <div class="input-title">Razão Social</div>
+                <input type="text" name="enterprise[business_name]" class="input" placeholder="Digite a Razão Social">
+              </div>
+              <div class="column">
+                <div class="input-title">CNPJ</div>
+                <input type="text" name="enterprise[cnpj]" class="input input-cnpj" placeholder="Digite o CNPJ">
+              </div>
+            </div>
+            <div class="columns is-variable is-1">
+              <div class="column">
+                <div class="input-title">Tipo</div>
+                <div class="select">
+                  <%= select_tag "enterprise[enterprise_type]", options_for_select(@type), prompt: "Selecione o tipo", class: "select" %>
+                </div>
+              </div>
+              <div class="column">
+                <div class="input-title">Setor</div>
+                <div class="select">
+                  <%= select_tag "enterprise[industry_sector]", options_for_select(@sectors), prompt: "Selecione o setor", class: "select" %>
+                </div>
+              </div>
+              <div class="column">
+                <div class="input-title">CEP</div>
+                <input type="text" name="enterprise[cep]" class="input new-enterprise-input-cep" placeholder="Digite o CEP">
+              </div>
+              <div class="column">
+                <div class="input-title">Estado</div>
+                <div class="select">
+                  <%= select_tag("stateSelectNewEnterprise", options_for_select(@states), {:class => "select", :name => "enterprise[state]"}) %>
+                </div>
+              </div>
+              <div class="column">
+                <div class="input-title">Cidade</div>
+                <div class="control">
+                  <input type="text" name="enterprise[city]" class="input city-autocomplete" placeholder="Digite a cidade" autocomplete="off" disabled="">
+                </div>
+              </div>
+            </div>
+            <div class="columns">
+              <div class="column is-9">
+                <div class="address">
+                  <div class="input-title">Endereço</div>
+                  <div class="control">
+                    <input class="input" type="text" name="enterprise[address]">
+                  </div>
+                </div>
+              </div>
+              <% if current_user.role?(User::ROLES[:technical_manager]) or current_user.role?(User::ROLES[:admin]) %>
+                <div class="column">
+                  <div class="input-title">Tabela de Preço</div>
+                  <div class="select">
+                    <%= select_tag("priceTableSelectNewEnterprise", options_for_select(@price_tables), {:class => "select", :name => "enterprise[price_table]"}) %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+        <div class="columns is-variable is-2">
+          <div class="column is-2 is-offset-9">
+            <button id="newEnterpriseBt" class="button is-primary is-fullwidth">Concluir</button>
+          </div>
+        </div>
+      <% end %>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+  </div>
+</div>
+
+<% content_for :tail_script do %>
+  <script>
+    $(".input-cnpj").mask('00.000.000/0000-00', { reverse: true });
+    $('.new-enterprise-input-cep').mask('00000-000');
+
+    var current_selected_state = '';
+    var cities = [];
+
+    $('#stateSelectNewEnterprise').change(function() {
+      if (!change_enterprise_state_flag) {
+        $('.address input').val('');
+        $('.city-autocomplete').val('');
+        $('.new-enterprise-input-cep').val('')
+      }
+
+      current_selected_state = $(this).val();
+
+      if (current_selected_state != '') {
+        $('.city-autocomplete').prop('disabled', false);
+
+        $.getJSON(`/get_city_list/${current_selected_state}`, function(data) {
+          cities = data;
+        });
+      } else {
+        $('.city-autocomplete').prop('disabled', true);
+      }
+    });
+
+    $('.city-autocomplete').autoComplete({
+      minChars: 2,
+      source: function(term, response) {
+        var xhr;
+        var matches = [];
+        term = term.toLowerCase();
+
+        try { xhr.abort(); } catch(e) {}
+        xhr = $.getJSON(`/get_city_list/${current_selected_state}`, { q: term }, function(data) {
+
+          if (data.length > 0) {
+            for (i = 0; i < data.length; i++)
+              if (~data[i].toLowerCase().indexOf(term)) matches.push(data[i]);
+          }
+          response(matches);
+        });
+      },
+      renderItem: function (item, search) {
+        search = search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        var re = new RegExp("(" + search.split(' ').join('|') + ")", "gi");
+        return '<div class="autocomplete-suggestion">'+ item.replace(re, "<b>$1</b>") + '</div>';
+      },
+      onSelect: function(event, term, item) {
+        current_selected_city = item.text();
+        $('.city-autocomplete').val(current_selected_city);
+      }
+    });
+
+
+    $('.new-enterprise-input-cep').keyup(function() {
+      var current_cep = $('.new-enterprise-input-cep').val();
+
+      if (current_cep.length >= 9) {
+        newEnterpriseRetrieveAdressByCEP(current_cep);
+      }
+    });
+
+
+    function newEnterpriseRetrieveAdressByCEP(cep) {
+      $.ajax({
+        method: 'GET',
+        url: 'https://viacep.com.br/ws/' + cep +  '/json/',
+        dataType: 'json',
+        beforeSend: function() {
+          $('#stateSelectNewEnterprise').parent().addClass('is-loading');
+          $('.city-autocomplete').parent().addClass('is-loading');
+          $('.address input').parent().addClass('is-loading');
+        },
+        success: function(data) {
+          $('#stateSelectNewEnterprise').parent().removeClass('is-loading');
+          $('.city-autocomplete').parent().removeClass('is-loading');
+          $('.address input').parent().removeClass('is-loading');
+
+          $('.address input').val('');
+          $('.city-autocomplete').val();
+          $('#stateSelectNewEnterprise').val('');
+
+          $('.city-autocomplete').val(data.localidade);
+          $('.city-autocomplete').prop('disabled', false);
+          $('#stateSelectNewEnterprise').val(data.uf);
+
+          change_enterprise_state_flag = true;
+          $('#stateSelectNewEnterprise').trigger('change');
+          change_enterprise_state_flag = false;
+
+          if (data.logradouro && data.logradouro != '') {
+            $('.address input').val($('.address input').val() + data.logradouro + ', ');
+          }
+
+          if (data.complemento && data.complemento != '') {
+            $('.address input').val($('.address input').val() + data.complemento + ', ');
+          }
+
+          if ($('.address input').val() != '') {
+            var str = $('.address input').val();
+            str = str.replace(/,\s*$/, "");
+            $('.address input').val(str);
+          }
+        },
+        error: function() {
+          $('#stateSelectNewEnterprise').parent().removeClass('is-loading');
+          $('.city-autocomplete').parent().removeClass('is-loading');
+          $('.address input').parent().removeClass('is-loading');
+        }
+      })
+    }
+  </script>
+<% end %>

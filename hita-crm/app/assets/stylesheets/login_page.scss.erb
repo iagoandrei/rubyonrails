@@ -1,0 +1,147 @@
+@import 'base';
+
+.login-layout {
+  height: 100%;
+  background-color: $white;
+
+  body {
+    height: 100%;
+  }
+
+  .container {
+    height: 100%;
+    max-width: none;
+  }
+
+  .login-container {
+    font-family: $font;
+    height: 100%;
+
+    .background-img {
+      background-image: url(<%= asset_path 'background_login_hita.png' %>);
+      background-repeat: no-repeat;
+      background-size: 100% 100%;
+      height: 100%;
+    }
+
+    .main-container {
+      width: 380px;
+      display: inline-block;
+
+      .hita-logo {
+        text-align: center;
+
+        img {
+          height: 92px;
+        }
+      }
+
+      .welcome-text {
+        margin: 40px 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: $gray_title;
+        text-align: center;
+      }
+
+      form {
+        text-align: center;
+
+        a {
+          text-decoration: underline;
+          color: $blue_light;
+        }
+
+        .login-input {
+          position: relative;
+          margin-bottom: 25px;
+        }
+
+        .other-options {
+          margin-top: 35px;
+          margin-bottom: 30px;
+        }
+
+        .checkbox {
+          color: $blue_light;
+        }
+
+        .input-form {
+          font-size: 18px;
+          padding: 10px 10px 10px 13px;
+          display: block;
+          width: 100%;
+          border: none;
+          font-size: 16px;
+          border-bottom: 2px solid $gray;
+          caret-color: $blue_light;
+          color: $gray_font;
+
+          &[type=password] {
+            letter-spacing: 3px;
+          }
+        }
+
+        .input-form:focus {
+          outline:none;
+        }
+
+        .label-input {
+          color: #999;
+          font-size: 18px;
+          font-weight: normal;
+          position: absolute;
+          pointer-events: none;
+          left: 5px;
+          top: 10px;
+          transition: 0.3s ease all;
+          -moz-transition: 0.3s ease all;
+          -webkit-transition: 0.3s ease all;
+        }
+
+        /* active state */
+        .input-form:focus ~ .label-input, .input-form:valid ~ .label-input    {
+          top: -15px;
+          font-size: 14px;
+          color: $blue_light;
+          font-weight: 600;
+        }
+
+        /* BOTTOM BARS ================================= */
+        .bar  { position: relative; display: block; width: 100%; }
+        .bar:before, .bar:after   {
+          content: '';
+          height: 2px;
+          width: 0;
+          bottom: 1px;
+          position: absolute;
+          background: $blue_light;
+          transition: 0.2s ease all;
+          -moz-transition: 0.2s ease all;
+          -webkit-transition: 0.2s ease all;
+        }
+
+        .bar:before {
+          left: 50%;
+        }
+
+        .bar:after {
+          right: 50%;
+        }
+
+        /* active state */
+        .input-form:focus ~ .bar:before, .input-form:focus ~ .bar:after {
+          width: 50%;
+        }
+      }
+
+      .button {
+        background-color: $blue;
+        color: $white !important;
+        font-weight: 600;
+        font-size: 14px;
+      }
+    }
+  }
+}
+

@@ -1,0 +1,385 @@
+<%= render partial: 'shared/main_upper_section', locals: { current_main_section: 'requirements' } %>
+
+<div class="requirements-main-page">
+  <div class="container">
+    <%= render partial: 'shared/flash_message' %>
+    <div class="columns">
+      <div class="column is-2">
+        <%= render partial: 'shared/main_sidebar', locals: { main_page: 'requirements', current_page: 'my_points' } %>
+      </div>
+      <div class="column">
+        <div class="columns">
+          <div class="column">
+            <div class="box-filter">
+              <div class="columns">
+                <div class="column is-one-third">
+                  <label class="input-label">Pesquise o consultor</label>
+                  <input id="userAutoComplete" class="input consultant-input-filter" type="text" name="">
+                  <span id="consultantSearchBt" class="icon is-small is-right">
+                    <%= inline_svg "magnifier.svg" %>
+                  </span>
+                </div>
+                <div class="column">
+                  <div class="consultants-container is-hidden">
+                    <label class="input-label">Você está vendo a pontuação de:</label>
+                    <div class="columns is-multiline is-variable is-1 consultants"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="columns">
+          <div class="column">
+            <div class="filter-year-head no-select">
+              <div class="columns">
+                <div class="column is-one-quarter no-padding-left">
+                  <div class="filter-year-box">
+                    <span class="previous"><</span>
+                    <span class="year"><%= @period %></span>
+                    <span class="next">></span>
+                  </div>
+                </div>
+                <div id="monthSlot1" class="column is-1 text-center month-slot"></div>
+                <div id="monthSlot2" class="column is-1 text-center month-slot"></div>
+                <div id="monthSlot3" class="column is-1 text-center month-slot"></div>
+                <div id="monthSlot4" class="column is-1 text-center month-slot"></div>
+                <div id="monthSlot5" class="column is-1 text-center month-slot"></div>
+                <div id="monthSlot6" class="column is-1 text-center month-slot"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column user-scores"></div>
+        </div>
+        <div class="columns no-margin-bottom">
+          <div class="column">
+            <div class="columns">
+              <div class="column">
+                <div class="head-table is-hidden">
+                  <div class="columns">
+                    <div class="column is-one-quarter">TOTAL</div>
+                    <div id="monthScoreSlot0" class="column is-1 text-center month-score-slot"></div>
+                    <div id="monthScoreSlot1" class="column is-1 text-center month-score-slot"></div>
+                    <div id="monthScoreSlot2" class="column is-1 text-center month-score-slot"></div>
+                    <div id="monthScoreSlot3" class="column is-1 text-center month-score-slot"></div>
+                    <div id="monthScoreSlot4" class="column is-1 text-center month-score-slot"></div>
+                    <div id="monthScoreSlot5" class="column is-1 text-center month-score-slot"></div>
+                    <div id="monthScoreTotalSlot" class="column text-right"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="requirements"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%= render 'requirements_modal' %>
+  <%= render 'edit_requirements_modal' %>
+</div>
+
+<% content_for :tail_script do %>
+  <script>
+    var year;
+    var period;
+    var userIdsFiltered = [];
+    var current_year = <%= @current_year.to_i %>;
+
+    $(function() {
+      year = parseInt($(".year").html().split(".")[0]);
+
+      getMonths();
+    });
+
+    $(".next").click(function() {
+      year   = parseInt($(".year").html().split(".")[0]);
+      period = parseInt($(".year").html().split(".")[1]);
+
+      if (period == '1') {
+        if (current_year >= year) {
+          period += 1
+        }
+      } else {
+        if (current_year > year) {
+          period = 1;
+          year += 1;
+        }
+      }
+
+      $(".year").html(`${year}.${period}`);
+      getMonths();
+    });
+
+    $(".previous").click(function() {
+      year   = parseInt($(".year").html().split(".")[0]);
+      period = parseInt($(".year").html().split(".")[1]);
+
+      if (period == '1') {
+        period = 2
+        year -= 1;
+      } else {
+        period -= 1;
+      }
+
+      $(".year").html(`${year}.${period}`);
+      getMonths();
+    });
+
+    var getMonths = function(e) {
+      var filter = {}
+
+      filter['user_ids'] = userIdsFiltered;
+      filter['period']   = $(".year").html();
+
+      if (filter['user_ids'].length > 1 || filter['user_ids'].length == 0) {
+        $(".criterion-container").addClass('is-hidden');
+        $.ajax({
+          url: '<%= render_user_scores_month_path %>',
+          data: {
+            filter: filter
+          },
+          beforeSend: function() {
+            $('.month-slot').html('<div class="loader"></div>');
+            $('.month-score-slot').html('<div class="loader"></div>');
+            $('.next, .previous').addClass('disabled-pointer-events');
+            $('.requirements').html('');
+            $('.user-scores').html('<div class="loader"></div>');
+            $(".head-table").addClass('is-hidden');
+            $('#monthScoreTotalSlot').html('<div class="loader is-pulled-right"></div>');
+            $('.remove-person').addClass('disabled-pointer-events');
+          },
+          complete: function() {
+            $('.next, .previous').removeClass('disabled-pointer-events');
+            $('.remove-person').removeClass('disabled-pointer-events');
+          },
+          dataType: 'script'
+        });
+      } else if (filter['user_ids'].length == 1) {
+        $.ajax({
+          url: '<%= render_individual_user_scores_month_path %>',
+          data: {
+            filter: filter
+          },
+          beforeSend: function() {
+            $('.month-slot').html('<div class="loader"></div>');
+            $('.month-score-slot').html('<div class="loader"></div>');
+            $('.next, .previous').addClass('disabled-pointer-events');
+            $('.requirements').html('<div class="loader text-center"></div>');
+            $('.user-scores').html('');
+            $(".head-table").removeClass('is-hidden');
+            $('#monthScoreTotalSlot').html('<div class="loader is-pulled-right"></div>');
+            $('.remove-person').addClass('disabled-pointer-events');
+          },
+          complete: function() {
+            $('.next, .previous').removeClass('disabled-pointer-events');
+            $('.remove-person').removeClass('disabled-pointer-events');
+          },
+          dataType: 'script'
+        });
+      }
+    }
+
+    $('#userAutoComplete').autoComplete({
+      minChars: 2,
+      source: function(term, response) {
+        var xhr;
+        var matches = [];
+        term = term.toLowerCase();
+
+        try { xhr.abort(); } catch(e) {}
+        xhr = $.getJSON('/user_autocomplete', { q: term }, function(data) {
+
+          if (data.length > 0) {
+            for (i = 0; i < data.length; i++)
+              if (~data[i][0].toLowerCase().indexOf(term)) matches.push(data[i]);
+          }
+
+          response(matches);
+        });
+      },
+      renderItem: function (item, search) {
+        search = search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        var re = new RegExp("(" + search.split(' ').join('|') + ")", "gi");
+        return '<div class="autocomplete-suggestion" data-user-id="' + item[1] +'" data-val="' + item[0] + '">'+ item[0].replace(re, "<b>$1</b>") + '</div>';
+      },
+      onSelect: function(event, term, item) {
+        $("#consultantSearchBt").attr('user-id', item.data('user-id'));
+      }
+    });
+
+    $(".consultant-input-filter").on('keypress', function(e) {
+      if(e.which == 13) {
+        if ($('#consultantSearchBt')[0].hasAttribute('user-id')) {
+          var id = $('#consultantSearchBt').attr('user-id');
+
+          $('#consultantSearchBt').removeAttr('user-id');
+          $("#userAutoComplete").val('');
+
+          $(".consultants-container").removeClass('is-hidden');
+
+          $.getJSON("<%= get_user_infos_url('_id_') %>".replace("_id_", id), function(data) {
+            if (userIdsFiltered.find(id => id == data.id) == undefined) {
+              userIdsFiltered.push(id);
+
+              $(".consultants").append(`
+                <div class="column is-narrow person no-padding-bottom">
+                  <input type="hidden" name="user_ids[]" value="${data.id}">
+                  <div class="person-tag no-margin-bottom">
+                    <div class="sphere" style="background-color: ${data.color}">
+                      <div class="initials">${data.initials}</div>
+                    </div>
+                    <div class="name consultant-name">${data.name}</div>
+                    <span class="remove-person no-select" user-id="${data.id}">x</span>
+                  </div>
+                </div>
+              `);
+
+              getMonths();
+            }
+          });
+        }
+      }
+    });
+
+    $("#consultantSearchBt").click(function() {
+      if ($(this)[0].hasAttribute('user-id')) {
+        var id = $(this).attr('user-id');
+
+        $(this).removeAttr('user-id');
+        $("#userAutoComplete").val('');
+
+        $(".consultants-container").removeClass('is-hidden');
+
+        $.getJSON("<%= get_user_infos_url('_id_') %>".replace("_id_", id), function(data) {
+          if (userIdsFiltered.find(id => id == data.id) == undefined) {
+            userIdsFiltered.push(id);
+
+            $(".consultants").append(`
+              <div class="column is-narrow person no-padding-bottom">
+                <input type="hidden" name="user_ids[]" value="${data.id}">
+                <div class="person-tag no-margin-bottom">
+                  <div class="sphere" style="background-color: ${data.color}">
+                    <div class="initials">${data.initials}</div>
+                  </div>
+                  <div class="name consultant-name">${data.name}</div>
+                  <span class="remove-person no-select" user-id="${data.id}">x</span>
+                </div>
+              </div>
+            `);
+
+            getMonths();
+          }
+        });
+      }
+    });
+
+    $(document).on("click", ".remove-person", function() {
+      $(this).parent().parent().remove();
+
+      userIdsFiltered = arrayRemove(userIdsFiltered, $(this).attr('user-id'));
+
+      if (userIdsFiltered.length == 0) {
+        $(".consultants-container").addClass('is-hidden');
+        $(".criterion-container").addClass('is-hidden');
+      }
+
+      getMonths();
+    });
+
+    function arrayRemove(arr, value) {
+      return arr.filter(function(ele){
+        return ele != value;
+      });
+    }
+
+    $(document).on("click", ".requirement", function() {
+      $("#requirementModalPeriodSelectEdit")[0].options.length = 0;
+      $("#requirementModalTableBodyEdit").html('');
+
+      $.getJSON("<%= get_requirement_infos_url('_id_') %>".replace("_id_", $(this).attr('requirement-id')), {user_id: userIdsFiltered[0]}, function(data) {
+        $("#requirementModalEdit").addClass('is-active');
+
+        $.each(data['months'], function(k, v) {
+          $("#requirementModalPeriodSelectEdit").append($("<option />").val(v).text(v));
+        });
+
+        $("#requirementModalPeriodSelectEdit").val(data.current_period);
+        $("#hiddenRequirementInputIdEdit").val(data.id);
+        $("#hiddenRequirementInputUserIdEdit").val(userIdsFiltered[0]);
+        $("#requirementModalTitleEdit").html(data.title);
+
+        $(".score-history-content-edit").html('');
+
+        $.each(data.scores, function(i, e) {
+          $(".score-history-content-edit").append(`
+            <div class='content'>
+              <div>${e.comment}</div>
+            </div>
+          `);
+
+          if (e.score_type == 'Bônus') {
+            $(".score-history-content-edit .content").slice(-1).append(`
+              <div class='margin-top-10'><span class='bold'>Bônus: </span>${e.score} pt(s)</div>
+            `);
+          } else {
+            $(".score-history-content-edit .content").slice(-1).append(`
+              <div class='margin-top-10'><span class='bold'>Penalidade: </span>${e.score} pt(s)</div>
+            `);
+          }
+
+          if (e.link) {
+            $(".score-history-content-edit .content").slice(-1).append(`
+              <div class='margin-top-10'>
+                <div class='bold'>Anexo:</div>
+                <a href='${e.link}'>${e.name}</a>
+              </div>
+            `);
+          }
+
+          if (e.responsible) {
+            $(".score-history-content-edit .content").slice(-1).append(`
+              <div class="margin-top-10">
+                <span class='bold'>Responsável: </span> ${e.responsible}
+              </div>
+            `);
+          }
+
+          $(".score-history-content-edit .content").slice(-1).append(`
+            <div class="text-right">
+              ${e.period}
+            </div>
+          `);
+        });
+
+        function formatBytes(bytes, decimals = 1) {
+          if (bytes === 0) return '0 Bytes';
+
+          const k = 1024;
+          const dm = decimals < 0 ? 0 : decimals;
+          const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+          const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+          return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+      });
+    });
+
+    $(".criterion-title").click(function() {
+      $e = $(".criterion-title").find('svg')
+
+      if ($e.hasClass('rotate')) {
+        $e.removeClass('rotate');
+        $(".criterion-items").slideUp();
+      } else {
+        $e.addClass('rotate');
+        $(".criterion-items").slideDown();
+      }
+    });
+  </script>
+<% end %>

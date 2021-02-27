@@ -1,0 +1,132 @@
+<% if @products.present? %>
+  <% ordered_months = (1..12).to_a %>
+
+  <div class="top-bar">
+    <div class="consultants-container">
+      <table class="table product-table">
+        <thead>
+          <tr>
+            <th class="cell-fixed gray-bg"></th>
+            <% ordered_months.each do |i| %>
+              <% if @data_view == 'resumed' %>
+                <th colspan="1" class="text-center th-border month-head resumed"><%= @months[i] %></th>
+              <% else %>
+                <th colspan="2" class="text-center th-border month-head"><%= @months[i] %></th>
+              <% end %>
+            <% end %>
+
+          </tr>
+          <tr class="bold">
+            <td class="cell-fixed gray-bg"></td>
+            <% ordered_months.each do |i| %>
+              <% if @data_view == 'resumed' %>
+                <td class="text-center">Realizado</td>
+              <% else %>
+                <td class="text-center">Realizado</td>
+                <td>QTD</td>
+              <% end %>
+            <% end %>
+
+          </tr>
+          <tr class="blue-bg white-color bold">
+            <td class="cell-fixed blue-bg"><div class="fixed-column-width">Total</div></td>
+
+
+            <% if @data_view == 'resumed' %>
+              <% ordered_months.each do |i| %>
+                <td><%= print_money_alignment ReportsHelper.show_product_accomplished_month_total(@current_year, i, @product_ids, enterprise_filter, request_type) %></td>
+              <% end %>
+            <% else %>
+              <% ordered_months.each do |i| %>
+                <td><%= print_money_alignment ReportsHelper.show_product_accomplished_month_total(@current_year, i, @product_ids, enterprise_filter, request_type) %></td>
+                <td><%= ReportsHelper.show_products_quantity_total_month(i, @current_year, @product_ids, enterprise_filter, request_type) %> produto(s)</td>
+              <% end %>
+            <% end %>
+          </tr>
+        </thead>
+        <tbody>
+
+          <% if request_type == 'product' %>
+            <% product = Product.find_by_name 'Frete' %>
+            <tr class="gray-disabled-bg">
+              <td class="bold cell-fixed gray-disabled-bg" title="<%= product.name %>"><div class="fixed-column-width"><%= product.name %></div></td>
+              
+              <% if @data_view == 'resumed' %>
+                <% ordered_months.each do |i| %>
+                  <td><%= print_money_alignment product.get_accomplished_month(i, @current_year, enterprise_filter, request_type) %></td>
+                <% end %>
+              <% else %>
+                <% ordered_months.each do |i| %>
+                  <td><%= print_money_alignment product.get_accomplished_month(i, @current_year, enterprise_filter, request_type) %></td>
+                  <td>(<%= product.get_product_quantity_month_request(i, @current_year, enterprise_filter, request_type) %>)</td>
+                <% end %>
+              <% end %>
+
+            </tr>
+          <% else %>
+            <% product = Product.find_by_name 'Frete' %>
+            <tr class="gray-disabled-bg">
+              <td class="bold cell-fixed gray-disabled-bg" title="<%= product.name %>"><div class="fixed-column-width"><%= product.name %></div></td>
+
+              <% if @data_view == 'resumed' %>
+                <% ordered_months.each do |i| %>
+                  <td><%= print_money_alignment product.get_accomplished_month(i, @current_year, enterprise_filter, request_type) %></td>
+                <% end %>
+              <% else %>
+                <% ordered_months.each do |i| %>
+                  <td><%= print_money_alignment product.get_accomplished_month(i, @current_year, enterprise_filter, request_type) %></td>
+                  <td>(<%= product.get_product_quantity_month_request(i, @current_year, enterprise_filter, request_type) %>)</td>
+                <% end %>
+              <% end %>
+            </tr>
+
+            <% product = Product.find_by_name 'Valor Serviço' %>
+            <tr class="gray-disabled-bg">
+              <td class="bold cell-fixed gray-disabled-bg" title="<%= product.name %>"><div class="fixed-column-width"><%= product.name %></div></td>
+              <% if @data_view == 'resumed' %>
+                <% ordered_months.each do |i| %>
+                  <td><%= print_money_alignment product.get_accomplished_month(i, @current_year, enterprise_filter, request_type) %></td>
+                <% end %>
+              <% else %>
+                <% ordered_months.each do |i| %>
+                  <td><%= print_money_alignment product.get_accomplished_month(i, @current_year, enterprise_filter, request_type) %></td>
+                  <td>(<%= product.get_product_quantity_month_request(i, @current_year, enterprise_filter, request_type) %>)</td>
+                <% end %>
+              <% end %>
+            </tr>
+          <% end %>
+
+          <% products.each do |product| %>
+            <tr class="white-bg">
+              <td class="bold cell-fixed white-bg" title="<%= product.name %>"><div class="fixed-column-width"><%= product.name %></td>
+              <% if @data_view == 'resumed' %>
+                <% ordered_months.each do |i| %>
+                  <td><%= print_money_alignment product.get_accomplished_month(i, @current_year, enterprise_filter, request_type) %></td>
+                <% end %>
+              <% else %>
+                <% ordered_months.each do |i| %>
+                  <td><%= print_money_alignment product.get_accomplished_month(i, @current_year, enterprise_filter, request_type) %></td>
+                  <td><%= product.get_product_quantity_month_request(i, @current_year, enterprise_filter, request_type) %></td>
+                <% end %>
+              <% end %>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% else %>
+  <div class="columns">
+    <div class="column text-center">Sem registros.</div>
+  </div>
+<% end %>
+
+<script type="text/javascript">
+  var current_month = <%= Date.today.month %>;
+  var $months = $('.month-head');
+
+  $(function() {
+    $('.top-bar').animate({ scrollLeft: $($months[current_month - 1]).offset().left - $months.first().offset().left }, 'slow');
+  });
+
+</script>

@@ -1,0 +1,29 @@
+<div class="update-dollar-modal">
+  <div id="changeDollarModal" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      <div>Atualizar valor do <span class="has-text-weight-bold">Dólar</span></div>
+      <%= form_tag update_dollar_value_url, method: :post, id: 'updateDollarForm' do %>
+        <div class="columns margin-top-10 files-content">
+          <div class="column">
+            <div>Digite o valor atual dólar</div>
+            <input id="dollarValueInput" class="input" type="text" name="dollar_value">
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column">
+            <button id="updateDolarButton" class="button is-primary is-fullwidth">Atualizar</button>
+          </div>
+        </div>
+      <% end %>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  $('#dollarValueInput').mask('000.000,00', { reverse: true });
+
+  $('#updateDolarButton').click(function() {
+    $(this).addClass('is-loading');
+  });
+</script>

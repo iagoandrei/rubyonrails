@@ -1,0 +1,17 @@
+$(".request-table-container").html('<%= escape_javascript(render(:partial => "requests/database_requests_table", :locals => { :requests => @requests, :total => @total })) %>');
+$(".paging-links").remove();
+$('.request-table-container').append(`
+  <div class="paging-links">
+    <%= will_paginate @requests %>
+  </div>
+`);
+
+$(".paging-links").addClass('margin-top-20');
+
+$(".paging-links a").click(function(e) {
+  e.preventDefault();
+
+  var url = new URL($(this).prop('href'));
+
+  filterEnterprise(url.searchParams.get("page"));
+});

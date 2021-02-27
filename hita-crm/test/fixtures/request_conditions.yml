@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  payment_type: MyString
+  operation_type: MyString
+  storage_center: MyString
+  payment_code: MyString
+  request: one
+
+two:
+  payment_type: MyString
+  operation_type: MyString
+  storage_center: MyString
+  payment_code: MyString
+  request: two

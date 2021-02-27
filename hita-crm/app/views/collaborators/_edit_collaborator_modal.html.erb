@@ -1,0 +1,199 @@
+<div class="hita-modal">
+  <div id="editCollaboratorsModal" class="modal">
+
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      <div class="columns">
+        <div class="column is-full">
+          <p id="editCollaboratorAlert" class="modal-alert alert danger"></p>
+        </div>
+      </div>
+      <%= form_for :collaborator, url: update_collaborator_url, html: { id: 'editCollaboratorForm' }, method: :post do %>
+      <div class="columns">
+        <div class="column is-9">
+          <div class="title">Edite um <span class="highlight-color"> contato</span></div>
+          <div class="subtitle">Preencha corretamente o formulário abaixo para atualizar um contato no sistema</div>
+          <input id="enterpriseIdEdit" type="hidden" name="collaborator[enterprise_id]">
+          <input type="hidden" name="collaborator[id]">
+          <div class="columns is-variable is-1">
+            <div class="column is-one-quarter">
+              <div class="input-title">Nome do contato</div>
+              <input type="text" name="collaborator[name]" class="input" placeholder="Digite o nome do contato" required>
+            </div>
+            <% if can? :manage, Collaborator, :enterprise_id %>
+              <div class="column is-one-quarter">
+                <div class="input-title">Empresa</div>
+                <div class="popup"><span class="popuptext" id="enterpriseValidation">Escolha uma empresa na lista</span></div>
+                <input type="text" id="hitaAutocomplete" name="enterprise_autocomplete" class="input enterprise-auto-complete enterprise-change" placeholder="Empresa vinculada">
+              </div>
+            <% end %>
+            <div class="column is-one-quarter">
+              <div class="input-title">Status</div>
+              <div class="select collaborator-status">
+                <%= select_tag "collaborator[status]", options_for_select([['Ativo', 1], ['Inativo', 0]]), prompt: "Selecione a condição", class: "select" %>
+              </div>
+            </div>
+            <div class="column">
+              <div class="input-title">Treinado em Salvador</div>
+              <div class="select">
+                <select id="collaboratorTrained" class="select" name="collaborator[trained]">
+                  <option value="Não">Não</option>
+                  <option value="Sim">Sim</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="columns is-variable is-1">
+            <div class="column">
+              <div class="input-title">Cargo</div>
+              <div class="select collaborator-job-role">
+                <%= select_tag "collaborator[job_role]", options_for_select(@jobs), prompt: "Selecione o cargo", class: "select" %>
+              </div>
+            </div>
+            <div class="column">
+              <div class="input-title">Telefone</div>
+              <input id="editPhone" type="text" name="collaborator[phone]" class="input" placeholder="Digite o telefone">
+            </div>
+            <div class="column">
+              <div class="input-title">Email</div>
+              <input type="text" name="collaborator[email]" class="input" placeholder="Digite o email">
+            </div>
+            <div class="column">
+              <div class="input-title">Grau de relacionamento</div>
+              <div class="select collaborator-degree-relationship">
+                <%= select_tag "collaborator[degree_of_relationship]", options_for_select(@relationships), prompt: "Selecione o grau", class: "select" %>
+              </div>
+            </div>
+          </div>
+          <div class="columns is-variable is-1">
+            <div class="column is-one-quarter">
+              <div class="input-title">Área</div>
+              <div class="select collaborator-area">
+                <%= select_tag "collaborator[area]", options_for_select(@areas), prompt: "Selecione a área", class: "select" %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="columns is-variable is-2">
+        <div class="column is-2 is-offset-9">
+          <button id="editCollaboratorBt" class="button is-primary is-fullwidth">Concluir</button>
+        </div>
+      </div>
+      <% end %>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $("#editPhone").mask("(00) 000000000", { placeholder: "(XX) 00000-0000" });
+
+  $('.enterprise-change').change(function() {
+    enterprise_changed_flag = true;
+  });
+
+  $("#editCollaboratorBt").click(function(e) {
+    e.preventDefault();
+
+    $(this).addClass('is-loading');
+    validadeEditCollaborator($(this));
+  });
+
+  function validadeEditCollaborator($button) {
+    $('#editCollaboratorAlert').hide();
+
+    $form = $('#editCollaboratorForm');
+    $form.find('input[name="collaborator[name]"]').removeClass('is-danger');
+    $form.find('input[name="collaborator[email]"]').removeClass('is-danger');
+    $form.find('select[name="collaborator[status]"]').removeClass('is-danger');
+    $form.find('select[name="collaborator[job_role]"]').removeClass('is-danger');
+    $form.find('select[name="collaborator[degree_of_relationship]"]').removeClass('is-danger');
+    $form.find('select[name="collaborator[area]"]').removeClass('is-danger');
+
+    data = {
+      name: $form.find('input[name="collaborator[name]"').val(),
+      email: $form.find('input[name="collaborator[email]"').val(),
+      status: $form.find('select[name="collaborator[status]"').val(),
+      job_role: $form.find('select[name="collaborator[job_role]"').val(),
+      degree_of_relationship: $form.find('select[name="collaborator[degree_of_relationship]"').val(),
+      area: $form.find('select[name="collaborator[area]"]').val(),
+      phone: $form.find('input[name="collaborator[phone]"]').val(),
+      authenticity_token: "<%= form_authenticity_token %>"
+    }
+
+
+    if (!enterprise_selected_flag && enterprise_changed_flag) {
+      $("#enterpriseValidation").show();
+
+      setTimeout(function() {
+        $button.removeClass('is-loading');
+        $("#enterpriseValidation").hide();
+      }, 2000);
+
+      return false;
+    }
+
+    if (isBlank(data.name)) {
+      $('#editCollaboratorAlert').text('Os seguintes campos não podem ficar em branco.');
+      $('#editCollaboratorAlert').show();
+      $form.find('input[name="collaborator[name]"]').addClass('is-danger');
+      $button.removeClass('is-loading');
+      return false;
+    } else {
+      $form.find('input[name="collaborator[name]"]').removeClass('is-danger');
+    }
+
+    if (data.name.length < 4) {
+      $('#editCollaboratorAlert').text('Um nome deve ter no mínimo 4 caracteres.');
+      $('#editCollaboratorAlert').show();
+      $form.find('input[name="collaborator[name]"]').addClass('is-danger');
+      $button.removeClass('is-loading');
+      return false;
+    } else {
+      $form.find('input[name="collaborator[name]"]').removeClass('is-danger');
+    }
+
+    // if (data.phone.length < 14) {
+    //   $('#editCollaboratorAlert').text('Digite um número de telefone válido');
+    //   $('#editCollaboratorAlert').show();
+    //   $form.find('input[name="collaborator[phone]"]').addClass('is-danger');
+    //   $button.removeClass('is-loading');
+    //   return false;
+    // } else {
+    //   $form.find('input[name="collaborator[phone]"]').removeClass('is-danger');
+    // }
+
+    if (isBlank(data.email)) {
+      $('#editCollaboratorAlert').text('Os seguintes campos não podem ficar em branco.');
+      $('#editCollaboratorAlert').show();
+      $form.find('input[name="collaborator[email]"]').addClass('is-danger');
+      $button.removeClass('is-loading');
+      return false;
+    } else {
+      $form.find('input[name="collaborator[email]"]').removeClass('is-danger');
+    }
+
+    if (!validateEmail(data.email)) {
+      $('#editCollaboratorAlert').text('Insira um endereço de email válido.');
+      $('#editCollaboratorAlert').show();
+      $form.find('input[name="collaborator[email]"]').addClass('is-danger');
+      $button.removeClass('is-loading');
+      return false;
+    } else {
+      $form.find('input[name="collaborator[email]"]').removeClass('is-danger');
+    }
+
+    if (isBlank(data.status)) {
+      $('#editCollaboratorAlert').text('Os seguintes campos não podem ficar em branco.');
+      $('#editCollaboratorAlert').show();
+      $(".collaborator-status").addClass('is-danger');
+      $button.removeClass('is-loading');
+      return false;
+    } else {
+      $(".collaborator-status").removeClass('is-danger');
+    }
+
+    $form.submit();
+  }
+</script>

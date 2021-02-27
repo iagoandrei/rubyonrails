@@ -1,0 +1,102 @@
+<%= render partial: 'shared/main_upper_section', locals: { current_main_section: nil } %>
+
+<div class="forms-main-page container">
+  <%= render partial: '/shared/flash_message' %>
+
+  <div class="default-box <%= 'margin-top-10' if flash[:notice].present? or flash[:alert].present? %>">
+    <div class="columns no-margin-bottom">
+      <div class="column">
+        <div>Gerencie todos os produtos disponíveis. Se deseja atualizar o valor do dólar, clique no botão abaixo:</div>
+      </div>
+    </div>
+    <div class="columns">
+      <div class="column">
+        <div>
+          Valor atual do dólar: <div class="dollar-value"><%= @dollar %></div>
+        </div>
+      </div>
+    </div>
+    <div class="columns">
+      <div class="column is-3 no-padding-top">
+        <button id="updateDollarOpenModal" class="button is-primary"><%= inline_svg "edit.svg" %> Atualizar Dólar</button>
+      </div>
+    </div>
+  </div>
+  <div id="jsGridContainer" class="margin-top-10"></div>
+</div>
+
+<%= render partial: 'update_dollar_modal' %>
+
+<script type="text/javascript">
+  var products_json;
+  products_json = "<%= j(raw(@products_json)) %>";
+  products_json = products_json.replace(/=>/g, ':');
+  products_json = JSON.parse(products_json)
+
+  $('#jsGridContainer').jsGrid({
+    width: "100%",
+    height: "500px",
+    inserting: false,
+    editing: true,
+    sorting: true,
+    paging: false,
+    filtering: true,
+    data: products_json,
+
+    fields: [
+      { name: "id", type: "text", visible: false },
+      { name: "Produto", type: "text", width: 300, editing: false, sorting: false, filtering: true },
+      { name: "Valor em Dólar", type: "text", width: 150, sorting: false, filtering: false },
+      { name: "Geral FOB", type: "text", width: 150, sorting: false, editing: false, filtering: false },
+      { name: "Braskem BA, RS, AL", type: "text", width: 150, sorting: false, filtering: false },
+      { name: "Braskem SP", type: "text", width: 150, sorting: false, filtering: false },
+      { name: "Vale Fertilizante (Yara)  Tabela/(1-0,0725)", type: "text", editcss: 'expression-available', width: 300, sorting: false, filtering: false },
+      { name: "Mosaic", type: "text", width: 150, sorting: false, filtering: false },
+      { name: "Vale Mineração", type: "text", width: 150, sorting: false, filtering: false },
+      { name: "Anglo American", type: "text", width: 150, sorting: false, filtering: false },
+      { name: "Arcelor", type: "text", width: 150, sorting: false, filtering: false },
+      { name: "Modec", type: "text", width: 150, sorting: false, filtering: false },
+      { name: "Petrobrás", type: "text", width: 150, sorting: false, filtering: false },
+      { type: "control", width: 80, deleteButton: false, sorting: false, filtering: false }
+    ],
+    controller: {
+      data: products_json,
+      updateItem: function(item) {
+        return $.ajax({
+          method: 'POST',
+          url: '<%= update_product_url %>',
+          data: {
+            item: item,
+            authenticity_token: "<%= form_authenticity_token %>",
+          }
+        });
+      },
+      loadData: function (filter) {
+                  return $.grep(this.data, function (item) {
+                    var re = RegExp(filter.Produto, "gi");
+
+                    return (!filter.Produto || item.Produto.match(re));
+                  });
+                }
+    }
+  });
+
+  $(document).on('click', '.expression-available input', function() {
+    $(this).val('');
+  });
+
+  $(document).on('keyup', '.jsgrid-edit-row .jsgrid-cell input', function(e) {
+    if(!$(this).parent().hasClass('expression-available')) {
+      $(this).mask('000.000.000.000.000,00', { reverse: true });
+    }
+
+    if (e.which == '13') {
+      $('.jsgrid-update-button').click();
+    }
+  });
+
+  $('#updateDollarOpenModal').click(function() {
+    $('#changeDollarModal').addClass('is-active');
+  });
+
+</script>

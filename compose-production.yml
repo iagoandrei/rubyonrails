@@ -1,0 +1,53 @@
+version: '3'
+
+services:
+  app:
+    build:
+      context: ./hita-crm
+      dockerfile: ./production/app/Dockerfile
+    environment:
+      - PGHOST=db
+      - PGUSER=postgres
+    links:
+      - db
+    depends_on:
+      - solr
+    volumes:
+      - storage:/hita-crm/storage
+  db:
+    image: postgres:11
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  nginx:
+    build:
+      context: ./hita-crm
+      dockerfile: ./production/nginx/Dockerfile
+    depends_on:
+      - app
+    ports:
+      - 80:80
+  mssql-api:
+    entrypoint: ./docker-entrypoint.sh
+    command: ["rails", "server", "-p", "5656"]
+    build:
+      context: ./hita-db-api
+      dockerfile: ./development-dockerfile
+  solr:
+    build:
+      context: ./hita-crm
+      dockerfile: ./production/solr/Dockerfile
+    ports:
+      - "8983:8983"
+    volumes:
+      - solr_data:/opt/solr/server/solr/mycores
+    entrypoint:
+      - docker-entrypoint.sh
+      - solr-precreate
+      - hita
+    depends_on:
+      - db
+
+volumes:
+  postgres_data: {}
+  solr_data:
+  storage:

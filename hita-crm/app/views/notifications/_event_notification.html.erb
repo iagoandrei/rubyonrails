@@ -1,0 +1,20 @@
+<a href="<%= redirect_notification_path(notification.id) %>">
+  <div class="dropdown-item">
+    <div class="notification-message">
+      <div class="columns is-vcentered">
+        <div class="column text-center is-2">
+          <div class="circle <%= notification.event.owner == current_user ? 'blue-light-bg' : 'crusta-bg' %>">
+            <%= inline_svg "menu_scheduler.svg" %>
+          </div>
+        </div>
+        <div class="column">
+          <div><%= notification.title %></div>
+          <div class="content">
+            <%= notification.message.html_safe %>
+          </div>
+          <div><%= l(notification.created_at, format: :short_version_2) %></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</a>

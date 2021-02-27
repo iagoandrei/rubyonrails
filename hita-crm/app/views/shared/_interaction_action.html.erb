@@ -1,0 +1,44 @@
+<div class="interaction">
+  <div class="columns">
+    <div class="column is-1 title">
+      <div class="circle">
+        <%= inline_svg "action2.svg" %>
+      </div>
+    </div>
+    <div class="column message-content no-padding-left">
+      <div class="columns no-margin-bottom">
+        <div class="column is-9 title padding-bottom-5">
+          <% if [:training, :seminar].include? interaction.interaction_type.to_sym %>
+            <%= "#{interaction.owner.name} registrou #{InteractionHelper::INTERACTION[interaction.interaction_type.to_sym]}" %>
+          <% elsif interaction.interaction_type.to_sym == :other %>
+            <%= "#{interaction.owner.name} registrou uma interação" %>
+          <% else %>
+            <%= "#{interaction.owner.name} fez #{InteractionHelper::INTERACTION[interaction.interaction_type.to_sym]}" %>
+          <% end %>
+        </div>
+        <div class="column date padding-bottom-5"><%= interaction.created_at.strftime("%d/%m/%Y %H:%M") %></div>
+      </div>
+      <div class="columns no-margin-bottom">
+        <div class="column padding-bottom-5 white-space-pre"><%= interaction.content.html_safe %></div>
+      </div>
+      <div class="columns <%= 'no-margin-bottom' if interaction.files.present? %>">
+        <% if interaction.interaction_date %>
+          <div class="column is-narrow"><%= interaction.interaction_date&.strftime("%d/%m/%Y") %></div>
+        <% end %>
+        <% if interaction.collaborator %>
+          <div class="column is-narrow"><span class="weight-600">Contato:</span> <%= interaction.collaborator.name %></div>
+        <% end %>
+      </div>
+      <% if interaction.files.present? %>
+        <div class="columns">
+          <div class="attachments">
+            <div class="outter-box-title">Anexos:</div>
+            <% interaction.files.each do |file| %>
+              <div class="attachment"><a class="file-link text-underline" href="<%= rails_blob_path(file, disposition: 'attachment') %>"><%= file.filename %></a></div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

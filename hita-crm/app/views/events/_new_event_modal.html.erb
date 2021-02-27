@@ -1,0 +1,433 @@
+<div class="hita-modal">
+  <div id="newEventModal" class="modal new-event-modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      <%= form_tag create_new_event_path, method: :post, id: 'newEventForm' do %>
+        <input class="input-hidden-datetime" type="hidden" name="event[period]">
+        <input class="input-hidden-all-day" type="hidden" name="event[is_all_day]">
+        <div class="columns">
+          <div class="column is-9">
+            <div class="title">Adicione uma <span class="highlight-color">nova atividade</span></div>
+            <div class="subtitle">Preencha os campos abaixo para adicionar uma nova atividade na sua agenda.</div>
+            <div class="columns is-variable is-1">
+              <div class="column">
+                <div class="input-title">Nome do evento</div>
+                <input type="text" name="event[title]" class="input" placeholder="Digite o nome do evento" required>
+              </div>
+              <div class="column">
+                <div class="input-title">Tipo do evento</div>
+                <div class="select">
+                  <%= select_tag "event[event_type]", options_for_select(@events), prompt: "Selecione o tipo do evento", class: "select" %>
+                </div>
+              </div>
+              <div class="column">
+                <div class="input-title">Nome da empresa</div>
+                <input type="hidden" name="event[enterprise_id]" class="input-enterprise-id">
+                <input type="text" class="input enterprise-auto-complete" placeholder="Digite o nome da empresa">
+              </div>
+            </div>
+            <div class="columns">
+              <div class="column">
+                <div class="input-title">Endereço</div>
+                <input type="text" name="event[street]" class="input" placeholder="Digite o endereço">
+              </div>
+            </div>
+            <div class="columns">
+              <div class="column date-container">
+                <div class="columns">
+                  <div class="column is-one-third">
+                    <div class="input-title">Data</div>
+                    <div class="field calendar">
+                      <p class="control has-icons-right">
+                        <input id="calendar" class="input input-calendar" type="text" name="event[dates][]" placeholder="Selecione a data" required autocomplete="off">
+                        <span class="icon is-small is-right">
+                          <%= inline_svg "calendar.svg" %>
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                  <div class="column is-one-fifth">
+                    <div class="input-title">Horário (início)</div>
+                    <input type="time" max="23:59" class="input input-hour start-hour" name="event[start_hour][]" autocomplete="off" placeholder="00:00">
+                  </div>
+                  <div class="column is-one-fifth">
+                    <div class="input-title">Horário (término)</div>
+                    <input type="time" max="23:59" class="input input-hour end-hour" name="event[end_hour][]" autocomplete="off" placeholder="00:00">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="columns">
+              <div class="column is-9">
+                <div class="increment-date-container center">
+                  <%= inline_svg 'plus.svg', class: 'center' %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column is-4">
+            <div class="input-title">Pessoas</div>
+            <div class="columns is-variable is-1">
+              <div class="column is-narrow">
+                <input type="text" class="input user-auto-complete" placeholder="Digite um nome para adicionar" required>
+                <input type="hidden" class="input-user-id">
+              </div>
+              <div class="column">
+                <button class="button is-primary add-user-bt is-fullwidth" disabled>Adicionar</button>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-fifth">
+            <div class="input-title">Convidar todos...</div>
+            <div class="dropdown dropdown-filter is-hoverable">
+              <div class="dropdown-trigger">
+                <div id="allUsersBt" class="button all-users-bt" aria-haspopup="true" aria-controls="dropdown-menu">
+                  <label>--</label>
+                  <span class="icon is-small">
+                    <%= inline_svg 'dropdown_arrow.svg' %>
+                  </span>
+                </div>
+              </div>
+              <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                <div class="dropdown-content">
+                  <% unless current_user.role?(User::ROLES[:regional_coordinator]) %>
+                    <div class="b-checkbox is-primary no-select">
+                      <input id="allUsers" class="styled users-checkbox" type="checkbox">
+                      <label for="allUsers">
+                        Todos
+                      </label>
+                    </div>
+                  <% end %>
+                  <div class="b-checkbox is-primary no-select">
+                    <input id="allConsultants" class="styled consultant-checkbox" type="checkbox" name="consultant">
+                    <label for="allConsultants">
+                      Consultor
+                    </label>
+                  </div>
+                  <% unless current_user.role?(User::ROLES[:regional_coordinator]) %>
+                    <div class="b-checkbox is-primary no-select">
+                      <input id="allTechnician" class="styled technician-checkbox" type="checkbox" name="technician">
+                      <label for="allTechnician">
+                        Técnico
+                      </label>
+                    </div>
+                    <div class="b-checkbox is-primary no-select">
+                      <input id="allTechnicalManager" class="styled technical-manager-checkbox" type="checkbox" name="technical_manager">
+                      <label for="allTechnicalManager">
+                        Gerente Técnico
+                      </label>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column">
+            <div class="input-title">Pessoas inseridas</div>
+            <div class="columns is-variable is-1 is-multiline persons"></div>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column">
+            <button class="button is-primary is-pulled-right new-event-bt">Adicionar atividade</button>
+          </div>
+        </div>
+          <% end %>
+        <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+  var usersSelectId = []
+  var usersSize     = 0;
+
+  $(function() {
+    $.getJSON("<%= get_user_infos_url('_id_') %>".replace("_id_", <%= current_user.id %>), function(data) {
+      $(".persons").append(`
+        <div class="column is-narrow person no-padding-bottom">
+          <input type="hidden" name="user_ids[]" value="${data.id}">
+          <div class="person-tag no-margin-bottom">
+            <div class="sphere">
+              <div class="initials">${data.initials}</div>
+            </div>
+            <div class="name consultant-name">${data.name} (você)</div>
+            <span class="remove-person" user-id="${data.id}">x</span>
+          </div>
+        </div>
+      `);
+
+      usersSelectId.push(data.id);
+    });
+
+    $(".user-auto-complete").val('');
+    $(".add-user-bt").prop('disabled', true);
+    $(".add-user-bt").removeAttr('data-user-id');
+    $(".user-auto-complete").removeAttr('required');
+  });
+
+  $(".input-calendar").datepicker({
+    language: 'pt-BR',
+    autoHide: true
+  });
+
+  $('.input-hour').mask('00:00');
+
+  $("#newEventForm").submit(function(e) {
+
+    if ($(".person").length) {
+      $(".user-auto-complete").removeAttr('required');
+    } else {
+      e.preventDefault();
+    }
+  });
+
+  $('.enterprise-auto-complete').autoComplete({
+    minChars: 2,
+    source: function(term, response) {
+      var xhr;
+      var matches = [];
+      term = term.toLowerCase();
+
+      try { xhr.abort(); } catch(e) {}
+      xhr = $.getJSON('/enterprise_autocomplete', { q: term }, function(data) {
+
+        if (data.length > 0) {
+          for (i = 0; i < data.length; i++)
+            if (~data[i][0].toLowerCase().indexOf(term)) matches.push(data[i]);
+        }
+
+        response(matches);
+      });
+    },
+    renderItem: function (item, search) {
+      search = search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+      var re = new RegExp("(" + search.split(' ').join('|') + ")", "gi");
+      return '<div class="autocomplete-suggestion" data-enterprise-id="' + item[1] +'" data-val="' + item[0] + '">'+ item[0].replace(re, "<b>$1</b>") + '</div>';
+    },
+    onSelect: function(event, term, item) {
+      $('.input-enterprise-id').val(item.data('enterprise-id'));
+    }
+  });
+
+  $('.user-auto-complete').autoComplete({
+    minChars: 2,
+    source: function(term, response) {
+      var xhr;
+      var matches = [];
+      term = term.toLowerCase();
+
+      try { xhr.abort(); } catch(e) {}
+      xhr = $.getJSON('/user_autocomplete', { q: term }, function(data) {
+
+        if (data.length > 0) {
+          for (i = 0; i < data.length; i++)
+            if (~data[i][0].toLowerCase().indexOf(term)) matches.push(data[i]);
+        }
+
+        response(matches);
+      });
+    },
+    renderItem: function (item, search) {
+      search = search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+      var re = new RegExp("(" + search.split(' ').join('|') + ")", "gi");
+      return '<div class="autocomplete-suggestion" data-user-id="' + item[1] +'" data-val="' + item[0] + '">'+ item[0].replace(re, "<b>$1</b>") + '</div>';
+    },
+    onSelect: function(event, term, item) {
+      $(".add-user-bt").attr('data-user-id', item.data('user-id'));
+      $(".add-user-bt").prop('disabled', false);
+    }
+  });
+
+  $(".add-user-bt").click(function() {
+    $.getJSON("<%= get_user_infos_url('_id_') %>".replace("_id_", $(this).attr('data-user-id')), function(data) {
+
+      if (usersSelectId.find(id => id == data.id) == undefined) {
+        var currentUserId = <%= current_user.id %>;
+
+        if (data.id == currentUserId) {
+          data.name = data.name + " (você)";
+        }
+
+        $(".persons").append(`
+          <div class="column is-narrow person no-padding-bottom">
+            <input type="hidden" name="user_ids[]" value="${data.id}">
+            <div class="person-tag no-margin-bottom">
+              <div class="sphere">
+                <div class="initials">${data.initials}</div>
+              </div>
+              <div class="name consultant-name">${data.name}</div>
+              <span class="remove-person" user-id="${data.id}">x</span>
+            </div>
+          </div>
+        `);
+
+        usersSelectId.push(data.id);
+      } else {
+        alert('Esta pessoa já está na atividade.');
+      }
+    });
+
+    $(".user-auto-complete").val('');
+    $(".add-user-bt").prop('disabled', true);
+    $(".add-user-bt").removeAttr('data-user-id');
+    $(".user-auto-complete").removeAttr('required');
+  });
+
+  $(document).on("click", ".remove-person", function() {
+    $(this).parent().parent().remove();
+
+    if (!$(".person").length) {
+      $(".user-auto-complete").attr('required', true);
+    }
+
+    usersSelectId = arrayRemove(usersSelectId, $(this).attr('user-id'));
+  });
+
+  function arrayRemove(arr, value) {
+    return arr.filter(function(ele){
+      return ele != value;
+    });
+  }
+
+  $(".consultant-checkbox").click(function() {
+    if ($(this).is(":checked")) {
+      $(".consultant-checkbox").prop('checked', true);
+      usersSize += 1;
+    } else {
+      $(".consultant-checkbox").prop('checked', false);
+      $(".users-checkbox").prop('checked', false);
+      usersSize -= 1;
+    }
+
+    if (usersSize > 0) {
+      $(".all-users-bt label").html(`${usersSize} selecionado(s)`);
+    } else {
+      $(".all-users-bt label").html('--');
+    }
+  });
+
+  $(".technician-checkbox").click(function() {
+    if ($(this).is(":checked")) {
+      $(".technician-checkbox").prop('checked', true);
+      usersSize += 1;
+    } else {
+      $(".technician-checkbox").prop('checked', false);
+      $(".users-checkbox").prop('checked', false);
+      usersSize -= 1;
+    }
+
+    if (usersSize > 0) {
+      $(".all-users-bt label").html(`${usersSize} selecionado(s)`);
+    } else {
+      $(".all-users-bt label").html('--');
+    }
+  });
+
+  $(".technical-manager-checkbox").click(function() {
+    if ($(this).is(":checked")) {
+      $(".technical-manager-checkbox").prop('checked', true);
+      usersSize += 1;
+    } else {
+      $(".technical-manager-checkbox").prop('checked', false);
+      $(".users-checkbox").prop('checked', false);
+      usersSize -= 1;
+    }
+
+    if (usersSize > 0) {
+      $(".all-users-bt label").html(`${usersSize} selecionado(s)`);
+    } else {
+      $(".all-users-bt label").html('--');
+    }
+  });
+
+  $(".users-checkbox").click(function() {
+    if ($(this).is(":checked")) {
+      $(".users-checkbox").prop('checked', true);
+      $(".consultant-checkbox").prop('checked', true);
+      $(".technician-checkbox").prop('checked', true);
+      $(".technical-manager-checkbox").prop('checked', true);
+      usersSize = 3;
+    } else {
+      $(".users-checkbox").prop('checked', false);
+      $(".consultant-checkbox").prop('checked', false);
+      $(".technician-checkbox").prop('checked', false);
+      $(".technical-manager-checkbox").prop('checked', false);
+      usersSize = 0;
+    }
+
+    if (usersSize > 0) {
+      $(".all-users-bt label").html(`${usersSize} selecionado(s)`);
+    } else {
+      $(".all-users-bt label").html('--');
+    }
+  });
+
+  $(document).on('click', '.increment-date-container', function() {
+    var newDate    = '';
+    $inputCalendar = $('.input-calendar').slice(-1);
+    $startHour     = $('.start-hour').slice(-1).val();
+    $endHour       = $('.end-hour').slice(-1).val();
+
+    if ($inputCalendar.val() != '') {
+      var date1 = $inputCalendar.datepicker('getDate');
+      var date  = new Date(Date.parse(date1));
+      date.setDate(date.getDate() + 1);
+
+      var newDate = date.toDateString();
+      newDate     = new Date(Date.parse(newDate));
+    }
+
+    $(".date-container").append(`
+      <div class="columns">
+        <div class="column is-one-third">
+          <div class="input-title">Data</div>
+          <div class="field calendar">
+            <p class="control has-icons-right">
+              <input id="calendar" class="input input-calendar" type="text" name="event[dates][]" placeholder="Selecione a data" required autocomplete="off">
+              <span class="icon is-small is-right">
+                <%= inline_svg "calendar.svg" %>
+              </span>
+            </p>
+          </div>
+        </div>
+        <div class="column is-one-fifth">
+          <div class="input-title">Horário (início)</div>
+          <input type="time" max="23:59" class="input input-hour start-hour" name="event[start_hour][]" autocomplete="off" placeholder="00:00">
+        </div>
+        <div class="column is-one-fifth">
+          <div class="input-title">Horário (término)</div>
+          <input type="time" max="23:59" class="input input-hour end-hour" name="event[end_hour][]" autocomplete="off" placeholder="00:00">
+        </div>
+        <div class="column">
+          <div class="remove-date-container">
+            <%= inline_svg 'remove.svg', class: 'center' %>
+          </div>
+        </div>
+      </div>
+    `);
+
+    $(".input-calendar").datepicker({
+      language: 'pt-BR',
+      autoHide: true
+    });
+
+    $('.input-hour').mask('00:00');
+
+    $('.start-hour').slice(-1).val($startHour)
+    $('.end-hour').slice(-1).val($endHour);
+
+    if (newDate != '') {
+      $inputCalendar = $('.input-calendar').slice(-1);
+      $inputCalendar.datepicker('setDate', newDate);
+    }
+  });
+
+  $(document).on('click', '.remove-date-container', function() {
+    $(this).closest('.columns').remove();
+  });
+</script>

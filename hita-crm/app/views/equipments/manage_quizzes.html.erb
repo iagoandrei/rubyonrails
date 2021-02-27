@@ -1,0 +1,174 @@
+<%= render partial: 'shared/main_upper_section', locals: { current_main_section: nil } %>
+
+<div class="forms-main-page container">
+  <%= render partial: '/shared/flash_message' %>
+
+  <div class="columns <%= 'margin-top-10' if flash[:notice].present? or flash[:alert].present? %>">
+    <div class="column fixed-column-and-header-table">
+      <table class="request-table">
+        <thead>
+          <tr>
+            <th><div class="width-250"></div></th>
+            <% @equipments.each do |equipment| %>
+              <th><div class="full-width-name"><%= equipment.name %></div></th>
+            <% end %>
+          </tr>
+        </thead>
+        <tbody class="sortable">
+          <% @questions.each do |question| %>
+            <tr data-question-id="<%= question.id %>">
+              <td>
+                <div class="display-flex">
+                  <div class="sortable-icon"><%= inline_svg 'draggable.svg' %></div>
+                  <div class="b-checkbox is-primary">
+                    <input id="checkLine_<%= question.id %>" class="line-checkbox" type="checkbox" data-question-id="<%= question.id %>">
+                    <label for="checkLine_<%= question.id %>"></label>
+                    <%= question.title %>
+                  </div>
+                </div>
+              </td>
+              <% @equipments.each do |equipment| %>
+                <td>
+                  <div class="b-checkbox is-primary">
+                    <input id="checkQuestion_<%= question.id %>_<%= equipment.id%>" class="unique-checkbox" type="checkbox" data-question-id="<%= question.id %>" data-equipment-id="<%= equipment.id %>" <%= "checked" if question.id.in? equipment.questions %>>
+                    <label for="checkQuestion_<%= question.id %>_<%= equipment.id%>">
+                    </label>
+                  </div>
+                </td>
+              <% end %>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  var current_sort_position;
+  var previous_sort_position;
+
+  $(function() {
+    $('.sortable').sortable({
+      axis: 'y',
+      start: function(e, ui) {
+        previous_sort_position = ui.item.index();
+      },
+      update: function(e, ui) {
+        var $items = $('.request-table tr');
+        var new_positions = {}
+        $items.each(function(index) {
+          new_positions[$(this).data('question-id')] = index;
+        });
+
+        updateQuestionOrder(new_positions);
+      }
+    });
+  });
+
+  function updateQuestionOrder(new_positions) {
+    $.ajax({
+      method: 'POST',
+      url: '<%= update_quiz_position_url %>',
+      data: {
+        positions: new_positions,
+        authenticity_token: "<%= form_authenticity_token %>"
+      }
+    });
+  }
+
+  $('.unique-checkbox').click(function(e) {
+    var $checkbox = $(this);
+    var previous_value;
+
+    e.preventDefault();
+
+    if (this.checked) {
+      this.checked = false;
+      previous_value = false;
+    } else {
+      this.checked = true;
+      previous_value = true;
+    }
+
+    $.ajax({
+      url: '<%= update_equipment_questions_url %>',
+      method: 'POST',
+      data: {
+        equipments_ids: $checkbox.data('equipment-id'),
+        question_id: $checkbox.data('question-id'),
+        value: !previous_value,
+        authenticity_token: "<%= form_authenticity_token %>"
+      },
+      beforeSend: function() {
+        $checkbox.prop('disabled', true);
+      },
+      success: function() {
+        $checkbox.prop('disabled', false);
+        $checkbox.prop('checked', !previous_value);
+      },
+      error: function() {
+        $checkbox.prop('disabled', false);
+        alert("Não foi possível atualizar o questionário. Atualize a página e tente novamente.");
+      }
+    });
+  });
+
+  $('.line-checkbox').click(function(e) {
+    var $checkbox = $(this);
+    var previous_value;
+
+    e.preventDefault();
+
+    if(confirm("Isso irá inserir/retirar todas os questionários para este equipamento. Deseja prosseguir?")) {
+      if (this.checked) {
+        this.checked = false;
+        previous_value = false;
+      } else {
+        this.checked = true;
+        previous_value = true;
+      }
+
+      var $current_checkboxes = $(this).closest('tr').find('td .unique-checkbox');
+      var equipments_ids = $current_checkboxes.map(function() {
+        return $(this).data('equipment-id')
+      }).get();
+
+      $.ajax({
+        url: '<%= update_equipment_questions_url %>',
+        method: 'POST',
+        data: {
+          equipments_ids: equipments_ids,
+          question_id: $checkbox.data('question-id'),
+          value: !previous_value,
+          authenticity_token: "<%= form_authenticity_token %>"
+        },
+        beforeSend: function() {
+          $checkbox.prop('disabled', true);
+          $current_checkboxes.prop('disabled', true);
+        },
+        success: function() {
+          $checkbox.prop('disabled', false);
+          $checkbox.prop('checked', !previous_value);
+          $current_checkboxes.prop('checked', !previous_value);
+          $current_checkboxes.prop('disabled', false);
+        },
+        error: function() {
+          $checkbox.prop('disabled', false);
+          $current_checkboxes.prop('disabled', false);
+          alert("Não foi possível atualizar o questionário. Atualize a página e tente novamente.");
+        }
+      });
+    }
+  });
+
+  $(function() {
+    $('tbody').scroll(function(e) {
+      $('thead').css("left", -$("tbody").scrollLeft());
+      $('thead th:nth-child(1)').css("left", $("tbody").scrollLeft());
+      $('tbody td:nth-child(1)').css("left", $("tbody").scrollLeft());
+    });
+
+    $('.fixed-column-and-header-table thead th:nth-child(1)').height($('.request-table thead tr').height());
+  });
+</script>

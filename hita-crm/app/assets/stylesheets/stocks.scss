@@ -1,0 +1,16 @@
+@import "base";
+
+.stock-main-page {
+  .default-box {
+    @include hita-default-box();
+    padding: 15px;
+  }
+
+  &.upload-main-page {
+    .files-content {
+      button {
+        height: 36px;
+      }
+    }
+  }
+}

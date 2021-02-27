@@ -1,0 +1,12 @@
+var months = <%= raw @months %>;
+var scores = <%= raw @scores %>;
+
+$.each(months, function(k, v) {
+  $(`#monthSlot${k + 1}`).html(v);
+});
+
+$.each(scores, function(k, v) {
+  $(`#monthScoreSlot${k}`).html(`${v} pts`);
+});
+
+$('.requirements').html('<%= escape_javascript(render(:partial => "requirements/requirement", :locals => { :requirements => @requirements, :year => @year, :period => @period, :user => current_user, :criterion => @criterion, :manage_criterion => false })) %>');

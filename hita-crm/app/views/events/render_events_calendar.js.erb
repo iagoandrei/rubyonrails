@@ -1,0 +1,22 @@
+$('.event-calendar-container').html('');
+$('.event-calendar-container').append('<%= escape_javascript(render(:partial => "events/events_calendar")) %>');
+
+var calendarEl = document.getElementById('calendar');
+
+var calendar = new Calendar(calendarEl, {
+  plugins: [ dayGrid ],
+  locale: ptLocale,
+  events: <%= raw @events.to_json %>,
+  eventClick: function(info) {
+    var date = new Date(info.event.start.toDateString()),
+    yr       = date.getFullYear(),
+    month    = (date.getMonth() + 1) < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1,
+    day      = date.getDate()  < 10 ? '0' + date.getDate()  : date.getDate(),
+    newDate  = day + '/' + month + '/' + yr;
+
+    $("#eventListTab").trigger('click');
+    filterEvents(1, info.event.id);
+  }
+});
+
+calendar.render();

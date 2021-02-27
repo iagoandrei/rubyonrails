@@ -1,0 +1,134 @@
+<div class="main-section">
+  <div class="main-section-container container is-12">
+    <div class="columns">
+      <% if can? :index, Enterprise %>
+        <div class="column text-center">
+          <a href="<%= enterprises_index_path %>">
+            <div class="main-icon <%= 'current' if current_main_section == 'enterprise' %>">
+              <div class="sphere-background">
+                <%= inline_svg "menu_enterprise.svg" %>
+              </div>
+              <div class="caption">Empresas</div>
+              <div class="bottom-line"></div>
+            </div>
+          </a>
+        </div>
+      <% end %>
+      <% if can? :new, Request %>
+        <div class="column text-center">
+          <a href="<%= new_request_path %>">
+            <div class="main-icon <%= 'current' if current_main_section == 'proposals' %>">
+              <div class="sphere-background">
+                <%= inline_svg "menu_proposal.svg" %>
+              </div>
+              <div class="caption">Propostas</div>
+              <div class="bottom-line"></div>
+            </div>
+          </a>
+        </div>
+      <% end %>
+      <div class="column text-center">
+        <a href="<%= hindrance_index_path %>">
+          <div class="main-icon <%= 'current' if current_main_section == 'hindrance' %>">
+            <div class="sphere-background hindrance-menu-header">
+              <%= inline_svg "menu_hindrance.svg" %>
+              <% hindrances_qtd = current_user.hindrances.present? ? current_user.hindrances.where(is_active: true).size : 0 %>
+              <% delayed = current_user.hindrances.where('is_active = true AND due_time < ?', Date.today).present? %>
+
+              <% if hindrances_qtd > 0 %>
+                <% if hindrances_qtd > 99 %>
+                  <div class="hindrance-notification <%= 'delayed' if delayed %>">99+</div>
+                <% else %>
+                  <div class="hindrance-notification <%= 'delayed' if delayed %>"><%= hindrances_qtd %></div>
+                <% end %>
+              <% end %>
+            </div>
+            <div class="caption">Impedimentos</div>
+            <div class="bottom-line"></div>
+          </div>
+        </a>
+      </div>
+      <div class="column text-center">
+        <a href="<%= events_index_path %>">
+          <div class="main-icon <%= 'current' if current_main_section == 'schedule' %>">
+            <div class="sphere-background">
+              <%= inline_svg "menu_scheduler.svg" %>
+            </div>
+            <div class="caption">Agenda</div>
+            <div class="bottom-line"></div>
+          </div>
+        </a>
+      </div>
+      <div class="column text-center">
+        <a href="<%= requests_index_path %>">
+          <div class="main-icon <%= 'current' if current_main_section == 'requests' %>" >
+            <div class="sphere-background">
+              <%= inline_svg "menu_funnel.svg" %>
+            </div>
+            <div class="caption">Oportunidades</div>
+            <div class="bottom-line"></div>
+          </div>
+        </a>
+      </div>
+      <div class="column text-center">
+        <a href="<%= forms_index_url %>">
+          <div class="main-icon <%= 'current' if current_main_section == 'forms' %>">
+            <div class="sphere-background">
+              <%= inline_svg "menu_reports.svg" %>
+            </div>
+            <div class="caption">Formulários</div>
+            <div class="bottom-line"></div>
+          </div>
+        </a>
+      </div>
+      <div class="column text-center">
+        <a href="<%= stocks_index_path %>">
+          <div class="main-icon <%= 'current' if current_main_section == 'stock' %>">
+            <div class="sphere-background">
+              <%= inline_svg "menu_stock.svg" %>
+            </div>
+            <div class="caption">Estoque</div>
+            <div class="bottom-line"></div>
+          </div>
+        </a>
+      </div>
+      <div class="column text-center">
+        <a href="<%= index_database_path %>">
+          <div class="main-icon <%= 'current' if current_main_section == 'database' %>">
+            <div class="sphere-background">
+              <%= inline_svg "menu_library.svg" %>
+            </div>
+            <div class="caption">Biblioteca</div>
+            <div class="bottom-line"></div>
+          </div>
+        </a>
+      </div>
+      <% if can? :index, Requirement %>
+        <div class="column text-center">
+          <a href="<%= requirements_index_path %>">
+            <div class="main-icon <%= 'current' if current_main_section == 'requirements' %>">
+              <div class="sphere-background">
+                <%= inline_svg "menu_top_program.svg" %>
+              </div>
+              <div class="caption">TOP</div>
+              <div class="bottom-line"></div>
+            </div>
+          </a>
+        </div>
+      <% end %>
+      <% if can? :index, Report %>
+        <div class="column text-center">
+          <a href="<%= report_index_url %>">
+            <div class="main-icon <%= 'current' if current_main_section == 'reports' %>">
+              <div class="sphere-background">
+                <%= inline_svg "menu_reports.svg" %>
+              </div>
+              <div class="caption">Relatórios</div>
+              <div class="bottom-line"></div>
+            </div>
+          </a>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,43 @@
+<div class="column is-half">
+  <div id="collaboratorCard<%= collaborator.id %>" class="card" data-collaborator-id="<%= collaborator.id %>">
+    <div class="columns">
+      <div class="column is-2">
+        <div class="name-initials" style="background-color: <%= collaborator.get_color %>">
+          <span class="initials"><%= collaborator.get_initials %></span>
+        </div>
+      </div>
+      <div class="column is-10 padding-bottom-5">
+        <div class="infos">
+          <div class="edit-icon" data-collaborator-id="<%= collaborator.id %>"><%= inline_svg "edit.svg" %></div>
+          <div class="name" title="<%= collaborator.name %>"><%= collaborator.name %></div>
+          <div class="info-box">
+            <div class="columns is-multiline is-variable is-2">
+              <div class="column is-half">
+                <div class="info" title="<%= collaborator.job_role %>"><%= inline_svg "job_role_collaborator.svg" %> <%= collaborator.job_role %></div>
+              </div>
+              <div class="column is-half">
+                <div class="info" title="<%= collaborator.degree_of_relationship %>"><%= inline_svg "heart.svg" %> <%= collaborator.degree_of_relationship %></div>
+              </div>
+              <div class="column is-half">
+                <div class="info" title="<%= collaborator.enterprise&.name %>"><%= inline_svg "enterprise.svg" %> <%= collaborator.enterprise&.name %></div>
+              </div>
+              <div class="column is-half">
+                <div class="info"><%= inline_svg "profile.svg" %> <%= collaborator.get_status_name %></div>
+              </div>
+            </div>
+          </div>
+          <div class="phone-mail">
+            <div class="columns">
+              <div class="column is-two-fifths">
+                <div class="info"><%= inline_svg "phone.svg" %> <%= collaborator.friendly_phone %></div>
+              </div>
+              <div class="column is-three-fifths">
+                <div class="info" title="<%= collaborator.email %>"><%= inline_svg "email.svg" %> <%= collaborator.email %></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,96 @@
+<div class="collaborator-modal">
+  <div id="collaboratorModal" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      <div class="columns is-variable is-2 no-margin-bottom">
+        <div class="column is-10">
+          <div id="collaboratorName" class="main-title"></div>
+          <div class="collaborator-infos">
+            <div class="columns is-multiline is-variable is-2">
+              <div class="column is-one-third">
+                <div class="info"><%= inline_svg "job_role_collaborator.svg" %> <span id="collaboratorJob"></span></div>
+              </div>
+              <div class="column is-one-third">
+                <div class="info"><%= inline_svg "enterprise.svg" %> <span id="collaboratorEnterprise"></span></div>
+              </div>
+              <div class="column is-one-third">
+                <div class="info"><%= inline_svg "heart.svg" %> <span id="collaboratorRelation"></span></div>
+              </div>
+              <div class="column is-one-third">
+                <div class="info"><%= inline_svg "phone.svg" %> <span id="collaboratorPhone"></span></div>
+              </div>
+              <div class="column is-one-third">
+                <div class="info"><%= inline_svg "email.svg" %> <span id="collaboratorEmail"></span></div>
+              </div>
+              <div class="column is-one-third">
+                <div class="info"><%= inline_svg "profile.svg" %> <span id="collaboratorStatus"></span></div>
+              </div>
+              <div class="column is-one-third">
+                <div class="blue-light-color">Treinado em Salvador?</div>
+                <div><span id="collaboratorSalvadorTraining"></span></div>
+              </div>
+              <div class="column is-one-third">
+                <div class="blue-light-color">Área:</div>
+                <div><span id="collaboratorArea"></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="column is-2">
+          <div class="collaborator-sidebar">
+            <div class="outter-box-title">Configurações:</div>
+            <div class="add-list">
+              <button id="editCollaboratorModalBt" class="button is-secondary is-fullwidth">Editar</button>
+              <% if can? :destroy, Collaborator %>
+                <%= form_tag destroy_collaborator_path, method: :delete do %>
+                  <input class="hidden-collaborator-id" type="hidden" name="collaborator[id]">
+                  <button class="button is-secondary is-fullwidth">Excluir</button>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column is-9">
+        <div class="outter-box-title">Histórico</div>
+          <div class="interactions"></div>
+        </div>
+      </div>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+  </div>
+</div>
+
+<% content_for :tail_script do %>
+  <script>
+    var mention_values = [];
+
+    $(".file-input").change(function(e) {
+      var fileName = e.target.files[0].name;
+      $(".file-name-content").html(fileName);
+    });
+
+    $(".action-icon").click(function() {
+      var idName = $(this).attr('id');
+
+      $(".action-icon").removeClass('active');
+      $(this).addClass('active');
+
+      $(".interaction-description").addClass('is-hidden');
+      $(`#${idName}Content`).removeClass('is-hidden');
+    });
+
+    var collaboratorTribute = new Tribute({
+      values: <%= raw @users.to_json %>,
+      selectTemplate: function (item) {
+        mention_values.push(item.original.value)
+        $(".collaborator-mentions").val(JSON.stringify(mention_values));
+
+        return '@' + item.original.value;
+      },
+    });
+
+    collaboratorTribute.attach($(".textarea-interaction-collaborator"));
+  </script>
+<% end %>

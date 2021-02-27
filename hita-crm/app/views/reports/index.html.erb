@@ -1,0 +1,592 @@
+<%= render partial: 'shared/main_upper_section', locals: { current_main_section: 'reports' } %>
+
+<div class="enterprises-main-page reports-container">
+  <div class="enterprises-main-container container">
+    <%= render partial: 'shared/flash_message' %>
+    <div class="columns">
+      <div class="column is-2">
+        <%= render partial: 'shared/main_sidebar', locals: { main_page: 'reports', current_page: 'reports' } %>
+        <%= render partial: 'report_enterprise_funnel' %>
+      </div>
+      <div class="column is-10">
+        <div class="filters-container">
+          <div class="filters">
+            <div class="filter-title display-flex">Filtros</div><span id="filterRevenuesCount"></span>
+            <%= form_tag '', method: :post, id: 'filterEnterpriseForm' do %>
+              <input id="viewModeInputHidden" type="hidden" name="view_mode" value="Mês">
+              <input id="dataViewInputHidden" type="hidden" name="data_view" value="resumed">
+              <input id="yearInputHidden" type="hidden" name="year" value="<%= @current_year %>">
+              <input id="pageInputForm" type="hidden" name="page">
+              <div class="filter-inputs">
+                <div class="columns is-variable is-1">
+                  <% unless current_user.role?(User::ROLES[:consultant]) %>
+                    <div class="column is-one-fifth">
+                      <div class="input-title">Nome do consultor</div>
+                      <div class="dropdown dropdown-filter is-hoverable">
+                        <div class="dropdown-trigger">
+                          <div id="consultantBt" class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+                            <label>--</label>
+                            <span class="icon is-small">
+                              <%= inline_svg 'dropdown_arrow.svg' %>
+                            </span>
+                          </div>
+                        </div>
+                        <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                          <div class="dropdown-content">
+                            <div class="dropdown-filter">
+                              <div class="filter-title">Filtrar</div>
+                              <input class="input dropdown-filter-input">
+                            </div>
+                            <div class="b-checkbox is-primary no-select">
+                              <input id="allConsultants" class="styled all-consultant-checkbox" type="checkbox">
+                              <label for="allConsultants">
+                                Todos
+                              </label>
+                            </div>
+                            <% @consultants.each do |consultant| %>
+                              <div class="b-checkbox is-primary no-select">
+                                <input id="<%= consultant.name %>" class="styled consultant-checkbox" type="checkbox" name="consultant_ids[]" value="<%= consultant.id %>">
+                                <label for="<%= consultant.name %>">
+                                  <%= consultant.name %>
+                                </label>
+                              </div>
+                            <% end %>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  <% end %>
+                  <div class="column is-one-fifth">
+                    <div class="input-title">Nome da Empresa</div>
+                    <div class="dropdown dropdown-filter is-hoverable">
+                      <div class="dropdown-trigger">
+                        <div id="enterpriseBt" class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+                          <% if params[:filter].present? and params[:filter_value].present? %>
+                            <label>1 selecionado(s)</label>
+                          <% else %>
+                            <label>--</label>
+                          <% end %>
+                          <span class="icon is-small">
+                            <%= inline_svg 'dropdown_arrow.svg' %>
+                          </span>
+                        </div>
+                      </div>
+                      <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                        <div class="dropdown-content">
+                          <div class="dropdown-filter">
+                            <div class="filter-title">Filtrar</div>
+                            <input class="input dropdown-filter-input">
+                          </div>
+                          <div class="b-checkbox is-primary no-select all-options">
+                            <input id="allEnterprises" class="styled all-enterprise-checkbox" type="checkbox">
+                            <label for="allEnterprises">
+                              Todos
+                            </label>
+                          </div>
+                          <% @enterprises.each do |enterprise| %>
+                            <div class="b-checkbox is-primary no-select">
+                              <% if params[:filter].present? and params[:filter_value].present? %>
+                                <input id="<%= enterprise.name %>" class="styled enterprise-checkbox" type="checkbox" name="enterprise_ids[]" value="<%= enterprise.id %>" <%= 'checked' if enterprise.name == params[:filter_value] %>>
+                              <% else %>
+                                <input id="<%= enterprise.name %>" class="styled enterprise-checkbox" type="checkbox" name="enterprise_ids[]" value="<%= enterprise.id %>">
+                              <% end %>
+                              <label for="<%= enterprise.name %>">
+                                <%= enterprise.name %>
+                              </label>
+                            </div>
+                          <% end %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="column">
+                    <div class="input-title">Tipo</div>
+                    <div class="dropdown dropdown-filter is-hoverable">
+                      <div class="dropdown-trigger">
+                        <div id="enterpriseTypeBt" class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+                          <label>--</label>
+                          <span class="icon is-small">
+                            <%= inline_svg 'dropdown_arrow.svg' %>
+                          </span>
+                        </div>
+                      </div>
+                      <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                        <div class="dropdown-content">
+                          <div class="b-checkbox is-primary no-select">
+                            <input id="allEnterprisesType" class="styled all-enterprise-type-checkbox" type="checkbox">
+                            <label for="allEnterprisesType">
+                              Todos
+                            </label>
+                          </div>
+                          <% @enterprise_type.each do |type| %>
+                            <div class="b-checkbox is-primary no-select">
+                              <input id="<%= type %>" class="styled enterprise-type-checkbox" type="checkbox" name="enterprise_type[]" value="<%= type %>">
+                              <label for="<%= type %>">
+                                <%= type %>
+                              </label>
+                            </div>
+                          <% end %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="column is-one-fifth">
+                    <div class="input-title">Setor da Indústria</div>
+                    <div class="dropdown dropdown-filter is-hoverable">
+                      <div class="dropdown-trigger">
+                        <div id="enterpriseSectorBt" class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+                          <label>--</label>
+                          <span class="icon is-small">
+                            <%= inline_svg 'dropdown_arrow.svg' %>
+                          </span>
+                        </div>
+                      </div>
+                      <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                        <div class="dropdown-content">
+                          <div class="b-checkbox is-primary no-select">
+                            <input id="allEnterprisesSector" class="styled all-enterprise-sector-checkbox" type="checkbox">
+                            <label for="allEnterprisesSector">
+                              Todos
+                            </label>
+                          </div>
+                          <% @sectors.each do |sector| %>
+                            <div class="b-checkbox is-primary no-select">
+                              <input id="<%= sector %>" class="styled enterprise-sector-checkbox" type="checkbox" name="enterprise_sector[]" value="<%= sector %>">
+                              <label for="<%= sector %>">
+                                <%= sector %>
+                              </label>
+                            </div>
+                          <% end %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="column">
+                    <div class="input-title">U.F.</div>
+                    <div class="dropdown dropdown-filter is-hoverable">
+                      <div class="dropdown-trigger">
+                        <div id="enterpriseStateBt" class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+                          <label>--</label>
+                          <span class="icon is-small">
+                            <%= inline_svg 'dropdown_arrow.svg' %>
+                          </span>
+                        </div>
+                      </div>
+                      <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                        <div class="dropdown-content">
+                          <div class="b-checkbox is-primary no-select">
+                            <input id="allEnterprisesState" class="styled all-enterprise-state-checkbox" type="checkbox">
+                            <label for="allEnterprisesState">
+                              Todos
+                            </label>
+                          </div>
+                          <% @states.each do |state| %>
+                            <div class="columns"></div>
+                            <div class="b-checkbox is-primary no-select">
+                              <input id="<%= state %>" class="styled enterprise-state-checkbox" type="checkbox" name="enterprise_state[]" value="<%= state %>">
+                              <label for="<%= state %>">
+                                <%= state %>
+                              </label>
+                            </div>
+                          <% end %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="columns is-variable is-1">
+                  <div class="column is-one-fifth">
+                    <div class="input-title">Cidade</div>
+                    <div class="dropdown dropdown-filter is-hoverable">
+                      <div class="dropdown-trigger">
+                        <div id="enterpriseCityBt" class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+                          <label>--</label>
+                          <span class="icon is-small">
+                            <%= inline_svg 'dropdown_arrow.svg' %>
+                          </span>
+                        </div>
+                      </div>
+                      <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                        <div class="dropdown-content">
+                          <div class="dropdown-filter">
+                            <div class="filter-title">Filtrar</div>
+                            <input class="input dropdown-filter-input">
+                          </div>
+                          <div class="b-checkbox is-primary no-select">
+                            <input id="allEnterprisesCity" class="styled all-enterprise-city-checkbox" type="checkbox">
+                            <label for="allEnterprisesCity">
+                              Todos
+                            </label>
+                          </div>
+                          <% @cities.each do |city| %>
+                            <div class="columns"></div>
+                            <div class="b-checkbox is-primary no-select">
+                              <input id="<%= city %>" class="styled enterprise-city-checkbox" type="checkbox" name="enterprise_city[]" value="<%= city %>">
+                              <label for="<%= city %>">
+                                <%= city %>
+                              </label>
+                            </div>
+                          <% end %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="column is-one-fifth">
+                    <div class="input-title">Visualização</div>
+                    <div class="dropdown dropdown-filter is-hoverable">
+                      <div class="dropdown-trigger">
+                        <div class="button toggle-bt" aria-haspopup="true" aria-controls="dropdown-menu">
+                          <label class="toogle-view-label">Mês</label>
+                          <span class="icon is-small">
+                            <%= inline_svg 'dropdown_arrow.svg' %>
+                          </span>
+                        </div>
+                      </div>
+                      <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                        <div class="dropdown-content toogle-view-content">
+                          <label class="dropdown-item toggle-view-mode" view='Mês'>
+                            Mês
+                          </label>
+                          <hr class="dropdown-divider">
+                          <label class="dropdown-item toggle-view-mode" view='Ano'>
+                            Ano
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="column is-one-fifth">
+                    <div class="input-title">Dados:</div>
+                    <div class="dropdown dropdown-filter is-hoverable">
+                      <div class="dropdown-trigger">
+                        <div class="button toggle-bt" aria-haspopup="true" aria-controls="dropdown-menu">
+                          <label class="toogle-data-view-label">Resumidos</label>
+                          <span class="icon is-small">
+                            <%= inline_svg 'dropdown_arrow.svg' %>
+                          </span>
+                        </div>
+                      </div>
+                      <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                        <div class="dropdown-content toogle-view-content">
+                          <label class="dropdown-item toggle-data-view-mode" view='resumed'>
+                            Resumidos
+                          </label>
+                          <hr class="dropdown-divider">
+                          <label class="dropdown-item toggle-data-view-mode" view='complete'>
+                            Completos
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="columns is-variable is-1 margin-top-20">
+                <div class="column is-one-fifth">
+                  <button id="filterEnterprise" class="button is-primary is-fullwidth">Buscar</button>
+                </div>
+                <div class="column is-one-fifth">
+                  <button id="clearFilterBt" class="button is-secondary is-pulled-left">Limpar</button>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+        <div class="filter-year-head no-select">
+          <div class="filter-year-box">
+            <span class="previous"><</span>
+            <span class="year"><%= @current_year %></span>
+            <span class="next">></span>
+          </div>
+        </div>
+        <div class="report-table"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= render 'change_planned_modal' %>
+<%= render 'report_funnel_modal' %>
+
+<script type="text/javascript">
+  var consultantQtd       = 0;
+      enterpriseQtd       = 0;
+      enterpriseTypeQtd   = 0;
+      enterpriseSectorQtd = 0;
+      enterpriseStateQtd  = 0;
+      enterpriseCityQtd   = 0;
+      year                = <%= @current_year %>;
+      filter_params       = '';
+      filter_params_value = '';
+
+  $(function() {
+    searchEnterprises(1);
+  });
+
+  function searchEnterprises(page) {
+    if (page) {
+      $('#pageInputForm').val(page);
+    }
+
+    var form = $("#filterEnterpriseForm");
+
+    $.ajax({
+      url: '<%= render_current_enterprises_reports_url %>',
+      data: form.serialize(),
+      dataType: 'script',
+      beforeSend: function() {
+        $(".enterprise-name").html('<div class="loader"></div>');
+        $(".report-table table tbody td").html('<div class="loader"></div>');
+        $(".bar span").html('<div class="loader"></div>');
+      }
+    });
+  };
+
+  $(".next").click(function() {
+    year += 1;
+
+    $(".year").html(`${year}`);
+    $("#yearInputHidden").val(year);
+    searchEnterprises();
+  });
+
+  $(".previous").click(function() {
+    year -= 1;
+
+    $(".year").html(`${year}`);
+    $("#yearInputHidden").val(year);
+    searchEnterprises();
+  });
+
+  $(".all-consultant-checkbox").click(function() {
+    if ($(this).is(":checked")) {
+      var size = <%= @consultants.size %>;
+
+      $(".consultant-checkbox").prop('checked', true);
+      $("#consultantBt label").html(`${size} selecionado(s)`);
+    } else {
+      $(".consultant-checkbox").prop('checked', false);
+      $("#consultantBt label").html('--');
+    }
+  });
+
+  $(".all-enterprise-checkbox").click(function() {
+    if ($(this).is(":checked")) {
+      var size = <%= @enterprises.size %>;
+
+      $(".enterprise-checkbox").prop('checked', true);
+      $("#enterpriseBt label").html(`${size} selecionado(s)`);
+    } else {
+      $(".enterprise-checkbox").prop('checked', false);
+      $("#enterpriseBt label").html('--');
+    }
+  });
+
+  $(".all-enterprise-type-checkbox").click(function() {
+    if ($(this).is(":checked")) {
+      var size = <%= @enterprise_type.size %>;
+
+      $(".enterprise-type-checkbox").prop('checked', true);
+      $("#enterpriseTypeBt label").html(`${size} selecionado(s)`);
+    } else {
+      $(".enterprise-type-checkbox").prop('checked', false);
+      $("#enterpriseTypeBt label").html('--');
+    }
+  });
+
+  $(".all-enterprise-sector-checkbox").click(function() {
+    if ($(this).is(":checked")) {
+      var size = <%= @sectors.size %>;
+
+      $(".enterprise-sector-checkbox").prop('checked', true);
+      $("#enterpriseSectorBt label").html(`${size} selecionado(s)`);
+    } else {
+      $(".enterprise-sector-checkbox").prop('checked', false);
+      $("#enterpriseSectorBt label").html('--');
+    }
+  });
+
+  $(".all-enterprise-state-checkbox").click(function() {
+    if ($(this).is(":checked")) {
+      var size = <%= @states.size %>;
+
+      $(".enterprise-state-checkbox").prop('checked', true);
+      $("#enterpriseStateBt label").html(`${size} selecionado(s)`);
+    } else {
+      $(".enterprise-state-checkbox").prop('checked', false);
+      $("#enterpriseStateBt label").html('--');
+    }
+  });
+
+  $(".all-enterprise-city-checkbox").click(function() {
+    if ($(this).is(":checked")) {
+      var size = <%= @cities.size %>;
+
+      $(".enterprise-city-checkbox").prop('checked', true);
+      $("#enterpriseCityBt label").html(`${size} selecionado(s)`);
+    } else {
+      $(".enterprise-city-checkbox").prop('checked', false);
+      $("#enterpriseCityBt label").html('--');
+    }
+  });
+
+  $(".consultant-checkbox").click(function() {
+    var size = $(".consultant-checkbox:checked").length;
+
+    if (size > 0) {
+      $("#consultantBt label").html(`${size} selecionado(s)`);
+    } else {
+      $("#consultantBt label").html('--');
+    }
+
+    if ($(this).not(":checked")) {
+      $(".all-consultant-checkbox").prop('checked', false);
+    }
+  });
+
+  $(".enterprise-checkbox").click(function() {
+    var size = $(".enterprise-checkbox:checked").length;
+
+    if (size > 0) {
+      $("#enterpriseBt label").html(`${size} selecionado(s)`);
+    } else {
+      $("#enterpriseBt label").html('--');
+    }
+
+    if ($(this).not(":checked")) {
+      $(".all-enterprise-checkbox").prop('checked', false);
+    }
+  });
+
+  $(".enterprise-type-checkbox").click(function() {
+    var size = $(".enterprise-type-checkbox:checked").length;
+
+    if (size > 0) {
+      $("#enterpriseTypeBt label").html(`${size} selecionado(s)`);
+    } else {
+      $("#enterpriseTypeBt label").html('--');
+    }
+
+    if ($(this).not(":checked")) {
+      $(".all-enterprise-type-checkbox").prop('checked', false);
+    }
+  });
+
+  $(".enterprise-sector-checkbox").click(function() {
+    var size = $(".enterprise-sector-checkbox:checked").length;
+
+    if (size > 0) {
+      $("#enterpriseSectorBt label").html(`${size} selecionado(s)`);
+    } else {
+      $("#enterpriseSectorBt label").html('--');
+    }
+
+    if ($(this).not(":checked")) {
+      $(".all-enterprise-sector-checkbox").prop('checked', false);
+    }
+  });
+
+  $(".enterprise-state-checkbox").click(function() {
+    var size = $(".enterprise-state-checkbox:checked").length;
+
+    if (size > 0) {
+      $("#enterpriseStateBt label").html(`${size} selecionado(s)`);
+    } else {
+      $("#enterpriseStateBt label").html('--');
+    }
+
+    if ($(this).not(":checked")) {
+      $(".all-enterprise-state-checkbox").prop('checked', false);
+    }
+  });
+
+  $(".enterprise-city-checkbox").click(function() {
+    var size = $(".enterprise-city-checkbox:checked").length;
+
+    if (size > 0) {
+      $("#enterpriseCityBt label").html(`${size} selecionado(s)`);
+    } else {
+      $("#enterpriseCityBt label").html('--');
+    }
+
+    if ($(this).not(":checked")) {
+      $(".all-enterprise-city-checkbox").prop('checked', false);
+    }
+  });
+
+  $("#filterEnterpriseForm").submit(function(e) {
+    e.preventDefault();
+    searchEnterprises();
+  });
+
+  $("#clearFilterBt").click(function(e) {
+    e.preventDefault();
+
+    $('input[type=checkbox]').prop('checked', false);
+    $("#consultantBt label").html('--');
+    $("#enterpriseBt label").html('--');
+    $("#enterpriseTypeBt label").html('--');
+    $("#enterpriseSectorBt label").html('--');
+    $("#enterpriseStateBt label").html('--');
+    $("#enterpriseCityBt label").html('--');
+
+    searchEnterprises();
+  });
+
+  $(".toggle-view-mode").click(function() {
+    $(".toogle-view-label").html($(this).attr('view'));
+    $("#viewModeInputHidden").val($(this).attr('view'));
+  });
+
+  $(".toggle-data-view-mode").click(function() {
+    $(".toogle-data-view-label").html($(this).text().trim());
+    $("#dataViewInputHidden").val($(this).attr('view'));
+  });
+
+  $("#newReportForm").submit(function(e) {
+    e.preventDefault();
+
+    var form = $(this);
+
+    $.ajax({
+      type: 'post',
+      url: '<%= create_new_report_url %>',
+      data: form.serialize(),
+      dataType: 'script',
+      complete: function() {
+        $("#changePlannedModal").removeClass('is-active');
+        $("#newReportBt").prop('disabled', false);
+        searchEnterprises();
+
+        $("#reportEnterpriseIdInputHidden").val('');
+        $("#reportMonthNumberInputHidden").val('');
+        $("#reportYearInputHidden").val('');
+        $("#reportTypeInputHidden").val('');
+        $("#reportPeriodTypeIdInputHidden").val('');
+        $("#money").val('');
+      }
+    });
+  });
+
+  $('.see-complete-funnel').click(function() {
+    $('#reportFunnelModal').addClass('is-active');
+  })
+
+  $('.report-table').on('click', '.pagination a:not(.next_page, .previous_page)', function(e) {
+    e.preventDefault();
+    var page = $(this).text();
+
+    searchEnterprises(page);
+  });
+
+  $('.report-table').on('click', '.next_page', function(e) {
+    e.preventDefault();
+    $('.pagination a[rel="next"]').first().trigger('click');
+  });
+
+  $('.report-table').on('click', '.previous_page', function(e) {
+    e.preventDefault();
+    $('.pagination a[rel="prev"]').last().trigger('click');
+  });
+
+</script>

@@ -1,0 +1,125 @@
+<div class="flow-chart-modal">
+  <div id="specificRequestFileModal" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      <div>Enviar <span id="spanFileTypeName" class="has-text-weight-bold"></span></div>
+      <%= form_tag upload_request_specific_files_url, method: :post, multipart: true, id: 'specificFileForm' do %>
+        <div class="columns margin-top-10 files-content">
+          <div class="column">
+            <div class="file has-name">
+              <label class="file-label fluid">
+                <input type="hidden" name="request[id]" class="request-id" value="">
+                <input type="hidden" name="request[file_type]" class="file-type">
+                <input id="specificFileType" class="file-input specific-file-input chart-file-input" type="file" name="file" required>
+                <span class="file-cta">
+                  <span class="file-label">
+                    Escolha um arquivo...
+                  </span>
+                </span>
+                <span class="file-name fluid">
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column">
+            <button id="sendFileButton" class="button is-primary is-fullwidth" disabled>Enviar Arquivo</button>
+          </div>
+        </div>
+      <% end %>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  var specific_type_names = {
+    'proposal': 'Proposta',
+    'calculation_memorial': 'Memorial de Cálculo',
+    'photos_report': 'Relatório de 3 fotos',
+    'procedure': 'Procedimento',
+    'success_certificate': 'Atestado de Sucesso',
+    'execution_certificate': 'Atestado de Execução',
+    'financial_files': 'Arquivo Financeiro',
+    'fs': 'FS',
+    'qsc': 'QSC',
+    'rdo': 'RDO'
+  }
+
+  $('.specific-file-item').click(function() {
+    var current_file_type = $(this).data('file-type');
+
+    $('#specificFileForm').find('.request-id').val($('.request-modal').data('request-id'));
+    $('#specificFileForm').find('.file-type').val(current_file_type);
+    $('#specificFileType').attr('name', `request[${current_file_type}]`);
+    $('#spanFileTypeName').text(specific_type_names[current_file_type]);
+    $('#specificRequestFileModal').addClass('is-active');
+  });
+
+  $('.specific-file-input').change(function(e) {
+    if (e.target.files.length > 0) {
+      $('#sendFileButton').prop('disabled', false);
+    } else {
+      $('#sendFileButton').prop('disabled', true);
+    }
+
+    var fileName = e.target.files[0].name;
+    $(this).parent().find('.file-name').text(fileName);
+  });
+
+  $('#specificFileForm').submit(function(e) {
+    e.preventDefault();
+    var $submitButton = $(this).find('button');
+    $submitButton.addClass('is-loading');
+
+    $.ajax({
+      url:'<%= upload_request_specific_files_url %>',
+      type: 'POST',
+      data: new FormData(this),
+      processData: false,
+      contentType: false,
+      success: function() {
+        $submitButton.removeClass('is-loading');
+        alert("O arquivo foi enviado com Sucesso!");
+
+        $('#sendFileButton').prop('disabled', true);
+        $("#specificRequestFileModal").removeClass('is-active');
+        $('#specificFileType').val(null);
+        $('#specificFileType').parent().find('.file-name').text('');
+
+        if ($('#specificFileType').attr('name') == 'request[proposal]') {
+          is_proposal_present = true;
+        }
+
+        if (uploaded_proposal_from_steps && is_proposal_present == false) {
+          is_proposal_present = true;
+          updateModalSteps('3');
+          $('tr[data-request-id="' + $('.request-modal').data('request-id') +'"]').remove();
+        }
+
+        var file_type = $('#specificFileForm').find('.file-type').val();
+
+        if (file_type == 'qsc') {
+          is_qsc_present = true;
+          $('#attachQSCBt').prop('disabled', true);
+          $('#attachQSCBt').find('.rounded-icon').addClass('valid');
+          $('#attachQSCBt').find('svg').addClass('valid');
+        }
+
+        if (file_type == 'photos_report') {
+          is_photos_report_present = true;
+          $('#attachPhotosRelBt').prop('disabled', true);
+          $('#attachPhotosRelBt').find('.rounded-icon').addClass('valid');
+          $('#attachPhotosRelBt').find('svg').addClass('valid');
+        }
+
+      },
+      error: function() {
+        $submitButton.removeClass('is-loading');
+        alert("Ocorreu um erro ao enviar o arquivo");
+      }
+    });
+  });
+
+</script>

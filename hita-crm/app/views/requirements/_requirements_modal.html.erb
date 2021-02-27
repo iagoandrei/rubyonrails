@@ -1,0 +1,71 @@
+<div class="hita-modal requirement-modal">
+  <div id="requirementModal" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      <div class="columns">
+        <div class="column is-9 no-padding-bottom">
+          <div class="title">Adicione pontos em <span id="requirementModalTitle" class="highlight-color"></span></div>
+        </div>
+      </div>
+      <div id="userScoreContentInfo" class="is-hidden">
+        <div class="columns">
+          <div class="column text-center">
+            A pontuação para esse requisito acontece de forma automática
+          </div>
+        </div>
+      </div>
+      <div id="addUserScoreContent" class="is-hidden">
+        <%= form_tag user_scores_create_path, method: :post, multipart: true, id: "newUserScoreForm" do %>
+          <input id="hiddenRequirementInputId" type="hidden" name="requirement_id">
+          <input id="hiddenRequirementInputUserId" type="hidden" name="user_id">
+          <div class="columns">
+            <div class="column is-one-third no-padding-bottom">
+              <label class="input-label">Selecione o período para inclusão</label>
+              <div class="select">
+                <select id="requirementModalPeriodSelect" class="select" name="period">
+                  <option>Selecione</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="columns is-vcentered">
+            <div class="column is-narrow">
+              <label for="fileUpload" class="button is-secondary attachment-bt"><%= inline_svg "attachment.svg" %> Adicionar anexo</label>
+              <input id="fileUpload" class="hide" type="file" name="user_score_attachment">
+            </div>
+            <div class="column">
+              <span id="attachmentFilename"></span>
+            </div>
+          </div>
+          <div class="columns">
+            <div class="column no-padding-top">
+              <label class="input-label">Escreva um comentário</label>
+              <textarea class="textarea" placeholder="Descrição" name="comment"></textarea>
+            </div>
+          </div>
+          <div class="columns">
+            <div class="column">
+              <div class="score-history-content"></div>
+            </div>
+          </div>
+          <div class="columns">
+            <div class="column">
+              <button id="addUserScoreBt" class="button is-primary is-pulled-right"><%= inline_svg "plus.svg" %> Adicionar pontos</button>
+            </div>
+          </div>
+        <% end %>
+        <button class="modal-close is-large" aria-label="close"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $("#fileUpload").change(function(e) {
+    $('#attachmentFilename').text(`${e.target.files.length} arquivo(s) selecionados`);
+
+    if (e.target.files.length > 0) {
+      $("#addUserScoreBt").prop('disabled', false);
+    }
+  });
+</script>

@@ -1,0 +1,18 @@
+<table>
+  <thead>
+    <th><div>Nome do arquivo</div></th>
+    <th><div>Data de upload</div></th>
+    <th><div>Tamanho</div></th>
+    <th><div>Remover</div></th>
+  </thead>
+  <tbody>
+    <% files.each do |file| %>
+      <tr>
+        <td><a href="<%= file['blob_path'] %>"><%= file['filename'] %></a></td>
+        <td><div><%= file['date'] %></div></td>
+        <td><div><%= file['size'] %></div></td>
+        <td><div class="remove-enterprise-file" data-blob-id="<%= file['blob_id'] %>"><%= inline_svg "remove.svg" %></div></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

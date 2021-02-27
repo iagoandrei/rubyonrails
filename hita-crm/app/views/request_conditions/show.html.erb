@@ -1,0 +1,29 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Payment type:</strong>
+  <%= @request_condition.payment_type %>
+</p>
+
+<p>
+  <strong>Operation type:</strong>
+  <%= @request_condition.operation_type %>
+</p>
+
+<p>
+  <strong>Storage center:</strong>
+  <%= @request_condition.storage_center %>
+</p>
+
+<p>
+  <strong>Payment code:</strong>
+  <%= @request_condition.payment_code %>
+</p>
+
+<p>
+  <strong>Request:</strong>
+  <%= @request_condition.request_id %>
+</p>
+
+<%= link_to 'Edit', edit_request_condition_path(@request_condition) %> |
+<%= link_to 'Back', request_conditions_path %>

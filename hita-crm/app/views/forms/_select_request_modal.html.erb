@@ -1,0 +1,33 @@
+<div class="flow-chart-modal">
+  <div id="selectRequest" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      <div>Selecione a <span class="has-text-weight-bold">empresa</span> e o <span class="has-text-weight-bold">pedido</span> para gerar o <span class="has-text-weight-bold">documento</span></div>
+      <%= form_tag generate_form_url, method: :get, id: 'generateForm' do %>
+        <div class="columns margin-top-10 files-content">
+          <div class="column">
+            <input id="selectRequestId" type="hidden" name="form[id]">
+            <div>Selecione a empresa</div>
+            <div class="select">
+              <%= select_tag "form[enterprise_id]", options_for_select(@enterprises), prompt: "--", required: true, class: "select enterprise-select" %>
+            </div>
+            <div class="request-input margin-top-10">
+              <div>Selecione o Pedido</div>
+              <div class="select">
+                <select id="requestSelect" class="select request-select" name="form[request_id]" required disabled>
+                  <option value="">Primeiramente, selecione a empresa</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column">
+            <button class="button is-primary is-fullwidth">Gerar Documento</button>
+          </div>
+        </div>
+      <% end %>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+  </div>
+</div>

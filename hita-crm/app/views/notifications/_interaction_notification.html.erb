@@ -1,0 +1,22 @@
+<a href="<%= redirect_notification_path(notification.id) %>">
+  <div class="dropdown-item">
+    <div class="notification-message">
+      <div class="columns is-vcentered">
+        <div class="column text-center is-2">
+          <div class="circle marguerite-bg">
+            <%= notification.interaction.owner.get_initials %>
+          </div>
+        </div>
+        <div class="column">
+          <% if notification.enterprise %>
+            <div><%= "#{notification.interaction.owner.name} mencionou você em <span class='weight-600'>#{notification.enterprise.name}</span>.".html_safe %></div>
+          <% end %>
+          <div class="content">
+            <%= notification.message.html_safe %>
+          </div>
+          <div><%= l(notification.created_at.to_date, format: :short_time) %></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</a>

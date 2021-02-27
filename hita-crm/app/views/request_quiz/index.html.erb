@@ -1,0 +1,57 @@
+<%= render partial: 'shared/main_upper_section', locals: { current_main_section: nil } %>
+
+<div class="forms-main-page container">
+  <%= render partial: '/shared/flash_message' %>
+
+  <div class="default-box <%= 'margin-top-10' if flash[:notice].present? or flash[:alert].present? %>">
+    <div class="columns">
+      <div class="column">
+        <div>Gerencie todos os blocos de preguntas criados. Se deseja criar um novo bloco, clique no botão abaixo:</div>
+      </div>
+    </div>
+    <div class="columns">
+      <div class="column is-3 no-padding-top">
+        <a href="<%= new_request_quiz_path %>">
+          <button id="" class="button is-primary"><%= inline_svg "plus.svg" %> Criar novo bloco de perguntas</button>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="columns margin-top-10">
+    <div class="column">
+      <table class="available-forms-list request-table fluid">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Atualizado por:</th>
+            <th>Atualizado em</th>
+            <th>Criado em</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @quizzes.each do |quiz| %>
+            <tr>
+              <td><div class="name"><%= quiz.title %></div></td>
+              <td><div class="name"><%= quiz.user&.name %></div></td>
+              <td><div class="name"><%= quiz.updated_at.strftime("%d/%m/%y %H:%M") %></div></td>
+              <td><div class="name"><%= quiz.created_at.strftime("%d/%m/%y %H:%M") %></div></td>
+              <td>
+                <div class="actions" data-current-form="<%= quiz.id %>">
+                  <div class="icon update-modal">
+                    <%= link_to inline_svg("edit.svg"), edit_request_quiz_url(quiz.id) %>
+                  </div>
+                  <div class="icon">
+                    <%= link_to inline_svg("remove.svg"),
+                    destroy_request_quiz_url(quiz.id),
+                    method: :delete,
+                    data: { confirm: 'Tem certeza que deseja remover este bloco? Esta ação não poderá ser desfeita.' } %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

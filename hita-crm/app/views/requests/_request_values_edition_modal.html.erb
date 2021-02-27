@@ -1,0 +1,124 @@
+<div class="request-values-edit-modal">
+  <div id="valuesEditionModal" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      <div class="real-value-edit">
+        <div class="columns">
+          <div class="column">
+            <div class="title">
+              Edição de valor planejado
+            </div>
+          </div>
+        </div>
+        <%= form_tag update_request_values_path, method: :post, id: 'realRequestValuesForm' do %>
+          <input type="hidden" name="request_id">
+          <input type="hidden" name="request_value_type" value="real">
+          <div class="columns no-margin-bottom">
+            <div class="column">
+              <div>Valor do pedido:</div>
+              <input class="input" type="" name="real_value[request]" disabled>
+            </div>
+          </div>
+          <div class="columns no-margin-bottom">
+            <div class="column">
+              <div>Produtos:</div>
+              <input class="input" type="" name="real_value[products]" disabled>
+            </div>
+          </div>
+          <div class="columns no-margin-bottom">
+            <div class="column">
+              <div>Serviço:</div>
+              <input class="input" type="" name="real_value[service]" disabled>
+            </div>
+          </div>
+          <div class="columns no-margin-bottom">
+            <div class="column">
+              <div>Valor da Folga:</div>
+              <input class="input" type="" name="real_value[loose]">
+            </div>
+          </div>
+          <div class="columns no-margin-bottom">
+            <div class="column">
+              <button class="button is-primary is-pulled-right">Salvar</button>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      <div class="planned-value-edit">
+        <div class="columns">
+          <div class="column">
+            <div class="title">
+              Edição de valor real
+            </div>
+          </div>
+        </div>
+        <%= form_tag update_request_values_path, method: :post, id: 'plannedRequestValuesForm' do %>
+          <input type="hidden" name="request_id">
+          <input type="hidden" name="request_value_type" value="planned">
+          <div class="columns no-margin-bottom">
+            <div class="column">
+              <div>Valor do pedido:</div>
+              <input class="input" type="" name="planned_value[request]" disabled>
+            </div>
+          </div>
+          <div class="columns no-margin-bottom">
+            <div class="column">
+              <div>Produtos:</div>
+              <input class="input" type="" name="planned_value[products]">
+            </div>
+          </div>
+          <div class="columns no-margin-bottom">
+            <div class="column">
+              <div>Serviço:</div>
+              <input class="input" type="" name="planned_value[service]">
+            </div>
+          </div>
+          <div class="columns no-margin-bottom">
+            <div class="column">
+              <div>Valor da folga:</div>
+              <input class="input" type="" name="planned_value[loose]">
+            </div>
+          </div>
+          <div class="columns no-margin-bottom">
+            <div class="column">
+              <button class="button is-primary is-pulled-right">Salvar</button>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+
+  $('#realRequestValuesForm, #plannedRequestValuesForm').submit(function(e) {
+    var $form = $(this);
+    e.preventDefault();
+
+    $.ajax({
+      method: 'POST',
+      url: '<%= update_request_values_url %>',
+      data: new FormData(this),
+      processData: false,
+      contentType: false,
+      beforeSend: function() {
+        $form.find('button').addClass('is-loading');
+      },
+      success: function() {
+        $('#valuesEditionModal').removeClass('is-active');
+        $form.find('button').removeClass('is-loading');
+        alert('Valores atualizados.');
+        updateRequestValues();
+      },
+      error: function() {
+        $form.find('button').removeClass('is-loading');
+        alert('Ocorreu um erro ao atualizar os valores.');
+      }
+    });
+  });
+
+  $('.planned-value-edit input[class="input"]').mask('0.000.000.000,00', { reverse: true });;
+  $('.real-value-edit input[class="input"]').mask('0.000.000.000,00', { reverse: true });;
+</script>

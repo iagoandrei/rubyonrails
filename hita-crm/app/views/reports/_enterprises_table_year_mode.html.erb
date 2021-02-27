@@ -1,0 +1,126 @@
+<div class="top-bar">
+  <div class="consultants-container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th class="cell-fixed gray-bg"></th>
+          <% @years.each do |year| %>
+            <% if @data_view == 'resumed' %>
+              <th colspan="1" class="<%= 'blue-lighter-bg blue-color' if year == Date.today.year %> resumed"><%= year %></th>
+            <% else %>
+              <th colspan="7" class="<%= 'blue-lighter-bg blue-color' if year == Date.today.year %>"><%= year %></th>
+            <% end %>
+          <% end %>
+        </tr>
+        <tr class="bold">
+          <td class="cell-fixed gray-bg"></td>
+          <% if @data_view == 'resumed' %>
+            <% @years.each do %>
+              <td class="text-center">Realizado</td>
+            <% end %>
+          <% else %>
+            <% @years.each do %>
+              <td></td>
+              <td></td>
+              <td class="text-center">Realizado</td>
+              <td>Planejado</td>
+              <td>Contribuição</td>
+              <td>M (%)</td>
+              <td>DM (%)</td>
+            <% end %>
+          <% end %>
+        </tr>
+        <tr class="blue-bg white-color bold">
+          <td class="cell-fixed blue-bg">Total</td>
+          <% if @data_view == 'resumed' %>
+            <% @years.each_with_index do |year, i| %>
+              <% accomplished_total_year = @accomplished_total[year] %>
+              <td><%= print_money_alignment accomplished_total_year %></td>
+            <% end %>
+          <% else %>
+            <% @years.each_with_index do |year, i| %>
+              <% accomplished_total_year = @accomplished_total[year] %>
+              <% planned_total_year      = @planned_total[year] %>
+              <% goal                    = planned_total_year == 0 ? 0.0 : (accomplished_total_year / planned_total_year) %>
+
+              <% if year < Date.today.year %>
+                <% distance_goal = ((1.0 - goal) / 1.0).round(2) %>
+              <% else %>
+                <% distance_goal = (((Date.today.month / 12.0) - goal) / (Date.today.month / 12.0)).round(2) %>
+              <% end %>
+
+              <td></td>
+              <td></td>
+              <td><%= print_money_alignment accomplished_total_year %></td>
+              <td><%= print_money_alignment planned_total_year.round(2) %></td>
+              <td><%= ReportsHelper.show_enterprise_contribuition_year_total(year, enterprise_filter).round(2) %> %</td>
+              <td><%= goal.round(2) * 100 %> %</td>
+              <td>
+                <% if distance_goal < 0 %>
+                  <%= distance_goal.abs %> %
+                <% else %>
+                  0.0 %
+                <% end %>
+              </td>
+            <% end %>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <% enterprises.each do |enterprise| %>
+          <tr class="white-bg">
+            <td class="cell-fixed white-bg bold" title="<%= enterprise.name %>"><div class="fixed-column-width"><%= enterprise.name %></div></td>
+
+            <% if @data_view == 'resumed' %>
+              <% @years.each do |year| %>
+                <td><%= print_money_alignment enterprise.get_accomplished_year(year) %></td>
+              <% end %>
+            <% else %>
+              <% @years.each do |year| %>
+                <% accomplished_total_year = enterprise.get_accomplished_year(year) %>
+                <% planned_total_year      = enterprise.get_planned_year(year) %>
+                <% goal                    = planned_total_year == 0 ? 0.0 : (accomplished_total_year / planned_total_year) %>
+
+                <% if goal == 0 %>
+                  <% distance_goal = 0.0 %>
+                <% else %>
+                  <% if year < Date.today.year %>
+                    <% distance_goal = ((1.0 - goal) / 1.0).round(2) %>
+                  <% else %>
+                    <% distance_goal = (((Date.today.month / 12.0) - goal) / (Date.today.month / 12.0)).round(2) %>
+                  <% end %>
+                <% end %>
+
+                <td></td>
+                <td></td>
+                <td><%= print_money_alignment accomplished_total_year %></td>
+                <td>
+                  <span class="change-planned tag no-select" enterprise-id="<%= enterprise.id %>" year='<%= year %>'><%= print_money_alignment planned_total_year.round(2) %></span>
+                </td>
+                <td><%= enterprise.get_contribution(year, enterprise_filter) %> %</td>
+                <td><%= goal.round(2) * 100 %> %</td>
+                <td>
+                  <% if distance_goal < 0 %>
+                    <%= distance_goal.abs %> %
+                  <% else %>
+                    0.0 %
+                  <% end %>
+                </td>
+              <% end %>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  $(".change-planned").click(function() {
+    $("#changePlannedModal").addClass('is-active');
+    $("#reportEnterpriseIdInputHidden").val($(this).attr('enterprise-id'));
+    $("#reportYearInputHidden").val($(this).attr('year'));
+    $("#reportTypeInputHidden").val('planned');
+    $("#reportPeriodTypeIdInputHidden").val('year');
+  });
+</script>
