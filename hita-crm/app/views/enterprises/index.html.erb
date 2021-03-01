@@ -111,7 +111,7 @@
   <%= render 'shared/new_hindrance_modal' %>
   <%= render 'shared/change_hindrance_modal' %>
   <%= render 'requests/add_technician_modal' %>
-  <%= render 'requests/request_values_edition_modal' if can? :update_request_values, Request %>
+  <%= render 'requests/request_values_edition_modal' if can? :editEnterpriseBt_request_values, Request %>
   <%= render 'requests/request_proposals_modal' %>
   <%= render 'requests/installments_modal' %>
   <%= render 'requests/refuse_proposal_modal' %>
@@ -298,10 +298,103 @@
 
   var is_user_admin = <%= current_user.role?(User::ROLES[:admin]) %>;
 
+  //Função Limpar string
+function retira_acentos(str){
+
+  com_acento = "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜ ÝŔÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿŕ";
+
+  sem_acento = "AAAAAAACEEEEIIIIDNOOOOOOUUUU YRsBaaaaaaaceeeeiiiionoooooouuuuybyr";
+
+    novastr="";
+    for(i=0; i<str.length; i++) {
+        troca=false;
+        for (a=0; a<com_acento.length; a++) {
+            if (str.substr(i,1)==com_acento.substr(a,1)) {
+                novastr+=sem_acento.substr(a,1);
+                troca=true;
+                break;
+            }
+        }
+        if (troca==false) {
+            novastr+=str.substr(i,1);
+        }
+    }
+    return novastr;
+} 
+
+//Busca Empresa na API atraves do CNPJ 
+function GetEnterpriseAPI(cnpj,req_data) {
+
+  $.ajax({
+    url:  BaseURL+'CadastroEmpresas.integrador.ashx/ListarPorCnpjCpf',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    type: "POST",
+    dataType: 'json',	
+    data: {
+      pin: pin,
+      cnpjCpf: cnpj,     
+      listarEndereco: "True", 
+      ativo: "True", 
+    },
+    dataType: 'json',
+    success: function (resp_1) {       
+      if(resp_1.exception){
+        PostEnterpriseCIGAM(req_data);        
+      }      //SE HOUVER EMPRESA CRIAR PEDIDO
+      else{
+        console.log('Empresa Já Cadastrada no CIGAM');
+        if(resp_1[1]){
+          alert("[ERRO] Mais de Uma Empresa Cadastrada no CIGAM com esse CNPJ");
+        }else{
+          var req_data2 = {
+          pin: "001",
+          statusRegistro: "L",
+          nomeCompleto: req_data.nomeCompleto,
+          inscrito: "false",
+          inscricao: "ISENTO",
+          fantasia: req_data.fantasia,
+          codigoUnidadeNegocio: "001",
+          ativo: "True",
+          endereco: req_data.endereco,
+          municipio: req_data.municipio,
+          uf: req_data.uf,
+          cep: req_data.cep,
+          cnpjCpf: cnpj,
+          codigoMercado: req_data.codigoMercado,
+          codigoEmpresa: resp_1[0].codigoEmpresa  
+          }
+
+          PostEnterpriseCIGAM(req_data2); 
+        }
+      }      
+    }
+  })  
+}
+
+function PostEnterpriseCIGAM(req_data) {
+    var settings = {
+    "url": BaseURL+"CadastroEmpresas.integrador.ashx/Cadastrar",
+    "method": "POST",
+    "dataType": 'json',
+    "headers": {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    data: req_data,
+  }
+
+  console.log(req_data);
+
+  $.ajax(settings).done(function (response) {
+    console.log(response);       
+  });  
+}
+
   function validateEnterprise() {
     $('#newEnterpriseAlert').hide();
 
     $form = $('#new_enterprise');
+   // console.log($form.find('select[name="enterprise[consultant_id]"]').val());
+   // console.log($form.find('select[name="enterprise[enterprise_type]"]').val());
     $form.find('input[name="enterprise[name]"]').removeClass('is-danger');
     $form.find('input[name="enterprise[cnpj]"]').removeClass('is-danger');
     $form.find('input[name="enterprise[city]"]').removeClass('is-danger');
@@ -339,14 +432,54 @@
     //   return false;
     // }
 
+    
     $.ajax({
       method: 'POST',
       url: '<%= check_enterprise_existence_path %>',
       data: data,
       success: function(data) {
-        if (data == null || is_user_admin) {
+      if(data == null || is_user_admin) {
+    var cnpj = sanitizeString($form.find('input[name="enterprise[cnpj]"]').val());
+    var cep = sanitizeString($form.find('input[name="enterprise[cep]"]').val());
+    var add = $form.find('input[name="enterprise[address]"]').val();
+    var state = $form.find('select[name="enterprise[state]"]').val();
+    if(cnpj != "00000000000000" && cnpj != " " && cnpj != "" && cnpj != null){
+         var municipio = $form.find('input[name="enterprise[city]"]').val();
+          municipio = retira_acentos(municipio);
+          console.log(municipio);
+          municipio = municipio.toUpperCase();
+          console.log(municipio);
+          var codigoMercado = setcodigoDivisao($form.find('select[name="enterprise[state]"]').val());
+
+          var req_data = {
+          pin: "001",
+          statusRegistro: "L",
+          nomeCompleto: $form.find('input[name="enterprise[business_name]"]').val(),
+          inscrito: "false",
+          inscricao: "ISENTO",
+          fantasia: $form.find('input[name="enterprise[name]"]').val(),
+          codigoUnidadeNegocio: "001",
+          ativo: "true",
+          endereco: $form.find('input[name="enterprise[address]"]').val(),
+          municipio: municipio,
+          uf: $form.find('select[name="enterprise[state]"]').val(),
+          cep: cep,
+          cnpjCpf: cnpj,
+          codigoMercado: codigoMercado
+          }          
+          GetEnterpriseAPI(cnpj,req_data);
+        }
+        if ((add != " " && add != "" && add != null) || (state != " " && state != "" && state != null) ){
+          var url = createSearch(add, municipio, state);
+          var cord = searchLatAndLong(url, function(data){
+          $form.find('input[name="enterprise[latitude]"]').val(data.lat);
+          $form.find('input[name="enterprise[longitude]"]').val(data.lng);
+          console.log($form.find('input[name="enterprise[latitude]"]').val());
           $form.submit();
-        } else {
+        });
+        }        
+      }
+       else {
           $form.find('button').removeClass('is-loading');
           $form.find('input[name="enterprise[name]"]').addClass('is-danger');
           $form.find('input[name="enterprise[cnpj]"]').addClass('is-danger');
@@ -357,6 +490,26 @@
       }
     });
   }
+
+  function setcodigoDivisao(UF){
+  if(UF === "RS" || UF === "SC" || UF === "PR"){
+    return "01";
+  }else if(UF == "SP"){
+    return "02";
+  }else if(UF == "RJ" || UF == "ES"){
+    return "03";
+  }else if(UF == "MG" || UF == "GO" || UF == "DF" || UF == "MT" || UF == "MS" || UF == "TO" ){
+    return "04";
+  }else if(UF == "BA"){
+    return "05";
+  }else if(UF == "SE" || UF == "AL" || UF == "PE" || UF == "PB" || UF == "RN" || UF == "CE" || UF == "PI"){
+    return "06";
+  }else if(UF == "MA" || UF == "AM" || UF == "PA" || UF == "RO" || UF == "AC" || UF == "AP" || UF == "RR"){
+    return "07";
+  }else if(UF == "EX"){
+    return "08";
+  }
+}
 
   function validateEditEnterprise() {
     $('#editEnterpriseAlert').hide();
@@ -386,8 +539,43 @@
     //   $form.find('button').removeClass('is-loading');
     //   return false;
     // }
+    var cnpj = sanitizeString($form.find('input[name="enterprise[cnpj]"]').val());
+    var cep = sanitizeString($form.find('input[name="enterprise[cep]"]').val());
+    var add = $form.find('input[name="enterprise[address]"]').val();
+    var state = $form.find('select[name="enterprise[state]"]').val();
+    console.log(cep);
+    if(cnpj != "00000000000000" && cnpj != " " && cnpj != "" && cnpj != null){
+         var municipio = $form.find('input[name="enterprise[city]"]').val();
+          municipio = retira_acentos(municipio);
+          console.log(municipio);
+          municipio = municipio.toUpperCase();
+          console.log(municipio);
+          var codigoMercado = setcodigoDivisao($form.find('select[name="enterprise[state]"]').val());
 
-    $form.submit();
+          var req_data = {
+          pin: "001",
+          statusRegistro: "L",
+          nomeCompleto: $form.find('input[name="enterprise[business_name]"]').val(),
+          inscrito: "false",
+          inscricao: "ISENTO",
+          fantasia: $form.find('input[name="enterprise[name]"]').val(),
+          codigoUnidadeNegocio: "001",
+          ativo: "true",
+          endereco: $form.find('input[name="enterprise[address]"]').val(),
+          municipio: municipio,
+          uf: $form.find('select[name="enterprise[state]"]').val(),
+          cep: cep,
+          cnpjCpf: cnpj,
+          codigoMercado: codigoMercado
+          }          
+          GetEnterpriseAPI(cnpj,req_data)
+        }
+        var url = createSearch(add, municipio, state);
+        var cord = searchLatAndLong(url, function(data){
+          $form.find('input[name="enterprise[latitude]"]').val(data.lat);
+          $form.find('input[name="enterprise[longitude]"]').val(data.lng);
+          $form.submit();
+        });  
   }
 
   $("#newEnterpriseBt").click(function(e) {

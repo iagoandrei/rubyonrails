@@ -1,0 +1,29 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Represent:</strong>
+  <%= @commission.represent %>
+</p>
+
+<p>
+  <strong>Value:</strong>
+  <%= @commission.value %>
+</p>
+
+<p>
+  <strong>Paydate:</strong>
+  <%= @commission.paydate %>
+</p>
+
+<p>
+  <strong>Paid:</strong>
+  <%= @commission.paid %>
+</p>
+
+<p>
+  <strong>Request:</strong>
+  <%= @commission.request_id %>
+</p>
+
+<%= link_to 'Edit', edit_commission_path(@commission) %> |
+<%= link_to 'Back', commissions_path %>

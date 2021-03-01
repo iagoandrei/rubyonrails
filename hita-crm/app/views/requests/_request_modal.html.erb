@@ -257,6 +257,9 @@
                   <% if can? :see_installments, RequestInstallment %>
                     <button id="condicBt" class="button is-secondary is-fullwidth">Condições</button>
                   <% end %> 
+                  <% if can? :see_installments, RequestInstallment %>
+                    <button id="comisBt" class="button is-secondary is-fullwidth">Comissão</button>
+                  <% end %> 
                   
                 </div>
                 <div class="outter-box-title">Configurações:</div>
@@ -467,6 +470,12 @@
 </div>
 
 <script type="text/javascript">
+let searchParams = new URLSearchParams(window.location.search)
+searchParams.has('request_id') // true
+let request_param = searchParams.get('request_id')
+//console.log(request_param);
+
+  
   var thrash_icon = `<%= inline_svg "remove.svg" %>`;
   var info_icon = `<%= inline_svg "info.svg" %>`;
   var uppy_current_request_id;
@@ -550,22 +559,21 @@
     $('input[name="real_value[loose]"]').val($('#looseRealValue').text());
   });
 
-  $('#manageInstallmentsBt').click(function() {
-    loadCurrentInstallmentInfos();
-    $('#installmentsModal').addClass('is-active');
-  });
+$('#manageInstallmentsBt').click(function() {     
+  loadCurrentInstallmentInfos();
+   $('#installmentsModal').addClass('is-active');
+});
 
-/*=================================================================================================================
-//
-//                             LOGICA BOTÃO CONDIÇÕES!!!
-//
-================================================================================================================*/
+$('#comisBt').click(function() {
+  var request_id = $('.request-modal').data('request-id');
+  $('.new-represent').empty();
+  GetSavedCommision(request_id);
+  $('#comisModal').addClass('is-active');    
+});
 
-$('#condicBt').click(function() {
-
-  var apirequest = 0;    
-  var id;
-
+var apirequest = 0;  
+$('#condicBt').click(function() {   
+  var id;    
   $.ajax({
     url: '<%= conditions_get_url %>.json',
     type: "GET",
@@ -581,35 +589,32 @@ $('#condicBt').click(function() {
           id = res.id;
           request_id = res.request_id        
           validator = false;
-          alert("Você já possui uma condição cadastrada!")
-          GetEnterpriseID(res);
+          //GetEnterpriseID(res);
           document.getElementById("editCondic").disabled = false
           OnOffCondicFields(1);
           SetReqCondition(res);  
-        }
-      })
-
-  if(validator == true){
-    GetAPI();
-    //STORAGE_CENTER DEFAULT VALUE
-    document.getElementById("ca").value = "022"
-    document.getElementById("editCondic").disabled = true  
-  }
-
-})
-
+      }       
+    })
+    if(validator == true){
+      if(apirequest==0){
+        GetAPI();
+        apirequest++;
+      }
+      //STORAGE_CENTER DEFAULT VALUE
+      document.getElementById("ca").value = "002"
+      document.getElementById("ca").disabled = true
+      document.getElementById("editCondic").disabled = true  
+    }  
+  })
   $('#editCondic').click(function() {
-
-    if (document.getElementById("tippag").disabled == true) {        
-
+    if (document.getElementById("tippag").disabled == true) {    
       //Unica requisição a API por Edição
       if (apirequest == 0) {
         GetAPI();
         apirequest = 1;        
       }
       document.getElementById("editCondic").firstChild.data = "Salvar" 
-      OnOffCondicFields(0);
-       
+      OnOffCondicFields(0);       
     }else{
       var request_condition = {
       payment_type: $("#tippag").val(),
@@ -618,24 +623,13 @@ $('#condicBt').click(function() {
       payment_code: $("#codpag").val(),
       request_id: $('.request-modal').data('request-id')        
       }
-
       EditCondic(request_condition,id);
       OnOffCondicFields(1);
-      document.getElementById("editCondic").firstChild.data = "Editar Condição"
-      
+      document.getElementById("editCondic").firstChild.data = "Editar Condição"      
     }
   });
-
-    $('#condicModal').addClass('is-active');
-    
-  });
-
-/*=================================================================================================================
-//
-//                             LOGICA CONDIÇÕES!!!
-//
-================================================================================================================*/
-
+  $('#condicModal').addClass('is-active');   
+});
 
   $('.planned-values-container').click(function() {
     $('.real-value-edit').hide();
@@ -659,10 +653,8 @@ $('#condicBt').click(function() {
   $('#requestFiles').click(function() {
     $('#filesModal').addClass('is-active');
   });
-
   $('#requestProposals').click(function(e) {
     var $button = $(this);
-
     var table =`
     <table>
       <thead>
@@ -674,7 +666,6 @@ $('#condicBt').click(function() {
       </thead>
       <tbody>
     `;
-
     $.ajax({
       method: 'GET',
       url: '<%= get_request_proposals_url %>',
@@ -717,7 +708,6 @@ $('#condicBt').click(function() {
             }
           }
         }
-
         table += '</tbody></table>'
         $('#proposalsFilesModal').find('.table-container').html(table);
         $('#proposalsFilesModal').find('#proposalsModalNameSpan').text($('#requestNumber').text());
@@ -930,6 +920,45 @@ $('#condicBt').click(function() {
 </script>
 
 <script type="text/javascript">
+
+if(request_param){
+  var id = request_param;
+    uppy_current_request_id = id;
+
+    $('#requestModal .tab.details-tab').click();
+
+    $.ajax({
+      url: '<%= get_request_infos_url %>',
+      method: 'GET',
+      data: {
+        id: id
+      },
+      beforeSend: function() {
+        $('.consultant-box').html('');
+        $('.technician-box').html('');
+        $('.hindrace-box').html('');
+      },
+      success: function(data) {
+        updateModalInfos(data);
+        $(".hidden-interaction-request-id").val(id);
+        $(".interaction-bt").attr('request-id', id);
+        $("#requestId").val(id);
+        $(".step-change").attr('request-id', id);
+
+        $.getJSON("<%= get_request_infos_url('_id_') %>".replace("_id_", id), function(data) {
+          if (data['interactions']) {
+            $(".interactions").html('');
+
+            $.each(data.interactions, function(k, v) {
+              $(".interactions").prepend(v['content']);
+            });
+          }
+        });
+      }
+    });
+
+    $('#requestModal').addClass('is-active');
+}
   $(document).on("click", ".request-row", function() {
     var id = $(this).data('request-id');
     uppy_current_request_id = id;
@@ -1370,7 +1399,6 @@ $('#condicBt').click(function() {
       })
     }
   });
-
 
 
 </script>

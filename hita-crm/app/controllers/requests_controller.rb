@@ -15,11 +15,27 @@ class RequestsController < ApplicationController
       @show_collaborators = true
     end
   end
-
+ 
   def elaborate_proposals
     @title = "Hita CRM | Elaborar Proposta"
     @requests = Request.where(technician_id: current_user.id, is_draft: false, is_active: true)
   end
+
+#  def get_products_from_req    
+    #@request = Request.where(technician_id: current_user.id, is_draft: false, is_active: true)
+    #render json: @request.as_json  
+  #end
+
+  def get_products_from_req    
+    request = Request.find_by id: params[:id]
+    raise ActiveRecord::RecordNotFound if request.nil?
+
+    @request_json = request.request_products
+
+    render json: @request_json.as_json  
+  end
+
+  
 
   def see_drafts
     @title = "Hita CRM | Rascunhos"
@@ -636,6 +652,55 @@ class RequestsController < ApplicationController
       head :internal_server_error
     end
   end
+
+  def get_request_infos_products
+    request = Request.find_by id: params[:id]
+    raise ActiveRecord::RecordNotFound if request.nil?
+
+    request_json = {}
+    request_json['id'] = request.get_request_code
+    request_json['raw_id'] = request.id
+    request_json['enterprise_name'] = request.enterprise.name
+    request_json['truncated_enterprise_name'] = request.enterprise.name.length > 23 ? request.enterprise.name.first(23) + '...' : request.enterprise.name
+    request_json['request_type'] = request.request_type
+    request_json['step'] = request.step
+    request_json['total_time'] = request.elapsed_time_since_created
+    request_json['consultant_name'] = request.user&.name
+    request_json['consultant_initials'] = request.user&.get_initials
+    request_json['consultant_color'] = request.user&.get_color
+    request_json['technician_name'] = request.technician&.name
+    request_json['technician_color'] = request.technician&.get_color
+    request_json['technician_initials'] = request.technician&.get_initials
+    request_json['detainees'] = []
+    request_json['values'] = build_request_values(request)
+    request_json['title'] = request.title
+    request_json['calculate_priority'] = request.calculate_priority
+    request_json['calculate_priority_percentage'] = "#{(request.calculate_priority_percentage * 100).to_i}%"
+    request_json['calculated_revenue'] = number_to_currency(request.calculate_request_revenue)
+    request_json['is_proposal_present'] = request.request_proposals.size > 0
+    request_json['is_proposal_approved'] = request.request_proposals.exists?(status: 'approved')
+    request_json['is_request_full_billed'] = request.is_request_billed?
+    request_json['billed_started'] = request.request_installments.exists?(is_billed: true)
+    request_json['is_active'] = request.is_active
+    request_json['is_payment_complete'] = request.request_installments.empty? ? !request.request_installments.exists?(is_paid: false) : false
+    request_json['products'] = []
+    request_json['cause_or_reason'] = []
+    request_json['is_qsc_present'] = !request.qsc.empty?
+    request_json['is_photos_report_present'] = !request.photos_reports.empty?
+
+    request.request_products.each do |rp|
+      request_json['products'] << rp.product
+    end
+
+    if request.is_stock_replacement
+      request_json['cause_or_reason'] << 'Reposição de estoque'
+    else
+      request_json['cause_or_reason'] = request.cause_or_reason
+    end
+
+    render json: request_json.as_json
+
+  end    
 
   def get_request_infos
     request = Request.find_by id: params[:id]

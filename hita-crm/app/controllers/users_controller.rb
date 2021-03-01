@@ -1,6 +1,14 @@
 class UsersController < ApplicationController
   include Devise::Controllers
 
+  def getallusers
+    #Consultor
+    @users = User.where(role: 0)
+    #Cordenador Regional
+    @users += User.where(role: 5)
+    render json: @users
+  end  
+
   def index
     @users = User.where(is_active: true).order(name: :asc)
     @unable_users = User.where(is_active: false).order(name: :asc)
@@ -102,10 +110,10 @@ class UsersController < ApplicationController
 
 private
   def update_user_params
-    params.require(:user).permit(:email, :name, :phone, :admission, :team, :is_active)
+    params.require(:user).permit(:email, :name, :phone, :admission, :team, :is_active, :cnpj)
   end
 
   def create_user_params
-    params.require(:user).permit(:email, :name, :password, :role)
+    params.require(:user).permit(:email, :name, :password, :role, :cnpj)
   end
 end

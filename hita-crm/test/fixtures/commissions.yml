@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  represent: MyString
+  value: MyString
+  paydate: MyString
+  paid: MyString
+  request: one
+
+two:
+  represent: MyString
+  value: MyString
+  paydate: MyString
+  paid: MyString
+  request: two

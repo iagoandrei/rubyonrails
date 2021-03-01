@@ -37,6 +37,8 @@
                 <div class="input-title">CNPJ</div>
                 <input type="text" name="enterprise[cnpj]" class="input input-cnpj" placeholder="Digite o CNPJ">
               </div>
+              <input type="hidden" name="enterprise[latitude]">
+              <input type="hidden" name="enterprise[longitude]">
             </div>
             <div class="columns is-variable is-1">
               <div class="column">
@@ -213,5 +215,38 @@
         }
       })
     }
+
+
+    function searchLatAndLong(url, callback) {
+    console.log('Resgatando latitude e longitude');
+    console.log(url);
+    var cord = [];
+  
+      if (url != null) {
+       $.getJSON(url, function(data){
+          console.log('Search... '+i);  
+          console.log(data);            
+          if(data.status == "OK"){
+            callback((data.results[0].geometry.location));
+          }else{
+            console.log("Não foi possivel encontrar cordenadas: "+search[i]);
+            console.log('Search Else '+i);            
+          console.log(data);
+          }
+        });     
+      }
+  }
+
+  function createSearch(add, city, state) {
+  if(add == '' | city == '' |  state == ''){
+    return null   
+  }
+  let search = 'https://maps.googleapis.com/maps/api/geocode/json?address='
+    +add.replace(/ /g,"_")+"+"+            
+    city.replace(/ /g,"_")+"+"+
+    state.replace(/ /g,"_")+"+"  
+    +'&key=AIzaSyBuA9hKSCYW0ePYmNAyQCclarQRL5dhfXM';
+    return search; 
+}
   </script>
 <% end %>

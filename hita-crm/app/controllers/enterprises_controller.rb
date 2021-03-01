@@ -3,7 +3,7 @@ class EnterprisesController < ApplicationController
 
   include InteractionHelper
   def map
-    @key = 'AIzaSyDJOpGmB0SRs9hmrNdFyKGy3E9OlIfOgHs'
+    @key = 'AIzaSyCKi4slRnA8tC6alTofEFwP3c_uhug7Fp4' 
     @latitude = '-12.974722'
     @longitude = '-38.476665'	
     @title = 'Hita CRM | Mapa'
@@ -136,6 +136,12 @@ class EnterprisesController < ApplicationController
   def update
     enterprise = Enterprise.find_by id: params[:id]
     raise ActiveRecord::RecordNotFound if enterprise.nil?
+    
+    unless enterprise.address.eql? params[:enterprise][:address]
+      search = Geocoder.search params[:enterprise][:address] + "," + params[:enterprise][:city] + "," + params[:enterprise][:state]
+      enterprise.latitude = search.first.coordinates[0]
+      enterprise.longitude = search.first.coordinates[1]
+    end
 
     if params[:enterprise][:consultant_id].present?
       user            = User.find_by_id params[:enterprise][:consultant_id]
@@ -145,7 +151,9 @@ class EnterprisesController < ApplicationController
     end
 
     if enterprise.update(enterprise_params)
+
       enterprise.update_attribute(:name, enterprise.name.upcase)
+
       redirect_to enterprises_index_url
     else
       head 500
@@ -166,7 +174,7 @@ class EnterprisesController < ApplicationController
     if params[:order] == 'Faturamento'
       results = Enterprise.where(search_obj).order(revenue: :desc).paginate(:page => params[:page], :per_page => 30)
     elsif params[:map]
-      results = Enterprise.where(search_obj).order(revenue: :desc).paginate(:page => params[:page], :per_page => 200)
+      results = Enterprise.where(search_obj).order(revenue: :desc)
     else
       results = Enterprise.where(search_obj).order(name: :asc).paginate(:page => params[:page], :per_page => 30)
     end
@@ -208,8 +216,29 @@ class EnterprisesController < ApplicationController
 
       results = results.where(created_at: from_date..to_date)
     end
-
+    
+    results.each do |result|
+      if result.latitude.nil? or result.longitude.nil?
+        if result.address != "" and result.city != "" or result.state != ""
+          if !result.address.nil? and !result.city.nil? and !result.state.nil?
+            add = sanitizeString result.address
+            city = sanitizeString result.city
+            state = sanitizeString result.state
+            url = add.gsub(/ /,"_") + "," + city.gsub(/ /,"_") + "," + state.gsub(/ /,"_")
+            res = Geocoder.search url
+            result.latitude = res.first.coordinates[0] unless res.first.nil? 
+            result.longitude = res.first.coordinates[1] unless res.first.nil? 
+            result.save if result.latitude_changed? or result.latitude_changed?
+          end
+        end
+      end
+    end
+     
     return results
+    end
+  
+  def sanitizeString param
+    param.gsub(/[^a-z0-9ñü \.,_-]/,'+')
   end
 
   def enterprises_autocomplete
@@ -477,6 +506,6 @@ class EnterprisesController < ApplicationController
 private
   def enterprise_params
     params.require(:enterprise).permit(:name, :industry_sector, :enterprise_type, :cnpj, :price_table,
-                                       :cep, :city, :state, :address, :business_name)
+                                       :cep, :city, :state, :address, :business_name, :latitude, :longitude)
   end
 end

@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :commissions
   devise_for :users, controllers: { sessions: 'users/sessions' }, path_names: { sign_up: '' }
 
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
@@ -11,8 +12,10 @@ Rails.application.routes.draw do
   end
 
     match '/condicoes/criar' => "request_conditions#create", via: :post, as: :conditions_create 
-
+    match '/commisao/criar' => "commissions#create", via: :post, as: :commissions_create 
     match '/condicoes/get' => "request_conditions#index", via: :get, as: :conditions_get
+    match '/condicoes/get_commis_by_id' => "request_conditions#get_commis_by_id", via: :get, as: :get_commis_by_id
+
 
 
   namespace :api do
@@ -38,9 +41,8 @@ Rails.application.routes.draw do
 
   match '/getrequestCode' => "requests#getrequestCode", via: :post, as: :getrequestcode
 
-
-  # 
- 
+  match '/getallusers' => "users#getallusers", via: :get, as: :getallusers
+    
   match '/empresas/contatos' => "collaborators#index", via: :get, as: :collaborators_index
   match '/empresas/contatos/novo' => "collaborators#create", via: :post, as: :create_new_collaborator
   match '/update_collaborator' => "collaborators#update", via: :post, as: :update_collaborator
@@ -88,6 +90,9 @@ Rails.application.routes.draw do
   match '/oportunidades/create_draft' => "requests#create_draft", via: :post, as: :create_new_draft
   match '/oportunidades/servicos' => "requests#show_services_index", via: :get, as: :services_index
   match '/oportunidades/elaborar_proposta' => "requests#elaborate_proposals", via: :get, as: :elaborate_proposals_index
+  #Aqui!
+  match '/oportunidades/get_products_from_req' => "requests#get_products_from_req", via: :get, as: :get_p_f_r
+
   match '/oportunidades/elaborar_proposta/:id' => "requests#edit", via: :get, as: :edit_request
   match '/oportunidades/update' => "requests#update", via: :post, as: :update_request
   match '/oportunidades/rascunhos' => "requests#see_drafts", via: :get, as: :see_drafts
@@ -97,6 +102,8 @@ Rails.application.routes.draw do
   match '/render_current_requests' => "requests#render_request_table", via: :get, as: :render_request_table
   match '/add_technician_to_request' => "requests#add_technician", via: :post, as: :add_technician
   match '/get_request_infos/(:id)' => "requests#get_request_infos", via: :get, as: :get_request_infos
+  match '/get_request_infos_product/(:id)' => "requests#get_request_infos_products", via: :get, as: :get_request_infos_product
+
   match '/update_request_step' => "requests#update_request_step", via: :get, as: :update_request_step
   match '/update_funnels_infos' => "requests#update_funnels_infos", via: :get, as: :update_funnels_infos
   match '/create_request_interaction' => "requests#create_comment_interaction", via: :post, as: :create_request_interaction
@@ -115,7 +122,7 @@ Rails.application.routes.draw do
   match '/get_request_proposals' => "request_proposals#get_request_proposals", via: :get, as: :get_request_proposals
   match '/request_proposal_feedback' => "request_proposals#request_proposal_feedback", via: :post, as: :request_proposal_feedback
   match '/create_fake_request_proposal' => "request_proposals#create_fake_request_proposal", via: :post, as: :create_fake_request_proposal
-
+ 
   match '/upload_request_specific_file' => "requests#upload_specific_file", via: :post, as: :upload_request_specific_files
   match '/biblioteca' => "requests#index_database", via: :get, as: :index_database
   match '/get_filter_values' => "requests#get_filter_values", via: :post, as: :get_filter_values
@@ -201,6 +208,10 @@ Rails.application.routes.draw do
   match '/produtos/atualizar_tabela' => "products#update_product", via: :post, as: :update_product
   match '/produtos/atualizar_dolar' => "products#update_dollar_value", via: :post, as: :update_dollar_value
   match '/product/check_product_price' => "products#check_product_price", via: :get, as: :check_product_price
+
+  match '/produtos/criar' => "products#create", via: :post, as: :create_products
+  match '/produtos/todos' => "products#allproducts", via: :get, as: :all_products
+  match '/produtos/atualizar' => "products#update", via: :post, as: :update_product_cigam
 
   match '/relatorios/empresas' => 'reports#index', via: :get, as: :report_index
   match '/render_current_enterprises_reports' => "reports#render_current_enterprises_reports", via: :get, as: :render_current_enterprises_reports

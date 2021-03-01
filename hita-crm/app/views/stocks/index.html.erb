@@ -54,50 +54,295 @@
 </div>
 
 <script type="text/javascript">
-  $("#requestProductTable, #requestReservedProductTable").click(function() {
-    $('#productTableResponse').removeClass('hide');
-    $('#productTable').addClass('hide');
 
+var BaseURL = "http://187.44.162.250:8281/webservicehomolog/cigam/Integrador/";
+var pin = "001";
+var codigoGrupoInicial = "005";
+var codigoGrupoFinal = "005";
+var codigoSubGrupoInicial = "001";
+var codigoSubGrupoFinal = "002";
+var lote = "H2";
+ 
+
+async function GetAllProducts(){
+ await $.ajax({
+  url: "<%= all_products_url %>",
+  type: "GET",
+  dataType: "json",
+  })
+  .done(function(local) {
+    GetMaterialsCIGAM(local,1); 
+    GetMaterialsCIGAM(local,2);      
+  })
+}
+
+async function GetCIGAMUnits(is_reserved,data) {
+  var table =
+  `<thead><tr>\
+  <th>Código</th>\
+  <th>Descrição</th>\
+  <th>U.M.</th>\
+  <th>QTD</th>\
+  <th>NCM</th>\
+  </tr></thead>`;
+
+  if(is_reserved == true){
+    centro_de_armazenagem = "006"
+  }else{
+    centro_de_armazenagem = "002"
+  }
+
+  data.forEach(element => {
+    var settings = {
+    "url": BaseURL+"CadastroMateriais.integrador.ashx/ListarEstoqueOnLine",
+    "method": "POST",
+    "headers": {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    "dataType": "json",
+    data: {
+      pin: pin, 
+      CentroArmazenagemInicial: centro_de_armazenagem,      
+      CentroArmazenagemFinal: centro_de_armazenagem,
+      codigoMaterialInicial: element.code,
+      codigoMaterialFinal: element.code,
+      lote: lote,
+    },
+  }
+    $.ajax(settings).done(function (response) {
+      if(!response.exception && element.is_active == true && response[0].codigoUnidadeNegocio == "001"){
+        table += `<tbody>`
+        table += '<tr><>'
+        table +=
+        ` <td>${element.code}</td>\
+          <td>${element.name}</td>\
+          <td>${element.unit}</td>\
+          <td>${response[0].quantidadeOnline}</td>\
+          <td>${element.ncm}</td>\
+        `
+        table += '</tr>'
+        table += `</tbody>`   
+        $('#productTable').html(table);
+      }  
+    });
+  })
+}
+
+async function GetCIGAMIncome(product,binary,local_id,codigoMaterial) {
+  var settings = {
+    "url": BaseURL+"CadastroComplementoMaterial.integrador.ashx/ListarIndividual",
+    "method": "POST",
+    "headers": {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    "dataType": "json",
+    data: {
+      pin: pin,      
+      codigoGrupoInicial: codigoGrupoInicial,
+      codigoGrupoFinal: codigoGrupoFinal,
+      codigoSubGrupoInicial:codigoSubGrupoInicial,
+      codigoSubGrupoFinal: codigoSubGrupoFinal,
+      codigoMaterial: codigoMaterial,
+    },
+  }
+
+  await $.ajax(settings).done(function (response) { 
+    var income = response[0].descricao;
+    MontProduct(product,binary,local_id,income)
+
+  }); 
+}
+
+var update = GetAllProducts();
+
+async function UpdateProduct(product,id) {
+
+  await $.ajax({
+    type: "POST",
+    url: "<%= update_product_cigam_url %>",
+    dataType: "json",
+    data: {
+      id: id,
+      product: product,
+      authenticity_token: '<%= form_authenticity_token %>'
+    }    
+  })
+  .done(function(resp) {
+    console.log(resp);      
+  })
+  
+}
+
+async function InsertProduct(product) { 
+
+  await $.ajax({
+    url: "<%= create_products_url %>",
+    type: "POST",
+    data:{ 
+      product: product,
+      authenticity_token: '<%= form_authenticity_token %>'
+    }
+  })
+  .done(function(resp) {
+    console.log("Salvo");      
+  })
+
+}
+
+async function MontProduct(element,binary,id,income) {  
+
+  product = {
+      name: element.descricao,
+      category: null,
+      product_type: null,
+      dollar_price: 60,
+      current_dollar_price: 60,
+      fob_price: 60,
+      braskem_price: 60,
+      braskem_sp_price: 60,
+      yara_price: "60",
+      mosaic_price: 60,
+      vale_mining_price: 60,
+      anglo_american_price: 60,
+      arcelor_price: 60,
+      modec_price: 60,
+      petrobras_price: 60,
+      code: element.codigoMaterial,
+      unit: element.codigoUnidadeMedida,
+      ipi: element.percentualIpi,
+      income: income,
+      characteristics: "characteristics - tabela esacompa",
+      ncm: element.codigoFiscal
+    }
+
+  if(binary == 1){
+    UpdateProduct(product,id)
+  }if(binary == 0){
+    InsertProduct(product,income);
+  }      
+  // return data;
+}
+
+async function GetMaterialsCIGAM(local,sbgp) {
+
+  var tipo = 'A'
+
+  if(sbgp == 1){
+    codigoSubGrupo = '001'
+    var codigoUnidadeNegocio = '001'
+
+
+  }else if(sbgp == 2){
+    codigoSubGrupo = '002'
+    var codigoUnidadeNegocio = '004'
+  }
+
+  var settings = {
+    "url": BaseURL+"CadastroMateriais.integrador.ashx/ListarMateriais",
+    "method": "POST",
+    "headers": {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    "dataType": "json",
+    data: {
+      pin: pin,      
+      codigoGrupoInicial: codigoGrupoInicial,
+      codigoGrupoFinal: codigoGrupoFinal,
+      codigoSubGrupoInicial:codigoSubGrupo,
+      codigoSubGrupoFinal: codigoSubGrupo,
+      tipoInicial: tipo,
+      tipoFinal: tipo,
+      codigoUnidadeNegocioInicial: codigoUnidadeNegocio,
+      codigoUnidadeNegocioFinal: codigoUnidadeNegocio
+    },
+  }
+    
+  await $.ajax(settings).done(function (response) { 
+    var i = 0;
+    console.log("Resultados API CIGAM: "+response.length);
+    console.log(response);  
+    plotProductTable(response);  
+    console.log("Resultados Produtos CRM : "+local.length);
+    console.log(local);    
+  
+    /*================================================================
+
+                    LOGICA DE SINCRONIZAÇÃO CIGAM -> CRM
+
+    ================================================================*/
+     
+
+    for (let i = 0; i < response.length; i++) {
+      let u = 0; 
+      var update = false;
+
+      while (u!=local.length){
+        if(response[i].codigoMaterial == local[u].code){
+          GetCIGAMIncome(response[i],1,local[u].id,local[u].code)                
+          update = true;
+        }
+        u++;             
+      }
+
+      if(update == false){
+        MontProduct(response[i],0);
+      }
+    
+    }
+  });    
+}
+
+$("#requestProductTable, #requestReservedProductTable").click(function() {
+ 
+  //console.log(stock) 
+  if (update) {
+    $("#requestProductTable, #requestReservedProductTable").prop('disabled', true);    
+  }
+ 
+  $('#productTableResponse').removeClass('hide');
+  $('#productTable').addClass('hide');
+  if (!$('#errorMessageContainer').hasClass('hide')){
+    $('#errorMessageContainer').addClass('hide');
+  }
+
+
+  $.ajax({
+  url: "<%= all_products_url %>",
+  method: 'GET',
+  dataType: 'json',
+  beforeSend: function() {
+    
+  },
+  success: function(data) {
+
+  if ($(this).data('is-reserved')) {
+    is_reserved = true;
+  } else {
+    is_reserved = false;
+  }    
+
+  GetCIGAMUnits(is_reserved,data);
+
+   
+    $('#productTableResponse').addClass('hide');
+    $('#productTable').removeClass('hide');
     if (!$('#errorMessageContainer').hasClass('hide')){
       $('#errorMessageContainer').addClass('hide');
     }
-
-    var url = '';
-    if ($(this).data('is-reserved')) {
-      url = "<%= request_product_table_url('reserved') %>";
-    } else {
-      url = "<%= request_product_table_url %>";
-    }
-
-    $.ajax({
-      url: url,
-      method: 'GET',
-      dataType: 'json',
-      beforeSend: function() {
-        $("#requestProductTable, #requestReservedProductTable").prop('disabled', true);
-      },
-      success: function(data) {
-        plotProductTable(data);
-        $('#productTableResponse').addClass('hide');
-        $('#productTable').removeClass('hide');
-
-        if (!$('#errorMessageContainer').hasClass('hide')){
-          $('#errorMessageContainer').addClass('hide');
-        }
-
-        $("#requestProductTable, #requestReservedProductTable").prop('disabled', false);
-      },
-      error: function(data) {
-        $('#errorMessageContainer').removeClass('hide');
-        $('#productTableResponse').addClass('hide');
-        $('#productTable').addClass('hide');
+    $("#requestProductTable, #requestReservedProductTable").prop('disabled', false);
+  },
+  error: function(data) {
+    $('#errorMessageContainer').removeClass('hide');
+    $('#productTableResponse').addClass('hide');
+    $('#productTable').addClass('hide');
         $("#requestProductTable, #requestReservedProductTable").prop('disabled', false);
       }
     })
-  });
+});
 
-  function plotProductTable(data) {
-    $('#productTable').html('');
+function plotProductTable(data) { 
+
+   // $('#productTable').html('');
     var table =
       `<thead><tr>\
       <th>Código</th>\
@@ -109,17 +354,20 @@
 
     table += `<tbody>`
     for(i = 0; i < data.length; i++) {
+
       table += '<tr><>'
       table +=
-      ` <td>${data[i].Cd_material}</td>\
-        <td>${data[i].Descricao}</td>\
-        <td>${data[i].Cd_unidade_medi}</td>\
-        <td>${data[i].estoque}</td>\
-        <td>${data[i].Classificacao_f}</td>\
+      ` <td>${data[i].code}</td>\
+        <td>${data[i].name}</td>\
+        <td>${data[i].unit}</td>\
+        <td>${data[i].quant}</td>\
+        <td>${data[i].ncm}</td>\
       `
       table += '</tr>'
     }
     table += `</tbody>`
+
+    
 
     $('#productTable').html(table);
   }

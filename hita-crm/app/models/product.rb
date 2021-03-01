@@ -1,5 +1,5 @@
 class Product < ApplicationRecord
-  before_create :set_default_values
+  # before_create :set_default_values
 
   has_many :reports
   has_many :request_products

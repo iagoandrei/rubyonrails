@@ -21,6 +21,8 @@ services:
       - postgres_data:/var/lib/postgresql/data
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
+    ports:
+      - 3306:5432
   nginx:
     build:
       context: ./hita-crm

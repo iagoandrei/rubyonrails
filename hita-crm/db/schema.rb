@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_07_13_224009) do
+ActiveRecord::Schema.define(version: 2020_10_08_132738) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -52,6 +52,17 @@ ActiveRecord::Schema.define(version: 2020_07_13_224009) do
     t.index ["enterprise_id"], name: "index_collaborators_on_enterprise_id"
   end
 
+  create_table "commissions", force: :cascade do |t|
+    t.string "represent"
+    t.string "value"
+    t.string "paydate"
+    t.string "paid"
+    t.bigint "request_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["request_id"], name: "index_commissions_on_request_id"
+  end
+
   create_table "enterprises", force: :cascade do |t|
     t.string "name"
     t.string "industry_sector"
@@ -62,6 +73,8 @@ ActiveRecord::Schema.define(version: 2020_07_13_224009) do
     t.string "address"
     t.string "business_name"
     t.string "cnpj"
+    t.string "latitude"
+    t.string "longitude"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "user_id"
@@ -406,12 +419,14 @@ ActiveRecord::Schema.define(version: 2020_07_13_224009) do
     t.string "team"
     t.string "authentication_token", limit: 30
     t.boolean "is_active", default: true
+    t.string "cnpj"
     t.index ["authentication_token"], name: "index_users_on_authentication_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "commissions", "requests"
   add_foreign_key "enterprises", "users"
   add_foreign_key "request_conditions", "requests"
   add_foreign_key "user_score_criterions", "users"

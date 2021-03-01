@@ -14,6 +14,8 @@
 !/hita-crm/tmp/.keep
 /hita-crm/core
 
+/hita-crm/config/environments/production.rb
+
 # Ignore uploaded files in development.
 /hita-crm/storage/*
 !/hita-crm/storage/.keep

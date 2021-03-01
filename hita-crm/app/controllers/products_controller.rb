@@ -15,6 +15,52 @@ class ProductsController < ApplicationController
     @products_json = @products_json.as_json
   end
 
+  def allproducts
+    product = Product.all
+    respond_to do |format|  ## Add this
+      format.json { render json: product, status: :ok}
+      format.html 
+      ## Other format
+    end      
+  end
+
+  def update
+    @product = Product.find_by_id params[:id]
+
+    respond_to do |format|
+      if @product.update(product_params)        
+        format.json { render :show, status: :ok, location: @request_condition }
+      else        
+        format.json { render json: @request_condition.errors, status: :unprocessable_entity }
+      end
+    end
+  end
+
+  def create
+    @product = Product.new(product_params)
+    @product.save!
+
+    respond_to do |format|
+      if @product.save
+        format.html { redirect_to @product, notice: 'Request condition was successfully created.' }
+        format.json { render :show, status: :created, location: @product }
+      else
+        format.html { render :new }
+        format.json { render json: @product.errors, status: :unprocessable_entity }
+      end
+    end
+
+  end
+
+  def product_params
+    params.require(:product).permit(:name, :category,
+      :product_type, :dollar_price, :current_dollar_price,
+      :yara_price, :fob_price, :braskem_price, :braskem_sp_price, 
+      :mosaic_price, :vale_mining_price, :anglo_american_price ,:arcelor_price,
+      :modec_price, :petrobras_price, :code, :unit, :ipi, :income, :characteristics,
+      :ncm)
+  end
+    
   def update_product
     product = Product.find_by_id params[:item][:id]
     raise ActiveRecord::RecordNotFound if product.nil?

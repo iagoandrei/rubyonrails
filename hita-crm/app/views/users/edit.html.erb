@@ -33,6 +33,10 @@
                     <span>Telefone</span>
                     <input id="phone" class="input" type="text" name="user[phone]" value="<%= @user.phone %>"></input>
                   </div>
+                  <div class="column is-one-fifth">
+                    <span>CPF/CNPJ</span>
+                    <input class="input" type="text" name="user[cnpj]" value="<%= @user.cnpj %>" required autocomplete="off"></input>
+                  </div>  
                 </div>
               </div>
               <div class="inputs">
@@ -55,6 +59,7 @@
                       <input id="admission" class="input" type="text" name="user[admission]" value="<%= @user.admission&.strftime('%d/%m/%Y') %>" autocomplete="off"></input>
                     </div>
                   <% end %>
+                  
                 </div>
               </div>
               <% if can? :manage, User %>

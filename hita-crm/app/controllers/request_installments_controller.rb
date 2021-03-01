@@ -30,7 +30,16 @@ class RequestInstallmentsController < ApplicationController
   end
 
   def save_installments
+
+    #ERRO AO CADASTRAR REQUEST COMEÇA AQUI!
+    #PARAMETRO ID IGUAL A NULO!
+
     request = Request.find_by id: params[:request_id]
+    #request = Request.find_by id: params[:id]
+
+    # NO FRONT: _installmentes_modal.html.erb, Linha 1176 [ save_installments_url ]
+    # REQUEST_ID É PASSADO
+    
     next_step = 0
 
     raise ActiveRecord::RecordNotFound if request.nil?
@@ -44,8 +53,8 @@ class RequestInstallmentsController < ApplicationController
     enterprise.save
 
     request.request_installments.destroy_all
-
     installments_length = params[:installments].size
+    
     params[:installments].each do |installment|
       parsed_installment = JSON.parse(installment)
 
@@ -60,7 +69,7 @@ class RequestInstallmentsController < ApplicationController
         create_installment_reports(request, installment, installments_length) if installment.is_billed
         recalculate_user_scores_for_enterprise request, request.enterprise, installment.date.month, installment.date.year
       else
-        return render json: { message: 'Erro ao salvar parcela.'}, status: :internal_server_error
+        # return render json: { message: 'Erro ao salvar parcela.'}, status: :internal_server_error
       end
     end
 
@@ -125,12 +134,13 @@ class RequestInstallmentsController < ApplicationController
       report_type: 'accomplished',
       enterprise_id: request.enterprise.id,
       request_id: request.id,
-      installment_id: installment.id
+      installment_id: installment.id 
     }
 
     ReportsHelper.create(report_enterprise_params)
 
     enterprise = request.enterprise
+    logger.debug "Adicionando o valor faturado"
     enterprise.revenue += value
     enterprise.save
   end
@@ -174,6 +184,7 @@ class RequestInstallmentsController < ApplicationController
   end
 
   def recalculate_user_scores_for_enterprise request, enterprise, month_number, year
+
     requirement = Requirement.find_by_title 'Meta Anual'
     UserScore.where('extract(year from period) = ?', year)
              .where(requirement_id: requirement.id, user_id: enterprise.user.id).destroy_all

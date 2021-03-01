@@ -8,6 +8,7 @@
         </div>
       </div>
       <div class="installments-container">
+
         <div class="columns is-variable is-2 head no-margin is-centered">
           <div class="column is-1"></div>
           <div class="column is-4">Valor</div>
@@ -79,13 +80,13 @@
           <div class="title">Condições</div>
         </div>
       </div>
-      <d iv class="installments-container">        
+      <div class="installments-container">        
         <div class="installments">
           <div class="columns is-variable is-2 head no-margin is-centered">
             <div class="column is-2">Tipo de Pagamento</div>
             <div class="column is-2">Tipo de Operação</div>
             <div class="column is-3">Centro de Armazenagem</div>
-            <div class="column is-3">Codigo de Pagamento</div>
+            <div class="column is-3">Codição de Pagamento</div>
           </div>
           <div id="condicForm" class="installment columns no-margin-bottom is-variable is-2 is-centered is-vcentered">                  
         </div>
@@ -123,12 +124,46 @@
   </div>
 </div>
 
-<script type="text/javascript">
+<div class="comis-modal">
+  <div id="comisModal" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content personalized-scroll-y">
+      <div class="columns is-centered">
+        <div class="column">
+          <div class="title">Comissão dos Representantes</div>
+        </div>
+      </div>
+      <div class="installments-container">
+        <div class="columns is-variable is-2 head no-margin is-centered">
+          <div class="column is-1"></div>          
+          <div class="column is-3">Representante</div>
+          <div class="column is-4">Valor</div>
+          <div class="column is-2">Data de Pagamento</div>
+          <div class="column is-1">Pago</div>
+          <div class="column is-1"></div>
+        </div> 
+        <div class="new-represent">
+        </div>
+        <div class="columns is-centered is-variable is-1 margin-top-10">
+          <div class="column is-4">
+            <button id="addNewRepresent" class="button is-primary is-fullwidth">Adicionar Representante</button>
+          </div>
+          <div class="column is-4">
+            <button id="SaveRepresent" class="button is-secondary is-fullwidth">Salvar</button>
+          </div>
+        </div>
+      </div>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+  </div>
+</div>
 
+
+
+<script type="text/javascript">
 /*==================================================================================================================
 
                     REQUISIÇÕES PARA API -> BOTÃO CONDICÕES
-
 - IAGO333DEV
 =================================================================================================================*/
 
@@ -143,9 +178,6 @@ const controle = "25";
 
 data = "pin=001"
 pin = "001"
-let result = '';
-let result2 = '';
-let result3 = '';
 
 //retorna valor de Codigo Divisão a Depender do Estado
 function setcodigoDivisao(UF){
@@ -168,12 +200,216 @@ function setcodigoDivisao(UF){
   }
 }
 
+function PostItensCIGAM(product,request_condition,request_code,price,quantity,percentualComissaoReceber) {
+  code = request_code.toString()
+
+  var data_send = {
+      pin: pin,
+      codigoPedido: code,
+      codigoMaterial: product.code,
+      quantidade: quantity,
+      precoUnitario: price,
+      prazoEntrega: Data, //Data Atual
+      codigoTipoOperacao: request_condition.operation_type, //Request_Conditions
+      prazoProgramado: Data, //Data Atual
+      controle: "25",
+      statusRegistro: statusRegistro,
+      idCorrelato: "0",
+      percentualComissaoReceber: percentualComissaoReceber            
+    }
+  console.log(data_send);      
+  $.ajax({
+    url:  BaseURL+'CadastroItensPedido.integrador.ashx/Cadastrar',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    type: "POST", 
+    dataType: 'json',	
+    data: data_send,    
+    success: function (resposta) {
+      console.log(resposta);   
+    }
+  })
+}
+
+function ManualSearchName(consultant_name,response,request,enterprise,codigo_empresa) {
+
+        consultant_name = consultant_name.toUpperCase();
+        var i = 0;
+        resultado = [];
+            
+            response.forEach(element => {
+               resultado[i] = element.contato.split(" ");
+               i++;
+            });
+
+            i = 0;
+            a = 0;
+            score = 0;
+            indecomp = 0;
+            codigorep = "000935";
+            indecomp_max = 0;
+
+            split_consultant_name = consultant_name.split(" ");
+            for (let index = 0; index < split_consultant_name.length; index++) { 
+
+              while(i != resultado.length) { 
+                resultado[i].forEach(element => {
+                  element = element.toUpperCase();
+                  if(split_consultant_name[index] == element){
+                      indecomp++;
+                  }
+                  if(indecomp > indecomp_max){
+                  codigorep = response[i].codigoEmpresa;
+                  indecomp_max = indecomp;
+                }                  
+              });
+              indecomp = 0;
+                i++;                             
+              }                    
+            }
+            
+            GetRequestCode(request,enterprise,codigorep,codigo_empresa);  
+            console.log(codigo_empresa);
+}
+
+
+function IfEnterpriseDontExist(enterprise,request) {
+  window.location.href = "/oportunidades?request_id="+$('.request-modal').data('request-id');
+  throw new Error("[ERROR] Empresa no CIGAM");
+  /*  
+  var request_id = $('.request-modal').data('request-id');
+  $.ajax({
+  url: '<%= get_request_infos_url %>',
+  method: 'GET',
+  data: {
+    id: request_id
+  },
+  beforeSend: function(){
+  },
+  success: function(data) {
+    var consultant_name = data.consultant_name;
+    $.ajax({
+      type: "POST",
+      url: BaseURL+"CadastroEmpresas.integrador.ashx/ListarEmpresas",
+      data: {
+        pin: pin,
+        codigoDivisaoinicial: 60,
+        codigoDivisaoFinal: 60
+      },
+      dataType: "JSON",
+      success: function (response) {
+        consultant_cnpj = 0
+        $.ajax({
+        url:  '<%= getallusers_url %>',
+        type: "GET",
+        data:{ 
+          authenticity_token: '<%= form_authenticity_token %>'
+        }
+        })
+        .done(function(resp) {
+          resp.forEach(element => {
+            if(element.name == consultant_name && element.cnpj != null){
+              consultant_cnpj = element.cnpj;
+            }             
+          });
+          if(consultant_cnpj == 0){
+            ManualSearchName(consultant_name,response,request,enterprise,resp_1[0].codigoEmpresa);       
+          }else{              
+            $.ajax({
+              url:  BaseURL+'CadastroEmpresas.integrador.ashx/ListarPorCnpjCpf',
+              headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+              type: "POST",
+              dataType: 'json',	
+              data: {
+                pin: pin,
+                cnpjCpf: consultant_cnpj,
+                listarEndereco: "true", 
+              },
+              dataType: 'json',
+              success: function (resposta) { 
+                GetRequestCode(request,enterprise,resposta[0].codigoEmpresa);  
+              }                
+            })
+          }
+        });
+      }
+    });      
+    }
+  });  
+  */
+}
+
+function IfEnterpriseExist(enterprise,request,resp_1) {
+ var request_id = $('.request-modal').data('request-id');
+
+ $.ajax({
+        url: '<%= get_request_infos_url %>',
+        method: 'GET',
+        data: {
+          id: request_id
+        },
+        beforeSend: function(){
+        },
+        success: function(data) {
+          var consultant_name = data.consultant_name;
+          $.ajax({
+          type: "POST",
+          url: BaseURL+"CadastroEmpresas.integrador.ashx/ListarEmpresas",
+          data: {
+            pin: pin,
+            codigoDivisaoinicial: 60,
+            codigoDivisaoFinal: 60,
+            ativo: "True"
+          },
+          dataType: "JSON",
+          success: function (response) {
+            
+          $.ajax({
+          url:  '<%= getallusers_url %>',
+          type: "GET",
+          data:{ 
+            authenticity_token: '<%= form_authenticity_token %>'
+          }
+          })
+        .done(function(resp) {
+          var consultant_cnpj = 0;
+          resp.forEach(element => {
+            if(element.name == consultant_name && element.cnpj != null){
+              consultant_cnpj = element.cnpj;
+            }             
+          });
+          if(consultant_cnpj == 0){            
+            ManualSearchName(consultant_name,response,request,enterprise,resp_1[0].codigoEmpresa);       
+          }else{              
+            $.ajax({
+              url:  BaseURL+'CadastroEmpresas.integrador.ashx/ListarPorCnpjCpf',
+              headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+              type: "POST",
+              dataType: 'json',	
+              data: {
+                pin: pin,
+                cnpjCpf: consultant_cnpj,
+                listarEndereco: "True", 
+                ativo: "True"
+              },
+              dataType: 'json',
+              success: function (resposta) { 
+                console.log(resposta);
+                GetRequestCode(request,enterprise,resposta[0].codigoEmpresa,resp_1[0].codigoEmpresa);  
+              }                
+            })
+          }
+        });   
+
+            }
+          });      
+        }
+      });    
+
+}
+
 //Busca Empresa na API atraves do CNPJ 
 function GetEnterpriseAPI(enterprise,request) {
-
- // enterprise.cnpj = sanitizeString(enterprise.cnpj);
-
-  enterprise.cnpj = "21354728000191";
+  
 
   $.ajax({
     url:  BaseURL+'CadastroEmpresas.integrador.ashx/ListarPorCnpjCpf',
@@ -183,105 +419,174 @@ function GetEnterpriseAPI(enterprise,request) {
     data: {
       pin: pin,
       cnpjCpf: enterprise.cnpj,     
-      listarEndereco: "true", 
+      listarEndereco: "True", 
+      ativo: "True"
     },
     dataType: 'json',
-    success: function (resposta) {   
-      if(resposta.exception){
-        console.log("Empresa Não Cadastrada no CIGAM");
-        console.log("Cadastrando Empresa...");
-       PostEnterpriseAPI(enterprise,request);
+    success: function (resp_1) { 
+      console.log(enterprise.cnpj);
+      console.log(resp_1);      
+      if(resp_1.exception){
+        alert("Empresa não cadastrada no CIGAM");
+        IfEnterpriseDontExist();        
+      }else if (resp_1[1]) {
+        alert("Existe mais de uma empresa com esse mesmo CNPJ no CIGAM");   
+        IfEnterpriseDontExist();        
       }
-      //SE HOUVER EMPRESA CRIAR PEDIDO
       else{
-        console.log("Empresa Cadastrada no CIGAM");
-        console.log("Criando pedido...");
-        //CadastroPedidos(request,resposta.codigoEmpresa);   
-        GetRequestCode(request,enterprise,resposta.codigoEmpresa);
-      }
+        console.log(resp_1);
+        IfEnterpriseExist(enterprise,request,resp_1);
+      }      
     }
   })  
 }
 
 //Função Limpar string
 function sanitizeString(str){
-  str = str.replace(/[^az0-9áéíóúñü \,_]/gim,"");
+  str = str.replace(/[^az0-9áéíóúü \,_]/gim,"");
   return str.trim();
 }
 
-//Cadastro empresa
+function retira_acentos(str){
+
+  com_acento = "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜ ÝŔÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿŕ";
+
+  sem_acento = "AAAAAAACEEEEIIIIDNOOOOOOUUUU YRsBaaaaaaaceeeeiiiionoooooouuuuybyr";
+
+    novastr="";
+    for(i=0; i<str.length; i++) {
+        troca=false;
+        for (a=0; a<com_acento.length; a++) {
+            if (str.substr(i,1)==com_acento.substr(a,1)) {
+                novastr+=sem_acento.substr(a,1);
+                troca=true;
+                break;
+            }
+        }
+        if (troca==false) {
+            novastr+=str.substr(i,1);
+        }
+    }
+    return novastr;
+} 
+
 function PostEnterpriseAPI(enterprise,request) {
+  var codigoDivisao = "10";
+  if(
+    enterprise.business_name == null || enterprise.business_name == '' || 
+    enterprise.name == null || enterprise.name == '' ||
+    enterprise.city == null || enterprise.city == '' ||
+    enterprise.state == null || enterprise.state == '' ||
+    enterprise.cnpj == null || enterprise.cnpj == '' ||
+    enterprise.address == null || enterprise.address == ''
+  ){
+    alert("[ERROR] Empresa com parametro Nulo");
+    throw new Error("[ERROR] Empresa com parametro Nulo");
+  }
+ 
+ if (enterprise.city) {
+  enterprise.city = enterprise.city.toUpperCase();   
+  enterprise.state = enterprise.state.toUpperCase(); 
+  CheckStateCIGAM(enterprise.state,enterprise.city);  
+  }
+ if (enterprise.cep) {
+  enterprise.cep = sanitizeString(enterprise.cep);  
+ }
+  var cpfcnpj = sanitizeString(enterprise.cnpj);
+  var codigoEmpresa = enterprise.id;
+  enterprise.city = retira_acentos(enterprise.city);
+  codigoEmpresa = codigoEmpresa.toString();
 
- var codigoDivisao = setcodigoDivisao(enterprise.state);
-  enterprise.city = enterprise.city.toUpperCase();
-  enterprise.cep = sanitizeString(enterprise.cep);
-
+  var req_data = {
+    pin: pin,
+    statusRegistro: statusRegistro,
+    nomeCompleto: enterprise.business_name,
+    inscrito: "false",
+    inscricao: "ISENTO",
+    fantasia: enterprise.name,
+    codigoUnidadeNegocio: codigoUnidadeNegocio,
+    ativo: "true",
+    codigoTipoPagamento: request.payment_type,
+    codigoTipoOperacao: request.operation_type,
+    codigoCentroArmazenagem: request.storage_center,
+    codigoCondicaoPagamento: request.payment_code,
+    endereco: enterprise.address,
+    municipio: enterprise.city,
+    uf: enterprise.state,
+    cep: enterprise.cep,
+    cnpjCpf: cpfcnpj,
+    codigoDivisao: codigoDivisao,
+    codigoMercado: "05",
+    codigoEmpresa: codigoEmpresa
+  }
+  console.log(req_data);
   var settings = {
     "url": BaseURL+"CadastroEmpresas.integrador.ashx/Cadastrar",
     "method": "POST",
+    "dataType": 'json',
     "headers": {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
-    data: {
-      pin: pin,
-      statusRegistro: statusRegistro,
-      nomeCompleto: enterprise.business_name,
-      inscrito: "false",
-      inscricao: "ISENTO",
-      fantasia: enterprise.name,
-      codigoUnidadeNegocio: codigoUnidadeNegocio,
-      ativo: "true",
-      codigoTipoPagamento: request.payment_type,
-      codigoTipoOperacao: request.operation_type,
-      codigoCentroArmazenagem: request.storage_center,
-      codigoCondicaoPagamento: request.payment_code,
-      endereco: enterprise.address,
-      bairro: "HITA-CRM",
-      municipio: enterprise.city,
-      uf: enterprise.state,
-      cep: enterprise.cep,
-      CpfCnpj: enterprise.cnpj,
-      codigoDivisao: codigoDivisao,
-      codigoMercado: "05"
-    },
+    data: req_data,
   }
-  
+
   $.ajax(settings).done(function (response) {
-    console.log("POST EMPRESA CIGAM");    
-    console.log(response);    
-  });
-  
-  
+    console.log(response);   
+  });    
 }
 
-//Retorna Empresa atraves do ID Request
-function GetEnterpriseID(request){
+function GetEnterpriseID(res){
   $.ajax({
-  url:  '<%= get_enterprise_id_url  %>',
+  url:  "<%= get_enterprise_id_url %>",
   type: "GET",
   data:{ 
-    request_id: request.request_id,
-    authenticity_token: '<%= form_authenticity_token %>'
-  }
-  })
-  .done(function(enterprise) {
-  if (enterprise.cnpj == null) {
-      OnOffCondicFields(1);
-      alert("ERROR! CNPJ da empresa "+enterprise.name+" Nulo,");      
-      throw new Error("ERROR! CNPJ da empresa "+enterprise.name+" Nulo");
-    }else{
-     GetEnterpriseAPI(enterprise,request);  
+    request_id: res.request_id,
+    authenticity_token: '<%= form_authenticity_token %>',
+    dataType: 'json',	
+  },
+    success: {
 
     }
-    // console.log(empresa);  
-})
-  .fail(function(resposta) {
-    console.log("Error GetEnterpriseID");    
   })
+  .done(function(enterprise) {
+    //Verificando commicoes
+    $.ajax({
+    url:  '/commissions.json',
+    type: "GET",
+    data:{ 
+      authenticity_token: '<%= form_authenticity_token %>',
+      dataType: 'json'
+    }
+    }).done(function(comis_resp) {
+      var request_id = $('.request-modal').data('request-id');
+      var verified = 0;
 
+      comis_resp.forEach(element => {
+        if (element.request_id == request_id) {
+          verified = 1;
+        }    
+      });
+     
+      if(verified == 0){
+        alert("ERROR! Cadastre uma Comissão");
+        window.location.href = "/oportunidades?request_id="+$('.request-modal').data('request-id');
+        throw new Error("ERROR! Cadastre uma Comissão");
+      }
+    })
+    if (enterprise.cnpj == null || enterprise.cnpj == '' || enterprise.cnpj == '00000000000000') {
+      OnOffCondicFields(1);
+      alert("ERROR! CNPJ da empresa "+enterprise.name+" Invalido");
+      document.getElementById("revenued").checked = false;      
+      throw new Error("ERROR! CNPJ da empresa "+enterprise.name+" Invalido");
+
+    }else{
+      enterprise.cnpj = sanitizeString(enterprise.cnpj);
+     GetEnterpriseAPI(enterprise,res);  
+    }
+  })
 }
 
-function GetRequestCode(request,enterprise,codigoEmpresa) {
+async function GetRequestCode(request,enterprise,codigoRepresentante,codigo_empresa) {
 
   $.ajax({
   url:  '<%= getrequestcode_url %>',
@@ -290,54 +595,268 @@ function GetRequestCode(request,enterprise,codigoEmpresa) {
     request_id: request.request_id,
     authenticity_token: '<%= form_authenticity_token %>'
   }
-  })
-  .done(function(resp) {
-     // console.log(resp.request_code); 
-     CadastroPedidos(request,codigoEmpresa,resp.request_code); 
-
-  })
-  .fail(function(resposta) {
-    console.log(resposta);    
-  })
-  
+  }) 
+  .done(function(resp) {    
+    var request_id = $('.request-modal').data('request-id');
+    CadastroPedidos(request,enterprise.id,resp.request_code,enterprise.cnpj,enterprise.state,codigoRepresentante,codigo_empresa); 
+  }) 
 }
+var data = new Date();
+var Data = data.getDate()+'-'+data.getMonth()+'-'+data.getFullYear(); 
 
+function CadastroPedidos(request_condition,codigoCobranca,request_code,cnpj,state_code,codigoRepresentante,codigo_Empresa) { 
+  console.log(codigo_Empresa);
+  var cc = codigoCobranca.toString();
+  var cp = request_code.toString();
+  //var cp = "049999";
+ 
+  if(codigo_Empresa != null){
+    cc = codigo_Empresa;
+  }
 
-function CadastroPedidos(request_condition,codigoCobranca,request_code) { 
-  var data = new Date();
-  var Data = data.getDate()+'-'+data.getMonth()+'-'+data.getFullYear(); 
+  var total_price = 0;
+  var total_quant = 0;
+  var codigoMercado = setcodigoDivisao(state_code);
 
-
- $.ajax({
-  url:  BaseURL+'CadastroPedidos.integrador.ashx/Cadastrar',
-  headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-  type: "POST",
-  dataType: 'json',	
-  data: {
+  var data = {
     pin: pin,
+    /*
     statusRegistro: statusRegistro,     
-    codigoCobranca: codigoCobranca,
+    codigoCobranca: codigo_Empresa,
     dataPedido: Data,
     viaTransporte: viaTransporte,
-    codigoCliente: codigoCobranca,
+    codigoCliente: codigo_Empresa,
     prazoEntrega: Data,
-    prazoPrgramado: Data,
+    prazoProgramado: Data,
     codigoUnidadeNegocio: codigoUnidadeNegocio,
     controle: controle,
     codigoTipoPagamento: request_condition.payment_type,
     codigoTipoOperacao: request_condition.operation_type,
     codigoCondicaoPagamento: request_condition.payment_code,
-    codigoPedido: request_code
+    codigoPedido: cp,
+    codigoMercado: codigoMercado,
+    codigoRepresentante: codigoRepresentante,
+    itensNoPedido: "0",
+    quantidadeTotal: "0",
+    quantidade: "0",
+    totalPedido: "0",
+    totalMercadorias: "0",
+    totalFaturado: "0",
+    gerouFaturamento:  "True"
+    */
+  };
+
+    $.ajax({
+    url: '<%= get_request_infos_product_url %>',
+    type: "GET",
+    dataType: 'json',
+    data:{
+        id: request_condition.request_id,         
+        authenticity_token: '<%= form_authenticity_token %>'
+      }
+    })
+    .done(function(resp) {
+    const products = resp.products;    
+    var table_container = $('.request-table-container');
+    table_container.html(`
+         
+            <div class="text-center">Sincronizando com o CIGAM...</div>
+            <div class="columns is-centered">
+          <div class="column is-narrow"><div class="loader is-loading"></div></div>
+         </div>          
+    `);
+
+  $('.installments-modal').hide();
+  $('.request-modal').hide();
+  setTimeout(function(){  
+  var request_id = $('.request-modal').data('request-id');
+  $.ajax({
+  url:  "<%= get_p_f_r_url %>",
+  type: "GET",
+  data:{    
+    authenticity_token: '<%= form_authenticity_token %>',
+    id: request_id,
+    dataType: 'json'
   },
-  dataType: 'json',
-  success: function (resposta) { 
-    console.log(resposta);
-    ListarLogIntegrador(resposta.idRegistro,request_condition);
-    }
+  success: {
+
+  }
   })
+  .done(function(resp) {
+    var tprice = 0;
+    var tquant = 0;
+    var itens = resp.length;
+    resp.forEach(element => {
+      tprice += parseFloat(element.calculated_price);
+      tquant += parseFloat(element.product_quantity);      
+    });
+    tprice = tprice.toFixed(2);
+    console.log(tprice);
+    $.ajax({
+    url:  '/commissions.json',
+    type: "GET",
+    data:{ 
+      request_id: request_id,
+      authenticity_token: '<%= form_authenticity_token %>',
+      dataType: 'json'
+    }
+    })
+    .done(function(comis_resp) {  
+      var percentualComissaoReceber;
+      var verified = 0;
+
+      comis_resp.forEach(element => {
+        if (element.request_id == request_condition.request_id) {
+          percentualComissaoReceber = element.value;
+          console.log(element.value);
+          verified = 1;
+        }    
+      });
+      percentualComissaoReceber = parseFloat(percentualComissaoReceber)
+      tprice = parseFloat(tprice)
+
+      percentualComissaoReceber = percentualComissaoReceber/tprice;    
+      percentualComissaoReceber = percentualComissaoReceber*100000;  
+      percentualComissaoReceber = percentualComissaoReceber.toPrecision(3);
+
+      percentualComissaoReceber = percentualComissaoReceber.toString();
+
+      if (verified == 0) {
+        alert("Cadastre uma comissão antes");
+        throw new Error("Cadastre uma comissão antes");    
+      }else{
+        //for (let index = 0; index < resp.length; index++) {  
+         // PostItensCIGAM(products[index],request_condition,request_code,resp[index].calculated_price,resp[index].product_quantity,percentualComissaoReceber);
+        //}
+        setTimeout(function(){
+          //ReSendRequest(request_condition,codigoCobranca,request_code,cnpj,state_code,codigoRepresentante,tprice,tquant,itens,percentualComissaoReceber,codigo_Empresa);
+          ReSendRequest(request_condition,codigoCobranca,request_code,cnpj,state_code,codigoRepresentante,tprice,tquant,itens,products,request_code,resp,percentualComissaoReceber,codigo_Empresa);
+        }, 500);
+      } 
+    })
+  })
+      setTimeout(function(){
+        alert("Sincronização Completa...");    
+        //window.location.href = "/oportunidades?request_id="+$('.request-modal').data('request-id');          
+      }, 500);
+    }, 500);
+       
+    })
+ 
+
+}
+
+function ReSendRequest(
+  request_condition,codigoCobranca,request_code,cnpj,state_code,codigoRepresentante,
+  tprice,tquant,itens,products,request_code,resp,
+  percentualComissaoReceber,codigo_Empresa) {
+
+  var data = new Date();
+  var mouth = data.getMonth()+1;
+  var Data = data.getDate()+'/'+mouth+'/'+data.getFullYear(); 
+    i = 0;
+    itens = [];
+
+    products.forEach(element => {
+      var precoUnitario = parseFloat(resp[i].calculated_price/resp[i].product_quantity); 
+      var quantidade = parseFloat(resp[i].product_quantity); 
+
+      itens[i] = {
+        codigoPedido: request_code,
+        codigoMaterial: element.code,
+        quantidade: quantidade,
+        lote: "H2",
+        percentualComissao: percentualComissaoReceber,
+        precoUnitario: precoUnitario,
+        prazoEntrega: Data,
+        prazoProgramado: Data,
+        codigoCentroArmazenagem: "002",
+        controle: "25",
+        codigoUnidadeNegocio: "001",
+        codigoTipoOperacao: request_condition.operation_type
+      }
+      i++;  
+    });
+
+    i = 0;
+
+    var itens_txt = "";
+    itens.forEach(element => {
+      itens_txt +=`{"codigoMaterial":"${element.codigoMaterial}","quantidade":"${element.quantidade}","percentualComissao":"${element.percentualComissao}","precoUnitario":"${element.precoUnitario}","codigoCentroArmazenagem":"${element.codigoCentroArmazenagem}","controle":"${element.controle}","grades": [{"sequencia": ${i+1},"codigoMaterial": "${element.codigoMaterial}","lote":"${element.lote}","quantidade": ${element.quantidade}}]}`;
+      if(i != itens.length){
+        itens_txt +=`,`;
+      };
+
+      i++;        
+           
+    });
+
+
+  console.log(itens_txt);
+  console.log(percentualComissaoReceber);
+
+  var cc = codigoCobranca.toString();
+  var cp = request_code.toString();
+  var codigoMercado = setcodigoDivisao(state_code);
+  percentualComissaoReceber = parseFloat(percentualComissaoReceber);
+
+
+  console.log(percentualComissaoReceber);
+  var itens_no_pedido = itens.length
+
+  var pedidoJson = `{
+    "pedidos":[
+    {
+    "codigoPedido": "${cp}",     
+    "dataPedido": "${Data}",
+    "viaTransporte": "${viaTransporte}",
+    "codigoCliente": "${codigo_Empresa}",
+    "codigoCobranca": "${codigo_Empresa}",
+    "prazoEntrega": "${Data}",
+    "prazoProgramado": "${Data}",
+    "codigoUnidadeNegocio": "${codigoUnidadeNegocio}",			    
+    "codigoTipoOperacao":"${request_condition.operation_type}",
+    "controle": "${controle}",
+    "codigoCondicaoPagamento": "${request_condition.payment_code}",
+    "codigoTipoPagamento": "${request_condition.payment_type}",
+    "codigoMercado": "${codigoMercado}",
+    "itensNoPedido": "${itens_no_pedido}",
+    "codigoRepresentante": "${codigoRepresentante}",
+    "percentualEmissao": "${percentualComissaoReceber}",
+    "percentualComissaoReceber": "${percentualComissaoReceber}",
+    "itens": [${itens_txt}]
+    }
+  ]
+}   
+`;
+
+    var data = {
+    pin: pin,
+    statusRegistro: statusRegistro, 
+    pedidoJson: pedidoJson  
+    };
+
+  console.log(data);
+  
+  $.ajax({
+    type: "POST",
+    url:  BaseURL+'CadastroPedidos.integrador.ashx/CadastrarPedidos',
+    data: data,
+    dataType: "json"
+  })
+  .done(function(resp) {
+    console.log(resp);  
+    alert(resp.mensagem+", id do integrador: "+resp.detalhes[0].id);
+    //window.location.href = "/oportunidades?request_id="+$('.request-modal').data('request-id');
+
+  });
+    
 }
 
 function SetReqCondition(obj){
+  let result = '';
+  let result2 = '';
+  let result3 = '';
 
   result+=`<option value="${obj.operation_type}" selected>${obj.operation_type}</option>`
   result2+=`<option value="${obj.payment_type}" selected>${obj.payment_type}</option>`
@@ -351,6 +870,10 @@ function SetReqCondition(obj){
 }
 
 function GetAPI(){
+
+  let result = '';
+  let result2 = '';
+  let result3 = '';
  
   link = BaseURL+"CadastroTipoOperacao.integrador.ashx/ListarId"
 
@@ -358,13 +881,30 @@ function GetAPI(){
     url: link,
     headers: {'Content-Type': 'application/x-www-form-urlencoded'},
     type: "POST", 
-    data: data,        
+    data: {
+      pin: pin
+    },        
     dataType: 'json',		
     success: function (api_type_operation) {
-      api_type_operation.forEach(operation => {                
-        result+=`<option value="${operation.codigoTipoOperacao}">${operation.codigoTipoOperacao}</option>`
-      })         
-        OperationDOM.innerHTML = result;     
+      
+      api_type_operation.forEach(operation => {
+         var result = [];
+
+        if(operation.codigoTipoOperacao == '5102G' || operation.codigoTipoOperacao == '6102Q'){
+          $.ajax({
+            type: "POST",
+            url: BaseURL+"CadastroTipoOperacao.integrador.ashx/ListarIndividual",
+            data: {
+              pin: pin,
+              tipoOperacao: operation.codigoTipoOperacao
+            },        
+            dataType: "JSON",
+            success: function (response) {
+              OperationDOM.innerHTML +=`<option value="${operation.codigoTipoOperacao}">${response[0].descricao}</option>`;  
+            }            
+          });          
+        }
+      })    
     }
   })
 
@@ -376,28 +916,112 @@ function GetAPI(){
     url: link,
     headers: {'Content-Type': 'application/x-www-form-urlencoded'},
     type: "POST", 
-    data: data,        
+    data: {
+      pin: pin
+    },        
     dataType: 'json',		
       success: function (api_payment_type) {
-        api_payment_type.forEach(payment => {                            
-          result2+=`<option value="${payment.codigoTipoPagamento}">${payment.codigoTipoPagamento}</option>`
+
+        api_payment_type.forEach(payment => {                           
+          
+          //result2+=`<option value="${payment.codigoTipoPagamento}">${payment.codigoTipoPagamento}</option>`
+
+            $.ajax({
+            type: "POST",
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            url: BaseURL+"CadastroTipoPagamento.integrador.ashx/ListarIndividual",
+            data: {
+              pin: pin,
+              codigoTipoPagamento: payment.codigoTipoPagamento
+            },        
+            dataType: "JSON",
+            success: function (response) {
+             if(response[0].descricao != '=> INFORMAR TIPO DE PAGAMENTO'){
+                PaymentTypeDOM.innerHTML +=`<option value="${response[0].codigoTipoPagamento}">${response[0].descricao}</option>`;  
+              }
+                            
+            }            
+          });
+
         })         
-      PaymentTypeDOM.innerHTML = result2;     
+      //PaymentTypeDOM.innerHTML = result2;     
     }
   });  
   link = BaseURL+"CadastroPrazoPagamento.integrador.ashx/ListarId"
+
 
   $.ajax({
     url: link,
     headers: {'Content-Type': 'application/x-www-form-urlencoded'},
     type: "POST", 
-    data: data,        
+    data: {
+      pin: pin
+    },        
     dataType: 'json',		
-      success: function (api_deadline_payment) {
-        api_deadline_payment.forEach(deadline => {                         
-          result3+=`<option value="${deadline.codigoCondicaoPagamento}">${deadline.codigoCondicaoPagamento}</option>`
+      success: function (api_deadline_payment) {        
+
+        /*
+        
+        api_deadline_payment.forEach(deadline => {
+          if(deadline.codigoCondicaoPagamento >= 200 || deadline.codigoCondicaoPagamento == 'Bol'){
+            result3+=`<option value="${deadline.codigoCondicaoPagamento}-${deadline.prazo} dias">${deadline.codigoCondicaoPagamento}-${deadline.prazo} dias</option>`
+          }  
         })         
           PaymentCodeDOM.innerHTML = result3;
+        */ 
+
+        deadline_array = [];
+        frontdeadline_array = [];
+        var count = 0;
+
+        api_deadline_payment.forEach(deadline => {
+          if(deadline.codigoCondicaoPagamento >= 200 || deadline.codigoCondicaoPagamento == 'Bol'){
+            deadline_array[count] = deadline;
+            count++;            
+          }  
+        })
+
+        var count = 0;
+        var count2 = 0;
+        var prevcount = 0;
+        var x = 0;
+        var id_arr = [];
+
+        while (count!=deadline_array.length) {
+          if(count!=0){
+            prevcount = count-1;
+          }
+          
+          if(deadline_array[count].codigoCondicaoPagamento == deadline_array[prevcount].codigoCondicaoPagamento){                         
+            if(frontdeadline_array[count2] == null){
+              id_arr[count2] = deadline_array[count].codigoCondicaoPagamento;
+              frontdeadline_array[count2] = `Codigo: ${deadline_array[count].codigoCondicaoPagamento} Prazo: ${deadline_array[count].prazo}`
+            }else{
+              frontdeadline_array[count2] += `/${deadline_array[count].prazo}`
+            }
+          }else{
+            count2++;
+            if(count!=0){
+              prevcount2 = count2-1;
+              frontdeadline_array[prevcount2] += ` Dias`;
+            }
+            if(frontdeadline_array[count2] == null){
+              id_arr[count2] = deadline_array[count].codigoCondicaoPagamento;
+              frontdeadline_array[count2] = `Codigo: ${deadline_array[count].codigoCondicaoPagamento} Prazo: ${deadline_array[count].prazo}`
+            }else{
+              frontdeadline_array[count2] += `/${deadline_array[count].prazo}`
+            }
+          }
+          count++;          
+        }
+
+        count2 = 0;
+        frontdeadline_array.forEach(deadline => {
+          result3+=`<option value="${id_arr[count2]}">${deadline}</option>`
+          count2++;
+        })         
+          PaymentCodeDOM.innerHTML = result3;               
+
       }
   });  
 }
@@ -429,7 +1053,6 @@ function EditCondic(request_condition,id) {
       authenticity_token: '<%= form_authenticity_token %>'
     }
   }).fail(function(resposta) {
-    console.log(resposta);    
   })  
 }
 
@@ -454,13 +1077,14 @@ $("#saveCondic").click(function (event) {
       authenticity_token: '<%= form_authenticity_token %>'
     }
   })
+  .done(function(resp) {
+    window.location.href = "/oportunidades?request_id="+$('.request-modal').data('request-id');
+  })
+  //$('#condicModal').removeClass('is-active')
+ // $('#condicModal').addClass('is-hovered')
 
-  $('#condicModal').removeClass('is-active')
-  $('#condicModal').addClass('is-hovered')
 });
-
 function ListarLogIntegrador(idIntegracao,request) {  
-
   $.ajax({
   url:  BaseURL+'Log.integrador.ashx/ListarLogIntegrador',
   headers: {'Content-Type': 'application/x-www-form-urlencoded'},
@@ -472,28 +1096,192 @@ function ListarLogIntegrador(idIntegracao,request) {
   },
   dataType: 'json',
   success: function (resposta) { 
+  }
+  })  
+}
+const RepresentDOM = document.querySelector('.comis-repres');
+
+function buildComissSingleLine(comis) {
+  if(comis.paid == 1){
+    var paid = "checked"
+  }else{
+    var paid = "";
+  }
+       var comis_line = `
+      <div class="installment columns no-margin-bottom is-variable is-2 is-centered is-vcentered">
+        <div class="column is-1"></div>
+        <div class="column is-3">
+          <div class="select">
+            <select class="select" id='comis_represent_id_${comis.id}'disabled>
+              <option value="${comis.represent}">${comis.represent}</option>
+            </select>
+          </div>
+        </div>
+        <div class="column is-4">
+          <input id='comis_value_id_${comis.value}' class="input comis-value" asd="asd" value='${comis.value}' disabled>
+        </div>
+        <div class="column is-2">
+          <input id='comis_data_id_${comis.value}' class="input" type='date' value='${comis.paydate}' disabled> 
+        </div>
+        <div class="column is-1">
+          <input id='comis-paid-${uniq_installment_id}' type="checkbox" ${paid} disabled>
+          <label for="paid"></label>
+        </div>
+        <div class="column is-1">
+          <button id="remove-commis-bt" class='button remove-commis-bt' data-id='${comis.id}'>X</button>
+        </div>
+      </div>          
+  `;
+    uniq_installment_id++;
+    return comis_line;
+}
+
+function buildComissLine(users,dataid) {
+    comissresult = ``;
+    users.forEach(user => {
+      comissresult+=`<option value="${user.name}">${user.name}</option>`
+    })      
+    var installment_line = `
+      <div class="installment columns no-margin-bottom is-variable is-2">
+        <div class="column is-1"></div>
+        <div class="column is-3">
+          <div class="select">
+            <select class="select" id='comis-repres-${uniq_installment_id}'>${comissresult}</select>
+          </div>
+        </div>
+        <div class="column is-4">
+          <input id='comis-value-${uniq_installment_id}' asd="asd" class="input comis-value">
+        </div>
+        <div class="column is-2">
+          <input id='comis-data-${uniq_installment_id}' class="input" type='date'> 
+        </div>
+        <div class="column is-1">
+          <input id='comis-paid-${uniq_installment_id}' type="checkbox">
+          <label for="paid"></label>
+        </div>
+          <button id="remove-commis-bt" class='button remove-commis-bt'>X</button>
+        </div>
+      </div>  
+  `;
+    uniq_installment_id++;
+    return installment_line;
+}
+
+function SaveEachCommision(commision) {
+  $.ajax({
+    url: '<%= commissions_create_url %>',
+    type: "POST",
+    data:{ 
+      commission: commision,
+      authenticity_token: '<%= form_authenticity_token %>'
     }
+  })
+  .done(function(resp) {     
+  })
+}
+
+function GetSavedCommision(request_id) {
+  $.ajax({
+  url:  '/commissions.json',
+  type: "GET",
+  data:{ 
+    request_id: request_id,
+    authenticity_token: '<%= form_authenticity_token %>'
+  }
+  })
+  .done(function(resp) {
+      resp.forEach(element => {
+        if(element.request_id == request_id){
+          $('.new-represent').append(buildComissSingleLine(element));
+          $('input[asd="asd"]').mask('000.000.000.000.000,00', { reverse: true });
+        }
+      });  
   })  
 }
 
-//ListarLogIntegrador(115);
+function DeleteCommision(id) {
+  $.ajax({
+  url:  '/commissions/'+id+'.json',
+  type: "DELETE",
+  data:{ 
+    authenticity_token: '<%= form_authenticity_token %>'
+  }
+  })
+  .done(function(resp) {
+    console.log(resp);
+    window.location.href = "/oportunidades?request_id="+$('.request-modal').data('request-id');
+  })
+  .fail(function(resposta) {
+    console.log(resposta);    
+  })  
+}
 
+function GetUsersAndCreateSelect() {
+  $.ajax({
+  url:  '<%= getallusers_url %>',
+  type: "GET",
+  data:{ 
+    authenticity_token: '<%= form_authenticity_token %>'
+  }
+  })
+  .done(function(resp) {
+    $('.new-represent').append(buildComissLine(resp));
+    $('input[asd="asd"]').mask('000.000.000.000.000,00', { reverse: true });
 
-/*=============================================================================================================
+  })
+  .fail(function(resposta) {
+  })  
+}
+$('#addNewRepresent').click(function() {  
+  GetUsersAndCreateSelect();
+});
+$('#SaveRepresent').click(function() {
+  var count = 0;
+  var object = [];
+  while (count!=$('.new-represent').children().length) {
+    count++;
+    var paid;
+    var id = 'comis-paid-'+count;
+    if(document.getElementById(id) && document.getElementById(id).checked) {
+      paid = 1;
+    } else {
+      paid = 0;
+    }     
+      if( $('#comis-value-'+count).val() == '' || $('#comis-data-'+count).val() == ''){
+        alert("Preencha todos os campos");
+        throw new Error("Preencha todos os campos");      
+      }else{
+        if($('#comis-repres-'+count) !== undefined){
+          object[count] = {
+            represent: $('#comis-repres-'+count).val(),
+            value: $('#comis-value-'+count).val(),
+            paydate: $('#comis-data-'+count).val(),
+            paid: paid,
+            request_id:$('.request-modal').data('request-id')
+          }
+        }
+    }
+  }
+  for (let index = 1; index < object.length; index++) {
+    if(object[index].represent != undefined){
+      SaveEachCommision(object[index]);
+    }
+  }    
+      setTimeout(function(){   
+    window.location.href = "/oportunidades?request_id="+$('.request-modal').data('request-id');          
+  }, 2000);
+});
+$(document).on('click', '.remove-commis-bt', function() {
+  var id = $(this).attr("data-id");
+  DeleteCommision(id);
+  $(this).closest('.columns').remove();
 
-                    FIM REQUISIÇÕES API
+});
 
-=============================================================================================================*/
-/*=============================================================================================================
-
-                    FIM REQUISIÇÕES API
-
-=============================================================================================================*/
-
-  var uniq_installment_id = 1;
-  var total_revenue = 0;
-  var number_of_installments = 0;
-  var removed_installments = [];
+var uniq_installment_id = 1;
+var total_revenue = 0;
+var number_of_installments = 0;
+var removed_installments = [];
 
 function VerifCondit() {
     var binary = 0;
@@ -505,34 +1293,88 @@ function VerifCondit() {
     }
   })
   .done(function(res) {
-    var modal_id = $('.request-modal').data('request-id');
-  
+    var modal_id = $('.request-modal').data('request-id');  
     if(res != 0){
       res.forEach(element => {
         if(element.request_id == modal_id){ binary = 1 }
       });
     }
-
     if(binary == 0){
       alert("Cadastre uma Condição antes!")
       throw new Error("Cadastre uma Condição antes!");      
     }
-  })
-  
+  })  
+}
+async function CheckStateCIGAM(uf,st){
+  try {
+    $.ajax({
+      url:  BaseURL+'CadastroMunicipios.integrador.ashx/ListarMunicipios',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      type: "POST",
+      dataType: 'json',	
+      data: {
+        pin: pin,
+        uf: uf
+      },
+      dataType: 'json',
+      success: function (resposta) {   
+        var verified = 0;
+        st = retira_acentos(st)
+        st = st.toUpperCase();     
+        if(resposta.exception){  
+          alert("[ERROR] Municipio da empresa nao foi cadastrado no CIGAM");
+          console.log(`[ERROR] Municipio da empresa nao foi cadastrado no CIGAM`);          
+        }
+
+        resposta.forEach(element => {
+          if(element.municipio == st) {
+            verified = 1;            
+          }          
+        });
+
+        if (verified != 1) {
+          alert("[ERROR] Municipio da empresa nao foi cadastrado no CIGAM");
+          console.log(`[ERROR] Municipio da empresa nao foi cadastrado no CIGAM`); 
+        }
+      }
+    })  
+  } catch (error) {    
+  }
 }
 
+async function CheckRequestCIGAM(res){
+  try {
+    $.ajax({
+      url:  BaseURL+'CadastroPedidos.integrador.ashx/ListarIndividual',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      type: "POST",
+      dataType: 'json',	
+      data: {
+        pin: pin,
+        pedido: res.request_id
+      },
+      dataType: 'json',
+      success: function (resposta) { 
+        if(resposta.exception){          
+          GetEnterpriseID(res);          
+        }else{
+          console.log("[Request] Oportunidade já existente no CIGAM...");
+          throw new Error("[Request] Oportunidade já existente no CIGAM...");
+          //To do Editar pedido...
+        }
+      }
+    })  
+  } catch (error) {    
+  }
+}
 
-
-
-  $('#addNewInstallment').click(function() {
+$('#addNewInstallment').click(function() {
     VerifCondit();
     $('.new-installments').append(buildInstallmentLine('', '', false, false));
     $('.new-installments .installment:last-child .installment-value').mask('000.000.000.000.000,00', { reverse: true });
     $('.new-installments .installment:last-child .installment-date').mask("99/99/9999");
     updateInstallmentsNumber();
-  });
-
-
+});
 
 
 $(document).on('click', '.remove-installments-bt', function() {
@@ -551,31 +1393,18 @@ $(document).on('click', '.remove-installments-bt', function() {
 
     $(this).closest('.columns').remove();
     $('.installment-value').trigger('change');
-  });
+});
 
-  $(document).on('click', '.billed-label', function(e) {
+$(document).on('click', '.billed-label', function(e) {
     if (!confirm('Marcando a parcela como faturada irá desabilitar o opção de editar data e valor após salvar. Deseja continuar?')) {
       e.preventDefault();
     }
-  });
+});
 
-  // $('#isSplitted').change(function() {
-  //   if ($(this).is(':checked')) {
-  //     $('.installments-container').slideDown();
-  //     $('#billButton').prop('disabled', true);
-  //   } else {
-  //     $('.installments-container').slideUp();
-  //     $('#billButton').prop('disabled', false);
-  //   }
-  // });
+$('#saveInstallments').click(saveRequestInstallments); 
 
-  $('#saveInstallments').click(saveRequestInstallments);
-
-
-
-  $(document).on('change', '.installment-value', function() {
+$(document).on('change', '.installment-value', function() {
     var last_installment = total_revenue;
-
     $('.installment-value').not('.fixed-installment-value').each(function() {
       if ($(this).val() != '')
         last_installment -= parseFloat($(this).val().replace(/[R$.]+/g, "").replace(/,/g, '.'));
@@ -585,7 +1414,7 @@ $(document).on('click', '.remove-installments-bt', function() {
     last_installment = parseFloat(last_installment.toFixed(2));
 
     if (last_installment < 0) {
-      $fixed_value.val(last_installment.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }).replace('R$ ', ''));
+      $fixed_value.val(last_installment.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }).replace('R$ ', ''));
 
       if (!$fixed_value.hasClass('red-color')) {
         $fixed_value.addClass('red-color');
@@ -595,7 +1424,7 @@ $(document).on('click', '.remove-installments-bt', function() {
       $('.fixed-installment-date').prop('disabled', true);
       $('.reset-check').prop('disabled', true);
     } else if(last_installment > 0) {
-      $fixed_value.val(last_installment.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }).replace('R$ ', ''));
+      $fixed_value.val(last_installment.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }).replace('R$ ', ''));
       $fixed_value.removeClass('red-color');
       $('#warningMessage').hide();
 
@@ -609,9 +1438,8 @@ $(document).on('click', '.remove-installments-bt', function() {
       $('.fixed-installment-date').prop('disabled', true);
       $('.reset-check').prop('disabled', true);
     }
-
     updateInstallmentsNumber();
-  });
+});
 
   function buildInstallmentLine(value, date, is_billed, is_paid) {
     var installment_line = `
@@ -633,7 +1461,7 @@ $(document).on('click', '.remove-installments-bt', function() {
         </div>
         <div class="column is-1">
           <div class="b-checkbox is-primary">
-            <input id="paid_${uniq_installment_id}" class="styled paid-check" type="checkbox" ${ is_paid ? 'checked' : '' } ${ is_billed ? '' : 'disabled' }>
+            <input id="paid_${uniq_installment_id}" class="styled" type="checkbox" ${ is_paid ? 'checked' : '' } ${ is_billed ? '' : 'disabled' }>
             <label for="paid_${uniq_installment_id}"></label>
           </div>
         </div>
@@ -641,9 +1469,9 @@ $(document).on('click', '.remove-installments-bt', function() {
           <button class="button remove-installments-bt"><%= inline_svg "remove.svg", class: "no-margin" %></button>
         </div>
       </div>`;
-    uniq_installment_id++;
+    uniq_installment_id++;    
     return installment_line;
-  }
+  } 
 
   function updateInstallmentsNumber() {
     $('.installment-number').each(function(index) {
@@ -660,7 +1488,6 @@ $(document).on('click', '.remove-installments-bt', function() {
       }
     });
   }
-
   function loadCurrentInstallmentInfos() {
     $('.current-installments').html('');
     $('.new-installments').html('');
@@ -701,7 +1528,7 @@ $(document).on('click', '.remove-installments-bt', function() {
           $('.fixed-installment-date').prop('disabled', false);
           $('.reset-check').prop('disabled', false);
         } else if(left_value_for_billing > 0) {
-          $('.fixed-installment-value').val(left_value_for_billing.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }).replace('R$ ', ''));
+          $('.fixed-installment-value').val(left_value_for_billing.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }).replace('R$ ', ''));
           $('.fixed-installment-date').prop('disabled', false);
           $('.reset-check').prop('disabled', false);
         } else {
@@ -722,9 +1549,9 @@ $(document).on('click', '.remove-installments-bt', function() {
     })
   }
 
+  //Pega os valores presentes no modal de faturamento em oportunidades
   function getCurrentInstallments() {
     var installments = [];
-
     $('.installment').each(function() {
       var installment = {
         value: $(this).find('.installment-value').val(),
@@ -741,8 +1568,7 @@ $(document).on('click', '.remove-installments-bt', function() {
     return installments;
   }
 
-
-
+  //Salva o faturamento dentro do banco de dados.
   function saveRequestInstallments() {
 
     VerifCondit();
@@ -792,7 +1618,8 @@ $(document).on('click', '.remove-installments-bt', function() {
         beforeSend: function() {
           $button.addClass('is-loading');
         },
-        success: function(data) {
+        erro: function(data) {
+                    
           loadCurrentInstallmentInfos();
 
           if (billed_from_request_steps && data.next_step > 0) {
@@ -803,22 +1630,60 @@ $(document).on('click', '.remove-installments-bt', function() {
           if (data.next_step > 6) {
             updateModalSteps(data.next_step);
             $('tr[data-request-id="' + $('.request-modal').data('request-id') +'"]').remove();
-          }
+          } 
 
           $button.removeClass('is-loading');
           $('.fixed-installment-date').val('');
           $('.reset-check').prop('checked', false);
           alert('As parcelas foram salvas com sucesso.');
-
         },
-        error: function() {
+        erro: function() {
           $button.removeClass('is-loading');
-          alert('Houve um erro ao salvar as parcelas.');
+          alert('Houve um erro ao salvar as parcelas');                    
         }
       });
+      /*========================================================
+          [FATURADO] SYNC COM CIGAM PARA PEDIDO COMEÇA AQUI
+      ==========================================================*/
+
+      if( document.getElementById("revenued").checked == true){
+        $.ajax({
+              url: '<%= conditions_get_url %>.json',
+              type: "GET",
+              data:{ 
+              authenticity_token: '<%= form_authenticity_token %>'
+              }
+            })
+            .done(function(resposta) {
+              var verified = false;
+              if(resposta.length != 0){
+                resposta.forEach(res => {
+              //Validation 
+                if($('.request-modal').data('request-id') == res.request_id){
+                  verified =  true;
+                  send_res = res;
+                  document.getElementById("revenued").checked = true;
+                  }else{
+                    document.getElementById("revenued").checked = false;
+                  }
+                })
+                if(verified == true) {
+                  CheckRequestCIGAM(send_res);  
+                }
+              }else{
+                console.log("Não é possivel Enviar request ao cigam, não há condição salva...")
+                alert("Cadastre uma Condição Antes");
+                document.getElementById("revenued").checked = false;
+              }
+            })
+      }
+      
+      //Pega Produtos e enviar a partir daqui!!
+     // window.location.href = "/oportunidades?request_id="+$('.request-modal').data('request-id');
     }
   }
 
+  
   function isValidDate(dateString) {
     if(!/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dateString))
       return false;
@@ -838,7 +1703,6 @@ $(document).on('click', '.remove-installments-bt', function() {
 
     return day > 0 && day <= monthLength[month - 1];
   };
-
 
 
 </script>
